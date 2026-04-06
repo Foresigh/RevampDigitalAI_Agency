@@ -1,0 +1,15 @@
+{
+  "name": "revamp-digital-ai",
+  "version": "1.0.0",
+  "description": "Revamp Digital AI — Agency Website",
+  "scripts": {
+    "start": "serve . --listen $PORT --no-clipboard",
+    "dev": "serve . --listen 3000"
+  },
+  "dependencies": {
+    "serve": "^14.2.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

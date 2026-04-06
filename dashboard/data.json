@@ -1,0 +1,279 @@
+{
+  "_comment": "ProFlow Plumbing — Client Dashboard Data Structure",
+  "_description": "Feed this JSON into any dashboard frontend (React, Vue, vanilla JS). Replace static values with live API calls to your analytics provider, CRM, and social media APIs.",
+
+  "client": {
+    "id": "proflow-001",
+    "businessName": "ProFlow Plumbing",
+    "owner": "Marcus Johnson",
+    "phone": "(555) 123-4567",
+    "email": "info@proflowplumbing.com",
+    "website": "https://proflowplumbing.com",
+    "plan": "ProCare",
+    "planRenewalDate": "2026-01-01",
+    "timezone": "America/New_York"
+  },
+
+  "analytics": {
+    "_comment": "Replace with real data from Google Analytics 4 / Plausible / Fathom API",
+    "period": "last_30_days",
+    "website": {
+      "totalVisitors":    1248,
+      "uniqueVisitors":    984,
+      "pageViews":        3621,
+      "avgSessionMinutes": 2.4,
+      "bounceRate":       0.42,
+      "topPages": [
+        { "path": "/",             "views": 1410, "label": "Homepage" },
+        { "path": "/services",     "views":  820, "label": "Services" },
+        { "path": "/contact",      "views":  640, "label": "Contact" },
+        { "path": "/about",        "views":  310, "label": "About" }
+      ],
+      "trafficSources": [
+        { "source": "Organic Search", "visitors": 560, "pct": 0.45 },
+        { "source": "Direct",         "visitors": 312, "pct": 0.25 },
+        { "source": "Google Maps",    "visitors": 199, "pct": 0.16 },
+        { "source": "Social Media",   "visitors": 112, "pct": 0.09 },
+        { "source": "Referral",       "visitors":  61, "pct": 0.05 }
+      ],
+      "deviceBreakdown": {
+        "mobile":  0.62,
+        "desktop": 0.30,
+        "tablet":  0.08
+      }
+    },
+    "conversions": {
+      "formSubmissions":   47,
+      "phoneCallClicks":   83,
+      "emailClicks":       18,
+      "conversionRate":    0.038,
+      "costPerLead":       12.40
+    }
+  },
+
+  "leads": {
+    "_comment": "Integrate with your CRM (HubSpot, GoHighLevel, etc.) via webhook from the contact form",
+    "totalThisMonth": 47,
+    "newToday":        3,
+    "pendingFollowUp": 8,
+    "closed":         29,
+    "lost":           10,
+    "conversionRate":  0.617,
+    "avgResponseTimeMinutes": 18,
+    "recentLeads": [
+      {
+        "id": "lead-001",
+        "name": "David Chen",
+        "phone": "(555) 987-6543",
+        "email": "dchen@email.com",
+        "service": "Water Heater Replacement",
+        "source": "Website Form",
+        "status": "new",
+        "submittedAt": "2025-01-15T09:32:00Z",
+        "notes": ""
+      },
+      {
+        "id": "lead-002",
+        "name": "Patricia Moore",
+        "phone": "(555) 234-5678",
+        "email": "pmoore@email.com",
+        "service": "Drain Cleaning",
+        "source": "Google Maps",
+        "status": "contacted",
+        "submittedAt": "2025-01-14T14:15:00Z",
+        "notes": "Left voicemail. Will try again tomorrow AM."
+      },
+      {
+        "id": "lead-003",
+        "name": "Robert Kim",
+        "phone": "(555) 345-6789",
+        "email": "robkim@email.com",
+        "service": "Leak Detection",
+        "source": "Website Form",
+        "status": "estimate_sent",
+        "submittedAt": "2025-01-13T11:00:00Z",
+        "estimateAmount": 275.00,
+        "notes": "Slab leak suspected. Estimate sent. Following up Friday."
+      },
+      {
+        "id": "lead-004",
+        "name": "Susan Walker",
+        "phone": "(555) 456-7890",
+        "email": "swalker@email.com",
+        "service": "Fixture Installation",
+        "source": "Referral",
+        "status": "closed_won",
+        "submittedAt": "2025-01-12T08:45:00Z",
+        "closedAt": "2025-01-13T10:00:00Z",
+        "jobValue": 480.00
+      }
+    ]
+  },
+
+  "revenue": {
+    "_comment": "Pull from your invoicing system (QuickBooks, Wave, Stripe, etc.)",
+    "thisMonth":     {  "total": 14820, "jobs": 29, "avgJobValue": 511 },
+    "lastMonth":     {  "total": 12390, "jobs": 24, "avgJobValue": 516 },
+    "ytd":           {  "total": 27210, "jobs": 53 },
+    "monthlyGoal":   16000,
+    "goalProgress":  0.926,
+    "byService": [
+      { "service": "Water Heater",       "revenue": 5400, "jobs": 8  },
+      { "service": "Drain Cleaning",     "revenue": 2850, "jobs": 12 },
+      { "service": "Leak Repair",        "revenue": 3200, "jobs": 4  },
+      { "service": "Fixture Install",    "revenue": 2100, "jobs": 4  },
+      { "service": "Emergency Service",  "revenue": 1270, "jobs": 1  }
+    ]
+  },
+
+  "socialMedia": {
+    "_comment": "Connect to Facebook Graph API, Instagram Basic Display API for real data",
+    "profiles": {
+      "facebook": {
+        "handle":    "@ProFlowPlumbing",
+        "followers": 1240,
+        "followersGrowth": 0.042,
+        "reach30d":  8400,
+        "engagements30d": 312
+      },
+      "instagram": {
+        "handle":    "@proflowplumbing",
+        "followers": 890,
+        "followersGrowth": 0.078,
+        "reach30d":  6100,
+        "engagements30d": 540
+      },
+      "google": {
+        "rating":          4.9,
+        "totalReviews":    412,
+        "newReviewsMonth": 8
+      }
+    },
+    "scheduledPosts": [
+      {
+        "id": "post-001",
+        "platform":    ["facebook", "instagram"],
+        "scheduledFor": "2025-01-16T10:00:00Z",
+        "status":       "scheduled",
+        "caption":      "Is your water heater over 10 years old? It might be time for an upgrade! Modern tankless systems cut energy bills by up to 30%. Call us for a free assessment. 🔥💧 #Plumbing #WaterHeater #HomeImprovement",
+        "imageUrl":     "/content/posts/water-heater-jan16.jpg",
+        "tags":         ["water heater", "tankless", "energy efficiency"]
+      },
+      {
+        "id": "post-002",
+        "platform":    ["facebook"],
+        "scheduledFor": "2025-01-18T14:00:00Z",
+        "status":       "draft",
+        "caption":      "⚠️ Signs you might have a hidden leak: unexplained high water bills, damp spots on walls or floors, mold smell. Don't wait — call ProFlow for a FREE leak check! #LeakDetection #Plumber #HomeRepair",
+        "imageUrl":     "/content/posts/leak-detection-jan18.jpg",
+        "tags":         ["leak detection", "home tips", "plumbing"]
+      },
+      {
+        "id": "post-003",
+        "platform":    ["instagram", "facebook"],
+        "scheduledFor": "2025-01-20T09:00:00Z",
+        "status":       "draft",
+        "caption":      "Another 5-star review from a happy customer! 🌟 'ProFlow saved the day when our pipe burst on a Sunday — they were here in under an hour!' — Maria R. Thank you for trusting us, Maria! #5StarReview #ProFlowPlumbing",
+        "imageUrl":     "/content/posts/review-jan20.jpg",
+        "tags":         ["review", "customer love", "plumber"]
+      }
+    ],
+    "publishedPosts": [
+      {
+        "id": "post-p001",
+        "platform":    ["instagram"],
+        "publishedAt": "2025-01-10T10:00:00Z",
+        "caption":     "Before & after: a complete bathroom fixture upgrade 🚿✨ New toilet, faucets, and shower kit — done in one day! #PlumbingTransformation #Renovation",
+        "likes":        142,
+        "comments":      18,
+        "reach":        1240,
+        "saves":         34
+      }
+    ]
+  },
+
+  "contentLibrary": {
+    "_comment": "Store and organize all media assets, post drafts, and video edits here",
+    "images": [
+      { "id": "img-001", "filename": "hero-plumber-van.jpg",      "category": "branding",    "usedIn": ["homepage hero"],                   "uploadedAt": "2025-01-01" },
+      { "id": "img-002", "filename": "water-heater-install.jpg",  "category": "services",    "usedIn": ["services page", "instagram post"], "uploadedAt": "2025-01-05" },
+      { "id": "img-003", "filename": "drain-cleaning-before.jpg", "category": "before-after","usedIn": [],                                  "uploadedAt": "2025-01-08" },
+      { "id": "img-004", "filename": "drain-cleaning-after.jpg",  "category": "before-after","usedIn": [],                                  "uploadedAt": "2025-01-08" },
+      { "id": "img-005", "filename": "team-photo-2025.jpg",       "category": "team",        "usedIn": ["about page"],                      "uploadedAt": "2025-01-10" }
+    ],
+    "videos": [
+      {
+        "id":          "vid-001",
+        "filename":    "proflow-intro-reel.mp4",
+        "duration":    "0:45",
+        "platform":    ["tiktok", "instagram reels", "facebook"],
+        "status":      "published",
+        "publishedAt": "2025-01-08T12:00:00Z",
+        "views":       2840,
+        "likes":        198,
+        "shares":        44
+      },
+      {
+        "id":       "vid-002",
+        "filename": "water-heater-tips.mp4",
+        "duration": "1:10",
+        "platform": ["tiktok", "instagram reels"],
+        "status":   "editing",
+        "eta":      "2025-01-17"
+      },
+      {
+        "id":       "vid-003",
+        "filename": "5-signs-of-leak.mp4",
+        "duration": "0:55",
+        "platform": ["tiktok", "facebook"],
+        "status":   "scripted",
+        "eta":      "2025-01-22"
+      }
+    ]
+  },
+
+  "seo": {
+    "_comment": "Pull from Google Search Console API for real keyword / impression data",
+    "googleSearchConsole": {
+      "period": "last_28_days",
+      "totalImpressions": 18200,
+      "totalClicks":        980,
+      "avgCTR":            0.054,
+      "avgPosition":       14.2
+    },
+    "topKeywords": [
+      { "keyword": "plumber near me",          "position":  8, "clicks": 142, "impressions": 2400 },
+      { "keyword": "drain cleaning [city]",    "position": 12, "clicks":  88, "impressions": 1800 },
+      { "keyword": "water heater replacement", "position":  6, "clicks":  74, "impressions": 1200 },
+      { "keyword": "emergency plumber",        "position": 15, "clicks":  61, "impressions": 1600 },
+      { "keyword": "leak detection service",   "position": 11, "clicks":  49, "impressions":  980 }
+    ],
+    "localSEO": {
+      "googleBusinessProfile": {
+        "views30d":      3200,
+        "calls30d":        83,
+        "directionReqs":   54,
+        "websiteClicks":  199
+      }
+    }
+  },
+
+  "performanceReport": {
+    "_comment": "Monthly summary auto-generated for the client",
+    "generatedAt": "2025-01-15T08:00:00Z",
+    "period":      "December 2024",
+    "highlights": [
+      "Website traffic increased 18% month-over-month",
+      "47 new leads generated — highest ever for December",
+      "Instagram followers grew 7.8% (+65 followers)",
+      "Response time averaged 18 minutes — under 30-minute SLA",
+      "ProCare plan client retention: 100%"
+    ],
+    "recommendations": [
+      "Run a 'January Pipe Check' promotion to capitalize on post-freeze season",
+      "Post 2 more Reels per week — video posts get 3x reach vs. static images",
+      "Add FAQ schema markup to the website for richer Google search snippets",
+      "Respond to all Google reviews — even 5-star ones — to boost local ranking"
+    ]
+  }
+}
