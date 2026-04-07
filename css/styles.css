@@ -675,8 +675,9 @@ button { font-family: inherit; cursor: pointer; }
   background: var(--teal); color: white;
   display: flex; align-items: center; justify-content: center;
   font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 0.95rem;
-  flex-shrink: 0;
+  flex-shrink: 0; overflow: hidden;
 }
+.author-av img { width: 100%; height: 100%; object-fit: cover; }
 .author-info strong { display: block; font-size: 0.88rem; font-family: 'Poppins', sans-serif; color: var(--navy); }
 .author-info span   { font-size: 0.76rem; color: var(--text-soft); }
 
@@ -1035,6 +1036,82 @@ button { font-family: inherit; cursor: pointer; }
 .footer-bottom-links { display: flex; gap: 22px; }
 .footer-bottom-links a { font-size: 0.79rem; color: rgba(255,255,255,0.36); transition: var(--transition); }
 .footer-bottom-links a:hover { color: var(--yellow); }
+
+/* =================== PORTFOLIO / INDUSTRY PHOTO GRID =================== */
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 52px;
+}
+.portfolio-card {
+  position: relative; border-radius: var(--radius);
+  overflow: hidden; aspect-ratio: 4/3;
+  cursor: default;
+}
+.portfolio-card img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.5s ease;
+  display: block;
+}
+.portfolio-card:hover img { transform: scale(1.06); }
+.portfolio-card-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(17,45,78,0.82) 0%, rgba(17,45,78,0.15) 55%, transparent 100%);
+  display: flex; flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+  transition: var(--transition);
+}
+.portfolio-card-label {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700; font-size: 1rem; color: white;
+  display: block; margin-bottom: 3px;
+}
+.portfolio-card-sub {
+  font-size: 0.76rem; color: rgba(255,255,255,0.70);
+}
+.portfolio-card-tag {
+  position: absolute; top: 12px; left: 12px;
+  background: var(--yellow); color: var(--navy);
+  font-size: 0.7rem; font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  padding: 3px 10px; border-radius: var(--radius-full);
+}
+
+/* Industry strip */
+.industry-strip {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px; margin-top: 48px;
+}
+.industry-photo {
+  position: relative; border-radius: var(--radius-sm);
+  overflow: hidden; aspect-ratio: 3/4;
+}
+.industry-photo img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.45s ease;
+}
+.industry-photo:hover img { transform: scale(1.08); }
+.industry-photo-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(17,45,78,0.88), transparent);
+  color: white;
+  font-size: 0.72rem; font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  padding: 20px 10px 10px;
+  text-align: center;
+}
+
+@media (max-width: 1024px) {
+  .portfolio-grid   { grid-template-columns: repeat(2, 1fr); }
+  .industry-strip   { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+  .portfolio-grid   { grid-template-columns: 1fr; }
+  .industry-strip   { grid-template-columns: repeat(2, 1fr); }
+}
 
 /* =================== SCROLL TOP =================== */
 .scroll-top {
