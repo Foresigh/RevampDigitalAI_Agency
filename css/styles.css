@@ -468,7 +468,6 @@ button { font-family: inherit; cursor: pointer; }
   width: max-content;
   animation: marquee-scroll 28s linear infinite;
 }
-.hero-industries:hover .hero-industries-inner { animation-play-state: paused; }
 @keyframes marquee-scroll {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }

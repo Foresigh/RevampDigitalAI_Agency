@@ -231,3 +231,12 @@ function showToast(message, type = 'success') {
   `;
   document.head.appendChild(style);
 })();
+
+/* ── Marquee pause on hover ── */
+(function () {
+  const strip = document.querySelector('.hero-industries');
+  const inner = document.querySelector('.hero-industries-inner');
+  if (!strip || !inner) return;
+  strip.addEventListener('mouseenter', () => { inner.style.animationPlayState = 'paused'; });
+  strip.addEventListener('mouseleave', () => { inner.style.animationPlayState = 'running'; });
+})();
