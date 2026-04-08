@@ -303,7 +303,9 @@ button { font-family: inherit; cursor: pointer; }
 /* =================== HERO =================== */
 .hero {
   min-height: 72vh;
-  background: linear-gradient(140deg, #060d1a 0%, #0b1a30 45%, #081e28 100%);
+  background:
+    linear-gradient(140deg, rgba(6,13,26,0.88) 0%, rgba(11,26,48,0.82) 45%, rgba(8,30,40,0.88) 100%),
+    url('https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
   display: flex; align-items: center;
   position: relative; overflow: hidden;
   padding: 90px 0 70px;
