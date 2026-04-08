@@ -468,7 +468,7 @@ button { font-family: inherit; cursor: pointer; }
   width: max-content;
   animation: marquee-scroll 28s linear infinite;
 }
-.hero-industries-inner:hover { animation-play-state: paused; }
+.hero-industries:hover .hero-industries-inner { animation-play-state: paused; }
 @keyframes marquee-scroll {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -479,8 +479,9 @@ button { font-family: inherit; cursor: pointer; }
   font-family: 'Poppins', sans-serif; margin-right: 12px; white-space: nowrap;
 }
 .hero-ind-tag {
-  color: rgba(255,255,255,0.75);
+  color: rgba(255,255,255,0.9);
   font-size: 0.82rem; font-family: 'Poppins', sans-serif;
+  font-weight: 700;
   padding: 5px 14px; border-radius: 999px;
   margin-right: 10px; white-space: nowrap; flex-shrink: 0;
   background: rgba(255,255,255,0.05);
