@@ -75,8 +75,8 @@ button { font-family: inherit; cursor: pointer; }
 .container  { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 .container-sm { max-width: 800px; margin: 0 auto; padding: 0 24px; }
 
-.section         { padding: 96px 0; background: transparent; }
-.section-sm      { padding: 64px 0; background: transparent; }
+.section         { padding: 72px 0; background: transparent; }
+.section-sm      { padding: 48px 0; background: transparent; }
 .section-dark    { background: rgba(0,0,0,0.3); }
 .section-soft    { background: transparent; }
 .section-teal    { background: rgba(10,34,51,0.6); }
@@ -119,7 +119,7 @@ button { font-family: inherit; cursor: pointer; }
   font-size: 1.08rem;
   color: rgba(255,255,255,0.55);
   max-width: 580px;
-  margin: 0 auto 56px;
+  margin: 0 auto 36px;
   line-height: 1.75;
 }
 .section-sub.light { color: rgba(255,255,255,0.65); }
