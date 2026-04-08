@@ -579,9 +579,12 @@ button { font-family: inherit; cursor: pointer; }
 /* =================== SERVICES SECTION =================== */
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 20px; margin-top: 40px;
 }
+.services-grid .service-card { grid-column: span 2; }
+.services-grid .service-card:nth-child(4) { grid-column: 2 / span 2; }
+.services-grid .service-card:nth-child(5) { grid-column: 4 / span 2; }
 .service-card {
   background: linear-gradient(135deg, rgba(31,122,140,0.08) 0%, rgba(255,255,255,0.02) 100%);
   border: 1px solid rgba(61,214,245,0.12);
@@ -1242,6 +1245,9 @@ button { font-family: inherit; cursor: pointer; }
   .nav-toggle  { display: flex; }
 
   .services-grid        { grid-template-columns: 1fr; }
+  .services-grid .service-card,
+  .services-grid .service-card:nth-child(4),
+  .services-grid .service-card:nth-child(5) { grid-column: span 1; }
   .testimonials-grid    { grid-template-columns: 1fr; }
   .team-grid            { grid-template-columns: repeat(2, 1fr); }
   .value-grid           { grid-template-columns: 1fr; }
