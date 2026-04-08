@@ -303,11 +303,11 @@ button { font-family: inherit; cursor: pointer; }
 
 /* =================== HERO =================== */
 .hero {
-  min-height: 75vh;
+  min-height: 0;
   background: #05080f;
   display: flex; align-items: center;
   position: relative; overflow: hidden;
-  padding: 110px 0 120px;
+  padding: 100px 0 80px;
 }
 
 /* Subtle grid */
@@ -386,15 +386,15 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 .hero-title {
-  font-size: clamp(2.6rem, 5.5vw, 4.2rem);
-  color: var(--white); line-height: 1.08;
-  margin-bottom: 24px; letter-spacing: -0.03em;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  color: var(--white); line-height: 1.1;
+  margin-bottom: 18px; letter-spacing: -0.03em;
 }
 
 .hero-sub {
-  font-size: 1.15rem; color: rgba(255,255,255,0.6);
-  margin-bottom: 40px; line-height: 1.75;
-  max-width: 580px; margin-left: auto; margin-right: auto;
+  font-size: 1rem; color: rgba(255,255,255,0.6);
+  margin-bottom: 28px; line-height: 1.7;
+  max-width: 520px; margin-left: auto; margin-right: auto;
 }
 .hero-sub strong { color: rgba(255,255,255,0.88); font-weight: 600; }
 
@@ -435,14 +435,14 @@ button { font-family: inherit; cursor: pointer; }
 /* Trust row */
 .hero-trust {
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  margin-bottom: 48px; color: rgba(255,255,255,0.5); font-size: 0.85rem;
+  margin-bottom: 28px; color: rgba(255,255,255,0.5); font-size: 0.85rem;
 }
 .hero-stars { color: var(--yellow); font-size: 1rem; letter-spacing: 2px; }
 
 /* Stats */
 .hero-metrics {
   display: flex; gap: 0; justify-content: center;
-  padding-top: 32px;
+  padding-top: 22px;
   border-top: 1px solid rgba(255,255,255,0.07);
   flex-wrap: wrap;
 }
