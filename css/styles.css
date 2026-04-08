@@ -302,11 +302,11 @@ button { font-family: inherit; cursor: pointer; }
 
 /* =================== HERO =================== */
 .hero {
-  min-height: 100vh;
+  min-height: 70vh;
   background: linear-gradient(140deg, var(--navy) 0%, var(--navy-soft) 50%, #0e4d5c 100%);
   display: flex; align-items: center;
   position: relative; overflow: hidden;
-  padding-top: 80px;
+  padding: 80px 0 60px;
 }
 
 /* Animated background blobs */
@@ -328,7 +328,7 @@ button { font-family: inherit; cursor: pointer; }
 .hero-inner {
   position: relative; z-index: 2;
   display: grid; grid-template-columns: 1fr 1fr;
-  gap: 64px; align-items: center;
+  gap: 48px; align-items: center;
   width: 100%;
 }
 
@@ -354,7 +354,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 .hero-title {
-  font-size: clamp(2.2rem, 4.8vw, 3.5rem);
+  font-size: clamp(1.8rem, 3.8vw, 2.8rem);
   color: var(--white); line-height: 1.12;
   margin-bottom: 20px;
 }
