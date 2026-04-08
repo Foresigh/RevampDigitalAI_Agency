@@ -304,8 +304,8 @@ button { font-family: inherit; cursor: pointer; }
 .hero {
   min-height: 72vh;
   background:
-    linear-gradient(140deg, rgba(6,13,26,0.88) 0%, rgba(11,26,48,0.82) 45%, rgba(8,30,40,0.88) 100%),
-    url('https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+    linear-gradient(140deg, rgba(6,13,26,0.84) 0%, rgba(11,26,48,0.78) 40%, rgba(8,30,40,0.84) 100%),
+    url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
   display: flex; align-items: center;
   position: relative; overflow: hidden;
   padding: 90px 0 70px;
