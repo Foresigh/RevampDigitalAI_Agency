@@ -310,7 +310,7 @@ button { font-family: inherit; cursor: pointer; }
   min-height: 0;
   background: #05080f;
   display: flex; align-items: center;
-  position: relative; overflow: hidden;
+  position: relative; overflow: visible;
   padding: 90px 0 60px;
 }
 
@@ -335,7 +335,7 @@ button { font-family: inherit; cursor: pointer; }
 
 /* Planet — full width, bleeds into next section */
 .hero-planet-wrap {
-  position: absolute; bottom: -75%; left: 50%; transform: translateX(-50%);
+  position: absolute; bottom: -150vw; left: 50%; transform: translateX(-50%);
   width: 180vw; height: 180vw;
   pointer-events: none; z-index: 1;
 }
