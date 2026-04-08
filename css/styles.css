@@ -303,11 +303,11 @@ button { font-family: inherit; cursor: pointer; }
 
 /* =================== HERO =================== */
 .hero {
-  min-height: 100vh;
+  min-height: 75vh;
   background: #05080f;
   display: flex; align-items: center;
   position: relative; overflow: hidden;
-  padding: 120px 0 200px;
+  padding: 110px 0 120px;
 }
 
 /* Subtle grid */
@@ -330,7 +330,7 @@ button { font-family: inherit; cursor: pointer; }
 
 /* Planet */
 .hero-planet-wrap {
-  position: absolute; bottom: -380px; left: 50%; transform: translateX(-50%);
+  position: absolute; bottom: -450px; left: 50%; transform: translateX(-50%);
   width: 900px; height: 900px;
   pointer-events: none; z-index: 1;
 }
