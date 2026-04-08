@@ -446,6 +446,13 @@ button { font-family: inherit; cursor: pointer; }
 }
 .hero-stars { color: var(--yellow); font-size: 1rem; letter-spacing: 2px; }
 
+/* Content pulled up over the planet */
+.over-planet {
+  position: relative;
+  z-index: 10;
+  margin-top: -22vw;
+}
+
 /* Industries floating bar inside hero */
 .hero-industries {
   position: relative; z-index: 3;
