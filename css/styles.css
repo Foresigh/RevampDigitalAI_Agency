@@ -335,9 +335,8 @@ button { font-family: inherit; cursor: pointer; }
 
 /* Planet — full width, bleeds into next section */
 .hero-planet-wrap {
-  position: absolute; bottom: -60%; left: 50%; transform: translateX(-50%);
-  width: 130vw; height: 130vw;
-  max-width: 1600px; max-height: 1600px;
+  position: absolute; bottom: -75%; left: 50%; transform: translateX(-50%);
+  width: 180vw; height: 180vw;
   pointer-events: none; z-index: 1;
 }
 .hero-planet {
