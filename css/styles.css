@@ -105,11 +105,7 @@ button { font-family: inherit; cursor: pointer; }
 .label.yellow { color: var(--yellow); }
 
 .label::before {
-  content: '';
-  display: inline-block;
-  width: 20px; height: 2px;
-  background: currentColor;
-  border-radius: 2px;
+  content: none;
 }
 
 .section-heading {
@@ -463,14 +459,9 @@ button { font-family: inherit; cursor: pointer; }
   overflow: hidden;
 }
 .hero-industries-inner {
-  display: flex; align-items: center;
-  gap: 0; flex-wrap: nowrap;
-  width: max-content;
-  animation: marquee-scroll 28s linear infinite;
-}
-@keyframes marquee-scroll {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; flex-wrap: wrap;
+  width: 100%;
 }
 .hero-industries-label {
   font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px;
@@ -548,40 +539,42 @@ button { font-family: inherit; cursor: pointer; }
   gap: 20px; margin-top: 52px;
 }
 .problem-card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(31,122,140,0.18);
-  border-radius: var(--radius);
-  padding: 28px;
-  position: relative;
+  background: linear-gradient(135deg, rgba(31,122,140,0.08) 0%, rgba(255,255,255,0.02) 100%);
+  border: 1px solid rgba(61,214,245,0.12);
+  border-radius: 20px;
+  padding: 36px 30px;
+  position: relative; overflow: hidden;
   transition: var(--transition);
+  backdrop-filter: blur(12px);
+}
+.problem-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(61,214,245,0.4), transparent);
 }
 .problem-card:hover {
-  border-color: rgba(61,214,245,0.4);
-  transform: translateY(-4px);
-  box-shadow: 0 0 40px rgba(31,122,140,0.15), 0 8px 32px rgba(0,0,0,0.3);
+  border-color: rgba(61,214,245,0.3);
+  transform: translateY(-6px);
+  box-shadow: 0 0 60px rgba(31,122,140,0.2), 0 20px 40px rgba(0,0,0,0.3);
 }
 .problem-card:hover .problem-card-glow { opacity: 1; }
 .problem-card-glow {
-  position: absolute; inset: 0; border-radius: var(--radius);
-  background: radial-gradient(ellipse at 50% 100%, rgba(31,122,140,0.12) 0%, transparent 70%);
+  position: absolute; inset: 0; border-radius: 20px;
+  background: radial-gradient(ellipse at 50% 120%, rgba(31,122,140,0.18) 0%, transparent 60%);
   pointer-events: none; opacity: 0; transition: var(--transition);
 }
-.problem-num {
-  font-size: 0.72rem; font-weight: 800; letter-spacing: 2px;
-  color: rgba(61,214,245,0.5); font-family: 'Poppins', sans-serif;
-  margin-bottom: 16px; text-transform: uppercase;
-}
 .problem-icon-wrap {
-  width: 48px; height: 48px;
-  background: rgba(31,122,140,0.15);
-  border: 1px solid rgba(31,122,140,0.3);
-  border-radius: 14px;
+  width: 56px; height: 56px;
+  background: rgba(31,122,140,0.18);
+  border: 1px solid rgba(61,214,245,0.25);
+  border-radius: 16px;
   display: flex; align-items: center; justify-content: center;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
+  box-shadow: 0 0 20px rgba(31,122,140,0.2);
 }
-.problem-icon-wrap svg { width: 22px; height: 22px; fill: none; stroke: #3dd6f5; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.problem-card h3 { font-size: 1.05rem; color: #e8f0fe; margin-bottom: 10px; }
-.problem-card p  { font-size: 0.88rem; color: rgba(255,255,255,0.5); line-height: 1.72; }
+.problem-icon-wrap svg { width: 24px; height: 24px; fill: none; stroke: #3dd6f5; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.problem-card h3 { font-size: 1.1rem; color: #e8f0fe; margin-bottom: 12px; font-weight: 700; }
+.problem-card p  { font-size: 0.9rem; color: rgba(255,255,255,0.52); line-height: 1.78; }
 
 /* =================== SERVICES SECTION =================== */
 .services-grid {
