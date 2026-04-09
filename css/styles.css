@@ -650,13 +650,7 @@ button { font-family: inherit; cursor: pointer; }
   gap: 20px; margin-top: 52px;
   position: relative;
 }
-.process-steps::before {
-  content: '';
-  position: absolute; top: 44px; left: calc(16.66% + 30px); right: calc(16.66% + 30px);
-  height: 1px;
-  background: linear-gradient(to right, rgba(61,214,245,0.5), rgba(61,214,245,0.15));
-  z-index: 0;
-}
+.process-steps::before { display: none; }
 
 .process-step {
   text-align: center; position: relative; z-index: 1;
