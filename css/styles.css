@@ -800,22 +800,18 @@ button { font-family: inherit; cursor: pointer; }
 
 /* =================== LEAD FORM SECTION =================== */
 .demo-section {
-  background: linear-gradient(140deg, var(--navy) 0%, var(--navy-soft) 60%, #0e4d5c 100%);
+  background: #05080f;
   position: relative; overflow: hidden;
 }
 .demo-section::before {
   content: '';
-  position: absolute; top: -120px; right: -80px;
-  width: 480px; height: 480px;
-  background: radial-gradient(circle, rgba(31,122,140,0.25) 0%, transparent 68%);
-  border-radius: 50%; pointer-events: none;
-}
-.demo-section::after {
-  content: '';
-  position: absolute; bottom: -80px; left: -60px;
-  width: 360px; height: 360px;
-  background: radial-gradient(circle, rgba(242,193,78,0.08) 0%, transparent 68%);
-  border-radius: 50%; pointer-events: none;
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 55% 60% at 15% 50%, rgba(31,122,140,0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 50% at 85% 20%, rgba(61,214,245,0.07) 0%, transparent 60%),
+    linear-gradient(rgba(31,122,140,0.04) 1px, transparent 1px) 0 0 / 60px 60px,
+    linear-gradient(90deg, rgba(31,122,140,0.04) 1px, transparent 1px) 0 0 / 60px 60px;
+  pointer-events: none;
 }
 
 .demo-grid {
@@ -824,69 +820,88 @@ button { font-family: inherit; cursor: pointer; }
   position: relative; z-index: 2;
 }
 
-.demo-copy h2 { font-size: clamp(1.75rem, 3vw, 2.5rem); color: white; margin-bottom: 14px; }
-.demo-copy p  { color: rgba(255,255,255,0.72); margin-bottom: 28px; line-height: 1.75; }
+.demo-copy h2 { font-size: clamp(1.75rem, 3vw, 2.5rem); color: #e8f0fe; margin-bottom: 14px; }
+.demo-copy p  { color: rgba(255,255,255,0.55); margin-bottom: 28px; line-height: 1.75; }
 
 .demo-bullets { display: flex; flex-direction: column; gap: 13px; }
 .demo-bullet  {
   display: flex; align-items: center; gap: 12px;
-  color: rgba(255,255,255,0.80); font-size: 0.92rem;
+  color: rgba(255,255,255,0.72); font-size: 0.92rem;
 }
-.demo-bullet svg { width: 20px; height: 20px; fill: var(--yellow); flex-shrink: 0; }
+.demo-bullet svg {
+  width: 20px; height: 20px;
+  fill: none; stroke: #3dd6f5; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+  flex-shrink: 0;
+}
 
 /* Form card */
 .form-card {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(31,122,140,0.2);
-  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(31,122,140,0.10) 0%, rgba(255,255,255,0.02) 100%);
+  border: 1px solid rgba(61,214,245,0.18);
+  border-radius: 20px;
   padding: 38px;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+  box-shadow: 0 0 60px rgba(31,122,140,0.15), 0 24px 64px rgba(0,0,0,0.4);
+  backdrop-filter: blur(12px);
+  position: relative; overflow: hidden;
+}
+.form-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(61,214,245,0.5), transparent);
 }
 .form-card-title { font-size: 1.5rem; color: #e8f0fe; margin-bottom: 6px; }
-.form-card-sub   { color: rgba(255,255,255,0.5); font-size: 0.88rem; margin-bottom: 26px; }
+.form-card-sub   { color: rgba(255,255,255,0.4); font-size: 0.88rem; margin-bottom: 26px; }
 
 .form-group { margin-bottom: 18px; }
 .form-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
 .form-group label {
   display: block; font-size: 0.82rem; font-weight: 600;
-  font-family: 'Poppins', sans-serif; color: var(--navy); margin-bottom: 7px;
+  font-family: 'Poppins', sans-serif; color: rgba(255,255,255,0.65); margin-bottom: 7px;
 }
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%; padding: 11px 15px;
-  border: 1px solid rgba(31,122,140,0.25);
+  border: 1px solid rgba(61,214,245,0.14);
   border-radius: var(--radius-sm);
   font-family: 'Open Sans', sans-serif; font-size: 0.9rem;
-  color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.04);
   transition: var(--transition); outline: none; appearance: none;
 }
+.form-group select option { background: #0d1b2a; color: rgba(255,255,255,0.85); }
 .form-group input::placeholder,
-.form-group textarea::placeholder { color: rgba(255,255,255,0.3); }
+.form-group textarea::placeholder { color: rgba(255,255,255,0.25); }
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: rgba(31,122,140,0.6);
-  box-shadow: 0 0 0 3px rgba(31,122,140,0.12);
-  background: rgba(255,255,255,0.07);
+  border-color: rgba(61,214,245,0.45);
+  box-shadow: 0 0 0 3px rgba(61,214,245,0.08);
+  background: rgba(255,255,255,0.06);
 }
 .form-group textarea { resize: vertical; min-height: 90px; }
-.form-group label { color: rgba(255,255,255,0.7); }
 
-.form-submit { width: 100%; justify-content: center; padding: 15px; font-size: 0.98rem; }
-.form-privacy { text-align: center; font-size: 0.72rem; color: rgba(255,255,255,0.35); margin-top: 12px; }
+.form-submit {
+  width: 100%; justify-content: center;
+  padding: 16px; font-size: 0.98rem;
+  border: none; cursor: pointer;
+}
+.form-privacy { text-align: center; font-size: 0.72rem; color: rgba(255,255,255,0.3); margin-top: 12px; }
 
 .form-success { display: none; text-align: center; padding: 40px 16px; }
 .success-icon {
   width: 64px; height: 64px;
-  background: rgba(31,122,140,0.08); border-radius: 50%;
+  background: rgba(61,214,245,0.08);
+  border: 1px solid rgba(61,214,245,0.25);
+  border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   margin: 0 auto 14px;
+  box-shadow: 0 0 24px rgba(61,214,245,0.2);
 }
-.success-icon svg { width: 32px; height: 32px; fill: var(--teal); }
-.form-success h3 { font-size: 1.25rem; color: var(--navy); margin-bottom: 7px; }
-.form-success p  { color: var(--text-soft); font-size: 0.88rem; }
+.success-icon svg { width: 32px; height: 32px; fill: none; stroke: #3dd6f5; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.form-success h3 { font-size: 1.25rem; color: #e8f0fe; margin-bottom: 7px; }
+.form-success p  { color: rgba(255,255,255,0.5); font-size: 0.88rem; }
 
 /* =================== PAGE HERO (inner pages) =================== */
 .page-hero {
