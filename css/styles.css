@@ -489,7 +489,7 @@ button { font-family: inherit; cursor: pointer; }
   font-family: 'Poppins', sans-serif;
 }
 .industries-marquee-wrap:hover .industries-marquee-track {
-  animation-play-state: paused;
+  animation-play-state: paused !important;
 }
 
 /* Stats */
