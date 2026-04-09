@@ -141,24 +141,20 @@
       submitBtn.disabled   = true;
       submitBtn.innerHTML  = 'Sending…';
 
-      // ── TODO: Replace this with your real API call ──
-      // Example using Formspree:
-      // const res = await fetch('https://formspree.io/f/YOUR_ID', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      //   body: JSON.stringify(Object.fromEntries(new FormData(form)))
-      // });
-      //
-      // Example using a custom endpoint:
-      // const res = await fetch('/api/lead', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(Object.fromEntries(new FormData(form)))
-      // });
-      //
-      // For now — simulate a 1.2s network request:
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      // ────────────────────────────────────────────────
+      // ── Formspree submission ──
+      const res = await fetch('https://formspree.io/f/xvzvnkdd', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(Object.fromEntries(new FormData(form)))
+      });
+
+      if (!res.ok) {
+        showToast('Something went wrong. Please try again.', 'error');
+        submitBtn.disabled  = false;
+        submitBtn.innerHTML = origText;
+        return;
+      }
+      // ─────────────────────────────────────────────────
 
       submitBtn.disabled  = false;
       submitBtn.innerHTML = origText;
