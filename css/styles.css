@@ -138,23 +138,23 @@ button { font-family: inherit; cursor: pointer; }
 .btn svg { flex-shrink: 0; }
 
 .btn-yellow {
-  background: var(--yellow); color: var(--navy);
-  border-color: var(--yellow);
+  background: #b8922e; color: var(--navy);
+  border-color: #b8922e;
 }
 .btn-yellow:hover {
-  background: var(--yellow-dark); border-color: var(--yellow-dark);
+  background: #a07d26; border-color: #a07d26;
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(242,193,78,0.48);
+  box-shadow: 0 6px 20px rgba(184,146,46,0.28);
 }
 
 .btn-teal {
-  background: var(--teal); color: var(--white);
-  border-color: var(--teal);
+  background: #155f6e; color: var(--white);
+  border-color: #155f6e;
 }
 .btn-teal:hover {
-  background: var(--teal-dark); border-color: var(--teal-dark);
+  background: #0e4a57; border-color: #0e4a57;
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(31,122,140,0.42);
+  box-shadow: 0 6px 20px rgba(21,95,110,0.32);
 }
 
 .btn-navy {
@@ -250,16 +250,16 @@ button { font-family: inherit; cursor: pointer; }
 
 .nav-cta {
   margin-left: 6px;
-  background: linear-gradient(180deg, #3dd6f5 0%, #1aafcc 50%, #0e8aa3 100%);
+  background: linear-gradient(180deg, #1aafcc 0%, #0e8aa3 50%, #0a6e82 100%);
   color: #fff !important;
   padding: 8px 18px;
   border-radius: 999px;
   font-weight: 600 !important; font-size: 0.85rem;
-  box-shadow: 0 0 16px rgba(61,214,245,0.45);
-  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 0 8px rgba(61,214,245,0.18);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 .nav-cta:hover {
-  box-shadow: 0 0 28px rgba(61,214,245,0.65) !important;
+  box-shadow: 0 0 16px rgba(61,214,245,0.32) !important;
   transform: translateY(-1px);
 }
 
@@ -295,7 +295,7 @@ button { font-family: inherit; cursor: pointer; }
 .nav-mobile a:hover { color: var(--yellow); }
 .nav-mobile .mob-cta {
   margin-top: 14px;
-  background: var(--yellow); color: var(--navy) !important;
+  background: #b8922e; color: var(--navy) !important;
   border-radius: var(--radius-sm); padding: 14px !important;
   text-align: center; justify-content: center;
   font-weight: 700; border-bottom: none !important;
@@ -407,33 +407,33 @@ button { font-family: inherit; cursor: pointer; }
 }
 .btn-hero-primary {
   display: inline-flex; align-items: center; gap: 8px;
-  background: linear-gradient(180deg, #3dd6f5 0%, #1aafcc 50%, #0e8aa3 100%);
+  background: linear-gradient(180deg, #1aafcc 0%, #0e8aa3 50%, #0a6e82 100%);
   color: #fff; font-weight: 700;
   padding: 14px 34px; border-radius: 999px;
   font-size: 1rem; font-family: 'Poppins', sans-serif;
-  box-shadow: 0 0 24px rgba(61,214,245,0.55), 0 0 60px rgba(61,214,245,0.25), 0 4px 16px rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 0 14px rgba(61,214,245,0.22), 0 4px 16px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.1);
   transition: var(--transition);
-  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
 .btn-hero-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 36px rgba(61,214,245,0.75), 0 0 80px rgba(61,214,245,0.35), 0 6px 20px rgba(0,0,0,0.35);
+  box-shadow: 0 0 22px rgba(61,214,245,0.35), 0 6px 20px rgba(0,0,0,0.4);
 }
 .btn-hero-ghost {
   display: inline-flex; align-items: center; gap: 8px;
-  background: linear-gradient(180deg, #3dd6f5 0%, #1aafcc 50%, #0e8aa3 100%);
+  background: linear-gradient(180deg, #1aafcc 0%, #0e8aa3 50%, #0a6e82 100%);
   color: #fff; font-weight: 700;
   padding: 14px 34px; border-radius: 999px;
   font-size: 1rem; font-family: 'Poppins', sans-serif;
-  box-shadow: 0 0 24px rgba(61,214,245,0.55), 0 0 60px rgba(61,214,245,0.25), 0 4px 16px rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 0 14px rgba(61,214,245,0.22), 0 4px 16px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.1);
   transition: var(--transition);
-  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
 .btn-hero-ghost:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 36px rgba(61,214,245,0.75), 0 0 80px rgba(61,214,245,0.35), 0 6px 20px rgba(0,0,0,0.35);
+  box-shadow: 0 0 22px rgba(61,214,245,0.35), 0 6px 20px rgba(0,0,0,0.4);
 }
 
 /* Trust row */
@@ -823,11 +823,11 @@ button { font-family: inherit; cursor: pointer; }
 
 .featured-pill {
   position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
-  background: linear-gradient(135deg, #3dd6f5, #1aafcc);
+  background: linear-gradient(135deg, #1aafcc, #0a6e82);
   color: #fff; font-size: 0.72rem; font-weight: 700;
   font-family: 'Poppins', sans-serif;
   padding: 4px 14px; border-radius: 999px;
-  box-shadow: 0 0 16px rgba(61,214,245,0.5);
+  box-shadow: 0 0 8px rgba(61,214,245,0.2);
   white-space: nowrap;
 }
 
