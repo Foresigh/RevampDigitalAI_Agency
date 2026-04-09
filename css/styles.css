@@ -451,32 +451,44 @@ button { font-family: inherit; cursor: pointer; }
   background: transparent;
 }
 
-/* Industries floating bar inside hero */
-.hero-industries {
-  position: relative; z-index: 5;
-  margin-top: 40px;
-  padding: 16px 0;
+/* Industries marquee strip */
+.industries-marquee-wrap {
+  display: flex; align-items: center;
+  gap: 20px;
+  padding: 14px 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
   overflow: hidden;
+  background: rgba(255,255,255,0.02);
 }
-.hero-industries-inner {
-  display: flex; align-items: center; justify-content: center;
-  gap: 8px; flex-wrap: wrap;
-  width: 100%;
+.industries-marquee-label {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(255,255,255,0.35);
+  white-space: nowrap; padding-left: 24px; flex-shrink: 0;
 }
-.hero-industries-label {
-  font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px;
-  text-transform: uppercase; color: rgba(255,255,255,0.4);
-  font-family: 'Poppins', sans-serif; margin-right: 12px; white-space: nowrap;
+.industries-marquee {
+  overflow: hidden; flex: 1;
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 60px, black calc(100% - 60px), transparent);
+  mask-image: linear-gradient(90deg, transparent, black 60px, black calc(100% - 60px), transparent);
 }
-.hero-ind-tag {
-  color: rgba(255,255,255,0.9);
-  font-size: 0.82rem; font-family: 'Poppins', sans-serif;
-  font-weight: 700;
-  padding: 5px 14px; border-radius: 999px;
-  margin-right: 10px; white-space: nowrap; flex-shrink: 0;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  white-space: nowrap;
+@keyframes marquee-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.industries-marquee-track {
+  display: flex; align-items: center; gap: 0;
+  width: max-content;
+  animation: marquee-scroll 28s linear infinite;
+}
+.industries-marquee-track span {
+  font-size: 0.82rem; font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  white-space: nowrap; padding: 0 20px;
+  border-right: 1px solid rgba(255,255,255,0.1);
+  font-family: 'Poppins', sans-serif;
+}
+.industries-marquee-wrap:hover .industries-marquee-track {
+  animation-play-state: paused;
 }
 
 /* Stats */
