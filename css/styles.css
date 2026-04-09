@@ -126,11 +126,11 @@ button { font-family: inherit; cursor: pointer; }
 
 /* =================== BUTTONS =================== */
 .btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 13px 28px;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 18px;
   border-radius: var(--radius-sm);
   font-family: 'Poppins', sans-serif;
-  font-weight: 600; font-size: 0.93rem;
+  font-weight: 600; font-size: 0.88rem;
   cursor: pointer; border: 2px solid transparent;
   white-space: nowrap; transition: var(--transition);
   text-align: center; justify-content: center;
@@ -185,8 +185,8 @@ button { font-family: inherit; cursor: pointer; }
   transform: translateY(-2px);
 }
 
-.btn-lg { padding: 17px 36px; font-size: 1.02rem; }
-.btn-sm { padding: 9px 18px; font-size: 0.82rem; }
+.btn-lg { padding: 11px 24px; font-size: 0.95rem; }
+.btn-sm { padding: 7px 14px; font-size: 0.8rem; }
 .btn-full { width: 100%; }
 
 /* =================== NAVBAR =================== */
@@ -252,9 +252,9 @@ button { font-family: inherit; cursor: pointer; }
   margin-left: 6px;
   background: linear-gradient(180deg, #1aafcc 0%, #0e8aa3 50%, #0a6e82 100%);
   color: #fff !important;
-  padding: 8px 18px;
+  padding: 6px 14px;
   border-radius: 999px;
-  font-weight: 600 !important; font-size: 0.85rem;
+  font-weight: 600 !important; font-size: 0.82rem;
   box-shadow: 0 0 8px rgba(61,214,245,0.18);
   border: 1px solid rgba(255,255,255,0.1);
 }
@@ -409,8 +409,8 @@ button { font-family: inherit; cursor: pointer; }
   display: inline-flex; align-items: center; gap: 8px;
   background: linear-gradient(180deg, #1aafcc 0%, #0e8aa3 50%, #0a6e82 100%);
   color: #fff; font-weight: 700;
-  padding: 14px 34px; border-radius: 999px;
-  font-size: 1rem; font-family: 'Poppins', sans-serif;
+  padding: 10px 22px; border-radius: 999px;
+  font-size: 0.92rem; font-family: 'Poppins', sans-serif;
   box-shadow: 0 0 14px rgba(61,214,245,0.22), 0 4px 16px rgba(0,0,0,0.35);
   border: 1px solid rgba(255,255,255,0.1);
   transition: var(--transition);
@@ -424,8 +424,8 @@ button { font-family: inherit; cursor: pointer; }
   display: inline-flex; align-items: center; gap: 8px;
   background: linear-gradient(180deg, #1aafcc 0%, #0e8aa3 50%, #0a6e82 100%);
   color: #fff; font-weight: 700;
-  padding: 14px 34px; border-radius: 999px;
-  font-size: 1rem; font-family: 'Poppins', sans-serif;
+  padding: 10px 22px; border-radius: 999px;
+  font-size: 0.92rem; font-family: 'Poppins', sans-serif;
   box-shadow: 0 0 14px rgba(61,214,245,0.22), 0 4px 16px rgba(0,0,0,0.35);
   border: 1px solid rgba(255,255,255,0.1);
   transition: var(--transition);
@@ -1330,7 +1330,7 @@ button { font-family: inherit; cursor: pointer; }
   .hero-eyebrow     { font-size: 0.7rem; padding: 6px 14px; }
   .hero-actions     { flex-direction: column; align-items: center; gap: 10px; }
   .btn-hero-primary,
-  .btn-hero-ghost   { width: 100%; max-width: 320px; justify-content: center; padding: 14px 24px; font-size: 0.95rem; }
+  .btn-hero-ghost   { width: 100%; max-width: 300px; justify-content: center; padding: 10px 20px; font-size: 0.9rem; }
   .hero-metrics     { flex-wrap: wrap; gap: 0; }
   .hm-item          { padding: 10px 16px; flex: 1 1 33%; text-align: center; }
   .hm-divider       { display: none; }
