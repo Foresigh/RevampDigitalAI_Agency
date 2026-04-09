@@ -726,6 +726,10 @@ button { font-family: inherit; cursor: pointer; }
   grid-template-columns: repeat(4,1fr);
   gap: 2px; margin-top: 0;
 }
+.results-row-2 {
+  grid-template-columns: repeat(2,1fr);
+  max-width: 640px; margin-left: auto; margin-right: auto;
+}
 .result-item {
   padding: 40px 24px;
   text-align: center;
@@ -794,7 +798,7 @@ button { font-family: inherit; cursor: pointer; }
   border-radius: 20px;
   padding: 36px 28px; text-align: center;
   transition: var(--transition);
-  position: relative; overflow: hidden;
+  position: relative; overflow: visible;
   backdrop-filter: blur(12px);
 }
 .price-card::before {
