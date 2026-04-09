@@ -455,11 +455,12 @@ button { font-family: inherit; cursor: pointer; }
 .industries-marquee-wrap {
   display: flex; align-items: center;
   gap: 20px;
-  padding: 14px 0;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 16px 0;
+  border-top: 1px solid rgba(61,214,245,0.1);
+  border-bottom: 1px solid rgba(61,214,245,0.1);
   overflow: hidden;
-  background: rgba(255,255,255,0.02);
+  background: rgba(61,214,245,0.04);
+  position: relative; z-index: 2;
 }
 .industries-marquee-label {
   font-size: 0.7rem; font-weight: 700; letter-spacing: 2px;
