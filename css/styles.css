@@ -629,23 +629,56 @@ button { font-family: inherit; cursor: pointer; }
 .svc-link:hover svg { transform: translateX(4px); }
 
 /* =================== PROCESS STEPS =================== */
+/* Process section background */
+.section-process {
+  background: #05080f;
+  position: relative; overflow: hidden;
+}
+.section-process::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 70% at 50% 50%, rgba(31,122,140,0.12) 0%, transparent 70%),
+    linear-gradient(rgba(31,122,140,0.04) 1px, transparent 1px) 0 0 / 60px 60px,
+    linear-gradient(90deg, rgba(31,122,140,0.04) 1px, transparent 1px) 0 0 / 60px 60px;
+  pointer-events: none;
+}
+.section-process .container { position: relative; z-index: 2; }
+
 .process-steps {
   display: grid; grid-template-columns: repeat(3,1fr);
-  gap: 0; margin-top: 52px;
+  gap: 20px; margin-top: 52px;
   position: relative;
 }
 .process-steps::before {
   content: '';
-  position: absolute; top: 44px; left: 20%; right: 20%;
-  height: 2px;
-  background: linear-gradient(to right, var(--teal), var(--yellow));
+  position: absolute; top: 44px; left: calc(16.66% + 30px); right: calc(16.66% + 30px);
+  height: 1px;
+  background: linear-gradient(to right, rgba(61,214,245,0.5), rgba(61,214,245,0.15));
   z-index: 0;
 }
 
 .process-step {
   text-align: center; position: relative; z-index: 1;
-  padding: 0 16px;
+  padding: 36px 28px;
+  background: linear-gradient(135deg, rgba(31,122,140,0.08) 0%, rgba(255,255,255,0.02) 100%);
+  border: 1px solid rgba(61,214,245,0.12);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  transition: var(--transition);
+  overflow: hidden;
 }
+.process-step::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(61,214,245,0.4), transparent);
+}
+.process-step:hover {
+  border-color: rgba(61,214,245,0.3);
+  transform: translateY(-6px);
+  box-shadow: 0 0 60px rgba(31,122,140,0.2), 0 20px 40px rgba(0,0,0,0.3);
+}
+
 .step-num {
   width: 60px; height: 60px;
   border-radius: 50%;
@@ -653,24 +686,45 @@ button { font-family: inherit; cursor: pointer; }
   margin: 0 auto 22px;
   font-family: 'Poppins', sans-serif;
   font-weight: 800; font-size: 1.25rem;
-  border: 4px solid var(--white);
+  position: relative; z-index: 1;
 }
-.step-num.s1 { background: var(--teal); color: white; box-shadow: 0 0 0 2px var(--teal); }
-.step-num.s2 { background: var(--navy-mid); color: white; box-shadow: 0 0 0 2px var(--navy-mid); }
-.step-num.s3 { background: var(--yellow); color: var(--navy); box-shadow: 0 0 0 2px var(--yellow); }
+.step-num.s1 {
+  background: rgba(31,122,140,0.25);
+  color: #3dd6f5;
+  border: 2px solid rgba(61,214,245,0.5);
+  box-shadow: 0 0 20px rgba(61,214,245,0.3);
+}
+.step-num.s2 {
+  background: rgba(31,122,140,0.15);
+  color: #3dd6f5;
+  border: 2px solid rgba(61,214,245,0.35);
+  box-shadow: 0 0 16px rgba(61,214,245,0.2);
+}
+.step-num.s3 {
+  background: rgba(61,214,245,0.12);
+  color: #3dd6f5;
+  border: 2px solid rgba(61,214,245,0.4);
+  box-shadow: 0 0 20px rgba(61,214,245,0.25);
+}
 
-.process-step h3 { font-size: 1.08rem; color: var(--navy); margin-bottom: 10px; }
-.process-step p  { font-size: 0.88rem; color: var(--text-soft); line-height: 1.72; }
+.process-step h3 { font-size: 1.08rem; color: #3dd6f5; margin-bottom: 10px; font-weight: 700; }
+.process-step p  { font-size: 0.88rem; color: rgba(255,255,255,0.52); line-height: 1.72; }
 
 .step-tag {
   display: inline-block;
   margin-top: 14px;
-  background: rgba(31,122,140,0.08); color: var(--teal);
-  padding: 4px 12px; border-radius: var(--radius-full);
+  background: rgba(61,214,245,0.08);
+  color: rgba(61,214,245,0.8);
+  border: 1px solid rgba(61,214,245,0.2);
+  padding: 4px 14px; border-radius: var(--radius-full);
   font-size: 0.74rem; font-weight: 700;
   font-family: 'Poppins', sans-serif;
 }
-.step-tag.yellow { background: rgba(242,193,78,0.12); color: var(--yellow-dark); }
+.step-tag.yellow {
+  background: rgba(61,214,245,0.08);
+  color: rgba(61,214,245,0.8);
+  border-color: rgba(61,214,245,0.2);
+}
 
 /* =================== RESULTS BAR =================== */
 .results-row {
