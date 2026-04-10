@@ -3,8 +3,9 @@
 const express  = require('express');
 const session  = require('express-session');
 const path     = require('path');
-const { Pool } = require('pg');
-const fetch    = require('node-fetch');
+const { Pool }   = require('pg');
+const fetch      = require('node-fetch');
+const compression= require('compression');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -40,6 +41,7 @@ async function initDb() {
   console.log('[db] leads table ready');
 }
 
+app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -302,8 +304,19 @@ app.get('/admin', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard', 'index.html'));
 });
 
-// ── Serve static site ──
-app.use(express.static(path.join(__dirname), { extensions: ['html'] }));
+// ── Serve static site with caching ──
+app.use(express.static(path.join(__dirname), {
+  extensions: ['html'],
+  setHeaders(res, filePath) {
+    if (filePath.match(/\.(png|jpg|jpeg|gif|svg|ico|webp)$/i)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else if (filePath.match(/\.(css|js)$/i)) {
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+    } else if (filePath.match(/\.html$/i)) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
 
 // ── Custom 404 ──
 const errorPage = (code, title, message) => `<!DOCTYPE html>

@@ -1,3 +1,6 @@
+/* Font display swap to prevent invisible text during load */
+@font-face { font-family: 'Poppins'; font-display: swap; }
+
 /* ============================================================
    REVAMP DIGITAL AI — Agency Website
    Tagline: AI-Powered Growth for Local Businesses
