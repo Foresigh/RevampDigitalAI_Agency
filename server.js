@@ -158,9 +158,9 @@ function parseAudit(mobile, desktop) {
 
   const perf   = Math.round((mc.performance?.score  || 0) * 100);
   const seo    = Math.round((mc.seo?.score          || 0) * 100);
-  const mobileS= Math.round((dc.performance?.score  || 0) * 100);
+  const desktop= Math.round((dc.performance?.score  || 0) * 100);
 
-  const issues = [], wins = [];
+  const issues = [], wins = [], mobileIssues = [], mobileWins = [];
 
   const check = (key, failMsg, winMsg, threshold = 0.9) => {
     const a = ma[key];
@@ -168,6 +168,28 @@ function parseAudit(mobile, desktop) {
     if (a.score < threshold) issues.push({ text: failMsg.replace('{val}', a.displayValue || ''), severity: a.score < 0.5 ? 'high' : 'medium' });
     else if (winMsg) wins.push(winMsg);
   };
+
+  // ── Mobile-specific checks ──
+  const mobileChecks = [
+    { key: 'viewport',       pass: 'Mobile viewport is correctly configured', fail: 'Site is not configured for mobile — it will look broken on phones', weight: 30 },
+    { key: 'font-size',      pass: 'Text is legible on mobile without zooming', fail: 'Text is too small to read on mobile without zooming in', weight: 20 },
+    { key: 'tap-targets',    pass: 'Buttons and links are easy to tap on mobile', fail: 'Buttons and links are too small on mobile — visitors struggle to tap them', weight: 25 },
+    { key: 'content-width',  pass: 'Page content fits the screen correctly', fail: 'Content is wider than the screen — visitors must scroll sideways on mobile', weight: 15 },
+    { key: 'uses-responsive-images', pass: 'Images are sized appropriately for mobile', fail: 'Images are not sized for mobile — wasting data and slowing load time', weight: 10 },
+  ];
+  let mobileTotal = 0, mobilePossible = 0;
+  mobileChecks.forEach(({ key, pass, fail, weight }) => {
+    const a = ma[key];
+    if (!a || a.score === null || a.score === undefined) return;
+    mobilePossible += weight;
+    if (a.score >= 0.9) { mobileTotal += weight; mobileWins.push(pass); }
+    else mobileIssues.push({ text: fail, severity: a.score < 0.5 ? 'high' : 'medium' });
+  });
+  // Also factor in mobile perf score
+  const mobilePerfScore = Math.round((mc.performance?.score || 0) * 100);
+  mobilePossible += 30;
+  mobileTotal += Math.round((mobilePerfScore / 100) * 30);
+  const mobileFriendly = mobilePossible > 0 ? Math.round((mobileTotal / mobilePossible) * 100) : 50;
 
   const lcp = ma['largest-contentful-paint'];
   if (lcp && lcp.score !== null) {
@@ -184,20 +206,11 @@ function parseAudit(mobile, desktop) {
   check('uses-optimized-images',
     'Images are not compressed — slowing your site and hurting search ranking',
     'Images are optimized');
-  check('tap-targets',
-    'Buttons and links are too small on mobile — visitors struggle to tap them',
-    null);
-  check('viewport',
-    'Site is not configured for mobile — looks broken on phones',
-    'Site is mobile-friendly', 1);
   check('is-on-https',
     'Site is not secure (no HTTPS) — browsers warn visitors away',
     'HTTPS is enabled');
   check('image-alt',
     'Images have no alt text — hurts SEO and accessibility',
-    null, 1);
-  check('font-size',
-    'Text is too small to read on mobile without zooming in',
     null, 1);
   check('total-blocking-time',
     'Page is slow to respond to clicks — frustrating for visitors',
@@ -208,19 +221,21 @@ function parseAudit(mobile, desktop) {
 
   // Suggestion based on worst problem
   let suggestion;
-  if (perf < 50)
+  if (mobileFriendly < 60)
+    suggestion = "Over 70% of your potential customers search on their phones. Your site has serious mobile issues that are causing most visitors to leave immediately. A mobile-first revamp could immediately increase calls and form submissions.";
+  else if (perf < 50)
     suggestion = "Your biggest win is fixing page speed. A site that loads in under 3 seconds converts 3x better than one that takes 8+ seconds. On mobile, most visitors leave before your page finishes loading — fixing this alone could double your leads.";
   else if (seo < 60)
     suggestion = "Your site has SEO gaps making it nearly invisible to Google. Local businesses that rank on page 1 get 10x more calls than those on page 2. Fixing your titles, meta descriptions, and content structure is the fastest path to free organic leads.";
-  else if (mobileS < 60)
-    suggestion = "Over 70% of your potential customers search on their phones. If your site doesn't perform on mobile, you're losing the majority of leads before they even see your offer. A mobile-first revamp could immediately increase calls and form submissions.";
   else
     suggestion = "Adding a visible phone number and a 'Call Now' button above the fold could increase your leads by 20–40%. Most mobile visitors want to call — not fill out a form. Make it as easy as possible for them to contact you the moment they land on your page.";
 
   return {
-    scores: { performance: perf, seo, mobile: mobileS },
-    issues: issues.slice(0, 6),
-    wins:   wins.slice(0, 4),
+    scores: { performance: perf, seo, desktop, mobileFriendly },
+    issues: issues.slice(0, 5),
+    wins:   wins.slice(0, 3),
+    mobileIssues: mobileIssues.slice(0, 4),
+    mobileWins:   mobileWins.slice(0, 3),
     suggestion
   };
 }
