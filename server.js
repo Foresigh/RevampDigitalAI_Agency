@@ -3,15 +3,26 @@
 const express  = require('express');
 const session  = require('express-session');
 const path     = require('path');
-const fetch    = require('node-fetch');
+const fs       = require('fs');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-const ADMIN_PASSWORD    = process.env.ADMIN_PASSWORD    || 'revamp2024';
-const FORMSPREE_API_KEY = process.env.FORMSPREE_API_KEY || '';
-const FORMSPREE_FORM_ID = process.env.FORMSPREE_FORM_ID || 'xvzvnkdd';
-const SESSION_SECRET    = process.env.SESSION_SECRET    || 'revamp-secret-key-change-me';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'revamp2024';
+const SESSION_SECRET = process.env.SESSION_SECRET || 'revamp-secret-key-change-me';
+const LEADS_FILE     = path.join(__dirname, 'leads.json');
+
+// ── Leads persistence helpers ──
+function readLeads() {
+  try {
+    if (!fs.existsSync(LEADS_FILE)) return [];
+    return JSON.parse(fs.readFileSync(LEADS_FILE, 'utf8'));
+  } catch { return []; }
+}
+
+function writeLeads(leads) {
+  fs.writeFileSync(LEADS_FILE, JSON.stringify(leads, null, 2));
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -89,22 +100,33 @@ app.get('/admin/logout', (req, res) => {
   res.redirect('/admin/login');
 });
 
-// ── API: fetch leads from Formspree ──
-app.get('/api/leads', requireAuth, async (req, res) => {
-  try {
-    if (!FORMSPREE_API_KEY) {
-      return res.json({ submissions: [], error: 'No Formspree API key set. Add FORMSPREE_API_KEY to Railway environment variables.' });
-    }
-    const response = await fetch(
-      `https://formspree.io/api/0/forms/${FORMSPREE_FORM_ID}/submissions?page_size=100`,
-      { headers: { Authorization: `Bearer ${FORMSPREE_API_KEY}`, Accept: 'application/json' } }
-    );
-    if (!response.ok) throw new Error(`Formspree error: ${response.status}`);
-    const data = await response.json();
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// ── API: receive form submission from website ──
+app.post('/api/submit', (req, res) => {
+  const { owner_name, business_name, business_type, email, phone, current_website, goals } = req.body;
+  if (!owner_name || !email) return res.status(400).json({ error: 'Missing required fields' });
+
+  const lead = {
+    id: Date.now().toString(),
+    submittedAt: new Date().toISOString(),
+    owner_name,
+    business_name: business_name || '',
+    business_type: business_type || '',
+    email,
+    phone: phone || '',
+    current_website: current_website || '',
+    goals: goals || ''
+  };
+
+  const leads = readLeads();
+  leads.unshift(lead);
+  writeLeads(leads);
+
+  res.json({ ok: true });
+});
+
+// ── API: get all leads (admin only) ──
+app.get('/api/leads', requireAuth, (req, res) => {
+  res.json(readLeads());
 });
 
 // ── Admin dashboard (serves the HTML) ──

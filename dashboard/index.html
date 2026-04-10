@@ -113,11 +113,6 @@
   <div class="page-title">Lead Dashboard</div>
   <div class="page-sub">All website revamp inquiries from your contact form</div>
 
-  <div id="apiWarning" style="display:none" class="api-warning">
-    <strong>Formspree API Key Not Set</strong>
-    Add <code>FORMSPREE_API_KEY</code> to your Railway environment variables to load live leads.
-    Get your API key at <strong>formspree.io → Account → API Keys</strong>.
-  </div>
 
   <!-- Stats -->
   <div class="stats-grid">
@@ -269,7 +264,7 @@
         <td class="notes-cell">
           <textarea class="notes-input" data-id="${id}" placeholder="Add notes..." onblur="saveNoteHandler(this)">${note}</textarea>
         </td>
-        <td><div class="lead-date">${formatDate(l.submitted_at)}</div></td>
+        <td><div class="lead-date">${formatDate(l.submittedAt)}</div></td>
       </tr>`;
     }).join('');
 
@@ -312,17 +307,8 @@
       '<div class="loading"><div class="spinner"></div>Loading leads...</div>';
     try {
       const res = await fetch('/api/leads');
-      const data = await res.json();
-      if (data.error) {
-        if (data.error.includes('No Formspree API key')) {
-          document.getElementById('apiWarning').style.display = 'block';
-          document.getElementById('tableContent').innerHTML =
-            '<div class="empty"><h3>API key required</h3><p>See the yellow banner above for setup instructions.</p></div>';
-          return;
-        }
-        throw new Error(data.error);
-      }
-      allLeads = (data.submissions || []).map(s => ({ id: s.id, ...s }));
+      if (!res.ok) throw new Error('Failed to load leads');
+      allLeads = await res.json();
       updateStats(allLeads);
       renderTable(allLeads);
     } catch (err) {

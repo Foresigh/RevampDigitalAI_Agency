@@ -141,10 +141,10 @@
       submitBtn.disabled   = true;
       submitBtn.innerHTML  = 'Sending…';
 
-      // ── Formspree submission ──
-      const res = await fetch('https://formspree.io/f/xvzvnkdd', {
+      // ── Submit to backend ──
+      const res = await fetch('/api/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(Object.fromEntries(new FormData(form)))
       });
 
