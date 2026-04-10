@@ -7,6 +7,15 @@
 
 'use strict';
 
+/* ── Audit teaser: redirect to audit page with URL ── */
+function goAudit() {
+  const input = document.getElementById('teaserUrl');
+  let url = input ? input.value.trim() : '';
+  if (!url) { if (input) input.focus(); return; }
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  window.location.href = '/audit?url=' + encodeURIComponent(url);
+}
+
 /* ── Navbar: solidify on scroll ── */
 (function () {
   const navbar = document.getElementById('navbar');

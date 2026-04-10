@@ -451,6 +451,21 @@ button { font-family: inherit; cursor: pointer; }
   background: transparent;
 }
 
+/* ── Audit Teaser ── */
+.audit-teaser{background:linear-gradient(135deg,rgba(31,122,140,0.1),rgba(245,200,66,0.03));border-top:1px solid rgba(61,214,245,0.08);border-bottom:1px solid rgba(61,214,245,0.08);padding:48px 0}
+.audit-teaser-inner{display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap}
+.audit-teaser-text{flex:1;min-width:260px}
+.audit-teaser-eyebrow{font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--teal);font-weight:700;margin-bottom:10px}
+.audit-teaser-text h2{font-size:clamp(1.2rem,3vw,1.7rem);font-weight:800;margin-bottom:10px;line-height:1.25}
+.audit-teaser-text p{font-size:0.88rem;color:rgba(255,255,255,0.45);line-height:1.6}
+.audit-teaser-form{flex:1;min-width:280px;max-width:480px}
+.audit-teaser-input-wrap{display:flex;background:rgba(255,255,255,0.04);border:1px solid rgba(61,214,245,0.2);border-radius:12px;overflow:hidden;transition:border 0.2s}
+.audit-teaser-input-wrap:focus-within{border-color:rgba(61,214,245,0.5)}
+.audit-teaser-input-wrap input{flex:1;background:transparent;border:none;padding:14px 16px;color:#e8f0fe;font-size:0.9rem;font-family:'Poppins',sans-serif;outline:none}
+.audit-teaser-input-wrap input::placeholder{color:rgba(255,255,255,0.25)}
+.audit-teaser-input-wrap button{background:linear-gradient(135deg,#1F7A8C,#15606e);border:none;padding:14px 22px;color:#fff;font-size:0.88rem;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;white-space:nowrap;transition:opacity 0.2s}
+.audit-teaser-input-wrap button:hover{opacity:.88}
+
 /* Industries marquee strip */
 .industries-marquee-wrap {
   display: flex; align-items: center;

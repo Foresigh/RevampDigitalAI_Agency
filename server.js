@@ -145,6 +145,107 @@ app.post('/api/submit', async (req, res) => {
   }
 });
 
+// ── API: website audit via Google PageSpeed ──
+function scoreColor(s) {
+  return s >= 90 ? '#4ade80' : s >= 50 ? '#f5c842' : '#ef4444';
+}
+
+function parseAudit(mobile, desktop) {
+  const ma = mobile.lighthouseResult?.audits || {};
+  const mc = mobile.lighthouseResult?.categories || {};
+  const dc = desktop.lighthouseResult?.categories || {};
+
+  const perf   = Math.round((mc.performance?.score  || 0) * 100);
+  const seo    = Math.round((mc.seo?.score          || 0) * 100);
+  const mobileS= Math.round((dc.performance?.score  || 0) * 100);
+
+  const issues = [], wins = [];
+
+  const check = (key, failMsg, winMsg, threshold = 0.9) => {
+    const a = ma[key];
+    if (!a || a.score === null || a.score === undefined) return;
+    if (a.score < threshold) issues.push({ text: failMsg.replace('{val}', a.displayValue || ''), severity: a.score < 0.5 ? 'high' : 'medium' });
+    else if (winMsg) wins.push(winMsg);
+  };
+
+  const lcp = ma['largest-contentful-paint'];
+  if (lcp && lcp.score !== null) {
+    if (lcp.score < 0.9) issues.push({ text: `Your page takes ${lcp.displayValue} to load — visitors leave after 3 seconds`, severity: lcp.score < 0.5 ? 'high' : 'medium' });
+    else wins.push('Page loads quickly');
+  }
+
+  check('meta-description',
+    "No meta description — Google can't summarize your page in search results",
+    'Meta description is present', 1);
+  check('document-title',
+    "Page is missing a title tag — search engines won't know what your site is about",
+    'Page title is set', 1);
+  check('uses-optimized-images',
+    'Images are not compressed — slowing your site and hurting search ranking',
+    'Images are optimized');
+  check('tap-targets',
+    'Buttons and links are too small on mobile — visitors struggle to tap them',
+    null);
+  check('viewport',
+    'Site is not configured for mobile — looks broken on phones',
+    'Site is mobile-friendly', 1);
+  check('is-on-https',
+    'Site is not secure (no HTTPS) — browsers warn visitors away',
+    'HTTPS is enabled');
+  check('image-alt',
+    'Images have no alt text — hurts SEO and accessibility',
+    null, 1);
+  check('font-size',
+    'Text is too small to read on mobile without zooming in',
+    null, 1);
+  check('total-blocking-time',
+    'Page is slow to respond to clicks — frustrating for visitors',
+    null);
+  check('robots-txt',
+    'No robots.txt — search engines may have trouble crawling your site',
+    'robots.txt is present', 1);
+
+  // Suggestion based on worst problem
+  let suggestion;
+  if (perf < 50)
+    suggestion = "Your biggest win is fixing page speed. A site that loads in under 3 seconds converts 3x better than one that takes 8+ seconds. On mobile, most visitors leave before your page finishes loading — fixing this alone could double your leads.";
+  else if (seo < 60)
+    suggestion = "Your site has SEO gaps making it nearly invisible to Google. Local businesses that rank on page 1 get 10x more calls than those on page 2. Fixing your titles, meta descriptions, and content structure is the fastest path to free organic leads.";
+  else if (mobileS < 60)
+    suggestion = "Over 70% of your potential customers search on their phones. If your site doesn't perform on mobile, you're losing the majority of leads before they even see your offer. A mobile-first revamp could immediately increase calls and form submissions.";
+  else
+    suggestion = "Adding a visible phone number and a 'Call Now' button above the fold could increase your leads by 20–40%. Most mobile visitors want to call — not fill out a form. Make it as easy as possible for them to contact you the moment they land on your page.";
+
+  return {
+    scores: { performance: perf, seo, mobile: mobileS },
+    issues: issues.slice(0, 6),
+    wins:   wins.slice(0, 4),
+    suggestion
+  };
+}
+
+app.get('/api/audit', async (req, res) => {
+  let { url } = req.query;
+  if (!url) return res.status(400).json({ error: 'URL required' });
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+  try {
+    const base = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed';
+    const cats = 'category=performance&category=seo&category=accessibility&category=best-practices';
+    const [mr, dr] = await Promise.all([
+      fetch(`${base}?url=${encodeURIComponent(url)}&strategy=mobile&${cats}`),
+      fetch(`${base}?url=${encodeURIComponent(url)}&strategy=desktop&${cats}`)
+    ]);
+    const mobile = await mr.json();
+    const desktop = await dr.json();
+    if (mobile.error) throw new Error(mobile.error.message || 'Could not analyze that URL');
+    res.json({ url, ...parseAudit(mobile, desktop) });
+  } catch (err) {
+    console.error('[audit error]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── API: get all leads (admin only) ──
 app.get('/api/leads', requireAuth, async (req, res) => {
   try {
