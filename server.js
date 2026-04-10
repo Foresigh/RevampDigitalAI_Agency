@@ -102,19 +102,21 @@ app.get('/admin/logout', (req, res) => {
 
 // ── API: receive form submission from website ──
 app.post('/api/submit', (req, res) => {
-  const { owner_name, business_name, business_type, email, phone, current_website, goals } = req.body;
+  const b = req.body;
+  const owner_name = b.owner_name || b.name || '';
+  const email      = b.email || '';
   if (!owner_name || !email) return res.status(400).json({ error: 'Missing required fields' });
 
   const lead = {
     id: Date.now().toString(),
     submittedAt: new Date().toISOString(),
     owner_name,
-    business_name: business_name || '',
-    business_type: business_type || '',
+    business_name: b.business_name || b.business || '',
+    business_type: b.business_type || b.reason || '',
     email,
-    phone: phone || '',
-    current_website: current_website || '',
-    goals: goals || ''
+    phone: b.phone || '',
+    current_website: b.current_website || '',
+    goals: b.goals || b.message || ''
   };
 
   const leads = readLeads();
