@@ -233,9 +233,10 @@ app.get('/api/audit', async (req, res) => {
   try {
     const base = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed';
     const cats = 'category=performance&category=seo&category=accessibility&category=best-practices';
+    const key  = process.env.PAGESPEED_API_KEY ? `&key=${process.env.PAGESPEED_API_KEY}` : '';
     const [mr, dr] = await Promise.all([
-      fetch(`${base}?url=${encodeURIComponent(url)}&strategy=mobile&${cats}`),
-      fetch(`${base}?url=${encodeURIComponent(url)}&strategy=desktop&${cats}`)
+      fetch(`${base}?url=${encodeURIComponent(url)}&strategy=mobile&${cats}${key}`),
+      fetch(`${base}?url=${encodeURIComponent(url)}&strategy=desktop&${cats}${key}`)
     ]);
     const mobile = await mr.json();
     const desktop = await dr.json();
