@@ -119,16 +119,23 @@ app.post('/api/submit', (req, res) => {
     goals: b.goals || b.message || ''
   };
 
-  const leads = readLeads();
-  leads.unshift(lead);
-  writeLeads(leads);
-
-  res.json({ ok: true });
+  try {
+    const leads = readLeads();
+    leads.unshift(lead);
+    writeLeads(leads);
+    console.log(`[lead saved] ${lead.owner_name} <${lead.email}> — total: ${leads.length}`);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[lead save error]', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ── API: get all leads (admin only) ──
 app.get('/api/leads', requireAuth, (req, res) => {
-  res.json(readLeads());
+  const leads = readLeads();
+  console.log(`[api/leads] returning ${leads.length} leads, file: ${LEADS_FILE}`);
+  res.json(leads);
 });
 
 // ── Admin dashboard (serves the HTML) ──
