@@ -36,9 +36,21 @@ async function initDb() {
       notes       TEXT DEFAULT ''
     )
   `);
-  // add inspire_url column if missing (migration)
   await pool.query(`ALTER TABLE leads ADD COLUMN IF NOT EXISTS inspire_url TEXT DEFAULT ''`);
-  console.log('[db] leads table ready');
+
+  // Audits table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS audits (
+      id           SERIAL PRIMARY KEY,
+      audited_at   TIMESTAMPTZ DEFAULT NOW(),
+      url          TEXT NOT NULL,
+      score_perf   INT,
+      score_seo    INT,
+      score_mobile INT,
+      score_desktop INT
+    )
+  `);
+  console.log('[db] tables ready');
 }
 
 app.use(compression());
@@ -258,7 +270,14 @@ app.get('/api/audit', async (req, res) => {
     const mobile = await mr.json();
     const desktop = await dr.json();
     if (mobile.error) throw new Error(mobile.error.message || 'Could not analyze that URL');
-    res.json({ url, ...parseAudit(mobile, desktop) });
+    const result = parseAudit(mobile, desktop);
+    // Save to DB (non-blocking)
+    pool.query(
+      `INSERT INTO audits (url, score_perf, score_seo, score_mobile, score_desktop)
+       VALUES ($1,$2,$3,$4,$5)`,
+      [url, result.scores.performance, result.scores.seo, result.scores.mobileFriendly, result.scores.desktop]
+    ).catch(e => console.error('[audit save error]', e.message));
+    res.json({ url, ...result });
   } catch (err) {
     console.error('[audit error]', err.message);
     res.status(500).json({ error: err.message });
@@ -289,6 +308,19 @@ app.patch('/api/leads/:id', requireAuth, async (req, res) => {
       [status || null, notes !== undefined ? notes : null, id]
     );
     res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── API: get all audits (admin only) ──
+app.get('/api/audits', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, audited_at AS "auditedAt", url, score_perf, score_seo, score_mobile, score_desktop
+       FROM audits ORDER BY audited_at DESC LIMIT 200`
+    );
+    res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

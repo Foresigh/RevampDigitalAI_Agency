@@ -108,6 +108,31 @@
     .cta-btn:hover{opacity:.88}
     .cta-sub{font-size:0.78rem;color:rgba(255,255,255,0.28);margin-top:12px}
 
+    /* ── Report header (preview + grade) ── */
+    .report-header{display:grid;grid-template-columns:1fr 280px;gap:24px;margin-bottom:40px;align-items:stretch}
+    @media(max-width:700px){.report-header{grid-template-columns:1fr}}
+    .preview-card{background:rgba(255,255,255,0.03);border:1px solid rgba(61,214,245,0.1);border-radius:20px;overflow:hidden;position:relative;min-height:220px}
+    .preview-card img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;opacity:0;transition:opacity 0.5s}
+    .preview-card img.loaded{opacity:1}
+    .preview-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 55%,rgba(5,8,15,0.9) 100%);pointer-events:none}
+    .preview-url{position:absolute;bottom:14px;left:16px;right:16px;font-size:0.78rem;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .preview-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.2);font-size:0.8rem}
+    .grade-card{background:linear-gradient(135deg,rgba(31,122,140,0.12),rgba(255,255,255,0.02));border:1px solid rgba(61,214,245,0.15);border-radius:20px;padding:32px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden}
+    .grade-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(61,214,245,0.4),transparent)}
+    .grade-eyebrow{font-size:0.68rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.35);font-weight:700;margin-bottom:16px}
+    .grade-big{font-size:5rem;font-weight:800;line-height:1;margin-bottom:2px}
+    .grade-denom{font-size:1.4rem;color:rgba(255,255,255,0.3);font-weight:500}
+    .grade-label{font-size:0.78rem;font-weight:600;padding:5px 16px;border-radius:20px;margin-top:14px;display:inline-block}
+    .grade-bar-wrap{width:100%;height:6px;background:rgba(255,255,255,0.07);border-radius:10px;margin-top:18px;overflow:hidden}
+    .grade-bar{height:100%;border-radius:10px;width:0;transition:width 1.4s cubic-bezier(.4,0,.2,1)}
+    .grade-label.grade-green{background:rgba(74,222,128,0.12);color:#4ade80}
+    .grade-label.grade-yellow{background:rgba(245,200,66,0.12);color:#f5c842}
+    .grade-label.grade-red{background:rgba(239,68,68,0.12);color:#ef4444}
+    .grade-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:20px;width:100%}
+    .grade-mini{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px 10px;text-align:center}
+    .grade-mini-val{font-size:1.1rem;font-weight:700}
+    .grade-mini-lbl{font-size:0.62rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
     /* ── Error ── */
     .audit-error{display:none;text-align:center;padding:48px 24px;max-width:500px;margin:0 auto}
     .audit-error.show{display:block}
@@ -170,7 +195,32 @@
 <!-- Results -->
 <div class="audit-results" id="auditResults">
 
-  <div class="results-url"><span id="analyzedUrl"></span></div>
+  <!-- Report Header: preview + overall grade -->
+  <div class="report-header">
+    <!-- Site screenshot -->
+    <div class="preview-card">
+      <div class="preview-loading" id="previewLoading">Loading preview…</div>
+      <img id="sitePreview" alt="Website preview" onload="this.classList.add('loaded');document.getElementById('previewLoading').style.display='none'" onerror="document.getElementById('previewLoading').textContent='Preview unavailable'"/>
+      <div class="preview-overlay"></div>
+      <div class="preview-url" id="analyzedUrl"></div>
+    </div>
+
+    <!-- Overall grade -->
+    <div class="grade-card">
+      <div class="grade-eyebrow">Overall Score</div>
+      <div>
+        <span class="grade-big" id="gradeNum">—</span><span class="grade-denom">/100</span>
+      </div>
+      <div class="grade-label" id="gradeLabel"></div>
+      <div class="grade-bar-wrap"><div class="grade-bar" id="gradeBar"></div></div>
+      <div class="grade-breakdown">
+        <div class="grade-mini"><div class="grade-mini-val" id="miniPerf" style="color:#3dd6f5">—</div><div class="grade-mini-lbl">Performance</div></div>
+        <div class="grade-mini"><div class="grade-mini-val" id="miniSeo" style="color:#f5c842">—</div><div class="grade-mini-lbl">SEO</div></div>
+        <div class="grade-mini"><div class="grade-mini-val" id="miniMobile" style="color:#a78bfa">—</div><div class="grade-mini-lbl">Mobile</div></div>
+        <div class="grade-mini"><div class="grade-mini-val" id="miniDesktop" style="color:#4ade80">—</div><div class="grade-mini-lbl">Desktop</div></div>
+      </div>
+    </div>
+  </div>
 
   <!-- Score gauges -->
   <div class="scores-grid">
@@ -409,6 +459,34 @@
       document.getElementById('auditLoading').classList.remove('show');
       document.getElementById('auditResults').classList.add('show');
       document.getElementById('analyzedUrl').textContent = data.url;
+
+      // Site preview screenshot (thum.io — free, no API key)
+      const previewImg = document.getElementById('sitePreview');
+      previewImg.classList.remove('loaded');
+      document.getElementById('previewLoading').style.display = 'flex';
+      document.getElementById('previewLoading').textContent = 'Loading preview…';
+      previewImg.src = 'https://image.thum.io/get/width/640/crop/420/' + encodeURIComponent(data.url);
+
+      // Overall grade (weighted average)
+      const s = data.scores;
+      const overall = Math.round((s.performance * 0.30) + (s.seo * 0.25) + (s.mobileFriendly * 0.25) + (s.desktop * 0.20));
+      const gradeColor = scoreColor(overall);
+      const gradeEl  = document.getElementById('gradeNum');
+      const barEl    = document.getElementById('gradeBar');
+      const labelEl  = document.getElementById('gradeLabel');
+      gradeEl.style.color = gradeColor;
+      barEl.style.background = gradeColor;
+      labelEl.textContent = gradeLabel(overall);
+      labelEl.className = 'grade-label ' + gradeClass(overall);
+      // animate number
+      let gCur = 0;
+      const gStep = () => { gCur = Math.min(gCur + 2, overall); gradeEl.textContent = gCur; if (gCur < overall) requestAnimationFrame(gStep); };
+      setTimeout(() => { requestAnimationFrame(gStep); barEl.style.width = overall + '%'; }, 200);
+      // mini scores
+      document.getElementById('miniPerf').textContent   = s.performance;
+      document.getElementById('miniSeo').textContent    = s.seo;
+      document.getElementById('miniMobile').textContent = s.mobileFriendly;
+      document.getElementById('miniDesktop').textContent= s.desktop;
 
       // Animate gauges
       setTimeout(() => animateGauge('perfArc',    'perfNum',    'perfGrade',    data.scores.performance),    100);

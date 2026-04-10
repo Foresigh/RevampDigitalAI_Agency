@@ -92,6 +92,21 @@
     .api-warning strong{display:block;margin-bottom:4px}
     .api-warning code{background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;font-size:0.8rem}
 
+    /* ── Tabs ── */
+    .tabs{display:flex;gap:4px;margin-bottom:28px;border-bottom:1px solid rgba(61,214,245,0.1);padding-bottom:0}
+    .tab-btn{background:none;border:none;border-bottom:2px solid transparent;padding:10px 20px;color:rgba(255,255,255,0.4);font-size:0.88rem;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s;margin-bottom:-1px}
+    .tab-btn:hover{color:#e8f0fe}
+    .tab-btn.active{color:#3dd6f5;border-bottom-color:#3dd6f5}
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+
+    /* ── Score chips ── */
+    .score-chip{display:inline-block;min-width:38px;text-align:center;border-radius:20px;padding:3px 10px;font-size:0.78rem;font-weight:700}
+    .score-green{background:rgba(74,222,128,0.12);color:#4ade80;border:1px solid rgba(74,222,128,0.25)}
+    .score-yellow{background:rgba(245,200,66,0.12);color:#f5c842;border:1px solid rgba(245,200,66,0.25)}
+    .score-red{background:rgba(248,113,113,0.12);color:#f87171;border:1px solid rgba(248,113,113,0.25)}
+    .score-na{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.08)}
+
     @media(max-width:768px){
       .main{padding:16px}
       .header{padding:0 16px}
@@ -110,9 +125,17 @@
 </header>
 
 <main class="main">
-  <div class="page-title">Lead Dashboard</div>
-  <div class="page-sub">All website revamp inquiries from your contact form</div>
+  <div class="page-title">Admin Dashboard</div>
+  <div class="page-sub">Manage leads and track website audits</div>
 
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="leads">Leads</button>
+    <button class="tab-btn" data-tab="audits">Website Audits</button>
+  </div>
+
+  <!-- ══ LEADS TAB ══ -->
+  <div class="tab-panel active" id="tab-leads">
 
   <!-- Stats -->
   <div class="stats-grid">
@@ -163,6 +186,54 @@
       </div>
     </div>
   </div>
+
+  </div><!-- /tab-leads -->
+
+  <!-- ══ AUDITS TAB ══ -->
+  <div class="tab-panel" id="tab-audits">
+
+    <!-- Audit Stats -->
+    <div class="stats-grid" id="auditStats">
+      <div class="stat-card">
+        <div class="stat-label">Total Audits</div>
+        <div class="stat-value teal" id="statAuditTotal">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Performance</div>
+        <div class="stat-value" id="statAvgPerf">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg SEO</div>
+        <div class="stat-value yellow" id="statAvgSeo">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Mobile</div>
+        <div class="stat-value" style="color:#a78bfa" id="statAvgMobile">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Desktop</div>
+        <div class="stat-value green" id="statAvgDesktop">—</div>
+      </div>
+    </div>
+
+    <!-- Audit search & refresh -->
+    <div class="controls">
+      <input class="search-input" id="auditSearch" type="text" placeholder="Search by URL..."/>
+      <button class="refresh-btn" id="refreshAuditsBtn">↻ Refresh</button>
+    </div>
+
+    <!-- Audits Table -->
+    <div class="table-wrap">
+      <div id="auditsTableContent">
+        <div class="loading">
+          <div class="spinner"></div>
+          Loading audits...
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-audits -->
+
 </main>
 
 <div class="toast" id="toast"></div>
@@ -330,6 +401,101 @@
 
   // ── Refresh ──
   document.getElementById('refreshBtn').addEventListener('click', loadLeads);
+
+  // ── Tabs ──
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      if (btn.dataset.tab === 'audits' && !auditsLoaded) loadAudits();
+    });
+  });
+
+  // ── Audits ──
+  let allAudits = [];
+  let auditsLoaded = false;
+
+  function scoreChip(val) {
+    if (val == null || val === '' || val < 0) return '<span class="score-chip score-na">—</span>';
+    const n = parseInt(val);
+    const cls = n >= 90 ? 'score-green' : n >= 50 ? 'score-yellow' : 'score-red';
+    return `<span class="score-chip ${cls}">${n}</span>`;
+  }
+
+  function updateAuditStats(audits) {
+    document.getElementById('statAuditTotal').textContent = audits.length;
+    const avg = (key) => {
+      const vals = audits.map(a => a[key]).filter(v => v != null && v >= 0);
+      if (!vals.length) return '—';
+      return Math.round(vals.reduce((s,v) => s + parseInt(v), 0) / vals.length);
+    };
+    document.getElementById('statAvgPerf').textContent = avg('score_perf');
+    document.getElementById('statAvgSeo').textContent = avg('score_seo');
+    document.getElementById('statAvgMobile').textContent = avg('score_mobile');
+    document.getElementById('statAvgDesktop').textContent = avg('score_desktop');
+  }
+
+  function renderAudits(audits) {
+    const search = document.getElementById('auditSearch').value.toLowerCase();
+    const filtered = search ? audits.filter(a => a.url && a.url.toLowerCase().includes(search)) : audits;
+
+    if (!filtered.length) {
+      document.getElementById('auditsTableContent').innerHTML =
+        '<div class="empty"><h3>No audits found</h3><p>Run a free audit on the website to see results here.</p></div>';
+      return;
+    }
+
+    const rows = filtered.map(a => {
+      const host = (() => { try { return new URL(a.url).hostname; } catch(e) { return a.url; } })();
+      return `<tr>
+        <td>
+          <a href="/audit/${host}" target="_blank" style="color:#3dd6f5;text-decoration:none;font-size:0.84rem;font-weight:500">${host}</a>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:2px;word-break:break-all">${a.url}</div>
+        </td>
+        <td style="text-align:center">${scoreChip(a.score_perf)}</td>
+        <td style="text-align:center">${scoreChip(a.score_seo)}</td>
+        <td style="text-align:center">${scoreChip(a.score_mobile)}</td>
+        <td style="text-align:center">${scoreChip(a.score_desktop)}</td>
+        <td><div class="lead-date">${formatDate(a.auditedAt)}</div></td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('auditsTableContent').innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>URL</th>
+            <th style="text-align:center">Performance</th>
+            <th style="text-align:center">SEO</th>
+            <th style="text-align:center">Mobile</th>
+            <th style="text-align:center">Desktop</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  async function loadAudits() {
+    auditsLoaded = true;
+    document.getElementById('auditsTableContent').innerHTML =
+      '<div class="loading"><div class="spinner"></div>Loading audits...</div>';
+    try {
+      const res = await fetch('/api/audits');
+      if (!res.ok) throw new Error('Failed to load audits');
+      allAudits = await res.json();
+      updateAuditStats(allAudits);
+      renderAudits(allAudits);
+    } catch (err) {
+      document.getElementById('auditsTableContent').innerHTML =
+        `<div class="empty"><h3>Error loading audits</h3><p style="color:#f87171">${err.message}</p></div>`;
+    }
+  }
+
+  document.getElementById('auditSearch').addEventListener('input', () => renderAudits(allAudits));
+  document.getElementById('refreshAuditsBtn').addEventListener('click', () => { auditsLoaded = false; loadAudits(); });
 
   // ── Init ──
   loadLeads();
