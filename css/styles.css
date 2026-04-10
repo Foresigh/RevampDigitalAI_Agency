@@ -853,7 +853,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 .price-label { font-size: 0.7rem; color: rgba(255,255,255,0.38); letter-spacing: 1px; text-transform: uppercase; font-family: 'Poppins', sans-serif; margin-bottom: 6px; }
 .price-amount-inner { display: flex; align-items: baseline; gap: 2px; }
-.price-curr { font-size: 1.2rem; font-weight: 600; color: #3dd6f5; }
+.price-curr { font-size: 1.2rem; font-weight: 600; color: #3dd6f5; align-self: flex-start; margin-top: 8px; }
 .price-num  { font-size: 2.7rem; font-weight: 800; font-family: 'Poppins', sans-serif; color: #e8f0fe; line-height: 1; }
 .price-per  { font-size: 0.85rem; color: rgba(255,255,255,0.4); margin-left: 2px; }
 
