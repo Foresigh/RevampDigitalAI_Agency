@@ -156,9 +156,9 @@ function parseAudit(mobile, desktop) {
   const mc = mobile.lighthouseResult?.categories || {};
   const dc = desktop.lighthouseResult?.categories || {};
 
-  const perf   = Math.round((mc.performance?.score  || 0) * 100);
-  const seo    = Math.round((mc.seo?.score          || 0) * 100);
-  const desktop= Math.round((dc.performance?.score  || 0) * 100);
+  const perf        = Math.round((mc.performance?.score  || 0) * 100);
+  const seo         = Math.round((mc.seo?.score          || 0) * 100);
+  const desktopPerf = Math.round((dc.performance?.score  || 0) * 100);
 
   const issues = [], wins = [], mobileIssues = [], mobileWins = [];
 
@@ -231,7 +231,7 @@ function parseAudit(mobile, desktop) {
     suggestion = "Adding a visible phone number and a 'Call Now' button above the fold could increase your leads by 20–40%. Most mobile visitors want to call — not fill out a form. Make it as easy as possible for them to contact you the moment they land on your page.";
 
   return {
-    scores: { performance: perf, seo, desktop, mobileFriendly },
+    scores: { performance: perf, seo, desktop: desktopPerf, mobileFriendly },
     issues: issues.slice(0, 5),
     wins:   wins.slice(0, 3),
     mobileIssues: mobileIssues.slice(0, 4),
