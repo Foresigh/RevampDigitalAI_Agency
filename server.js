@@ -300,6 +300,44 @@ app.get('/admin', requireAuth, (req, res) => {
 // ── Serve static site ──
 app.use(express.static(path.join(__dirname), { extensions: ['html'] }));
 
+// ── Custom 404 ──
+const errorPage = (code, title, message) => `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>${title} | Revamp Digital LLC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{min-height:100vh;background:#05080f;color:#e8f0fe;font-family:'Poppins',sans-serif;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}
+    .wrap{max-width:480px}
+    .code{font-size:6rem;font-weight:800;background:linear-gradient(135deg,#3dd6f5,#1F7A8C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:16px}
+    h1{font-size:1.5rem;font-weight:700;margin-bottom:12px}
+    p{font-size:0.92rem;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:32px}
+    a{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#1F7A8C,#15606e);color:#fff;text-decoration:none;padding:13px 28px;border-radius:10px;font-weight:600;font-size:0.9rem;transition:opacity 0.2s}
+    a:hover{opacity:0.85}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="code">${code}</div>
+    <h1>${title}</h1>
+    <p>${message}</p>
+    <a href="/">← Back to Home</a>
+  </div>
+</body>
+</html>`;
+
+app.use((req, res) => {
+  res.status(404).send(errorPage(404, 'Page Not Found', "The page you're looking for doesn't exist. It may have moved or the URL might be incorrect."));
+});
+
+app.use((err, req, res, next) => {
+  console.error('[server error]', err);
+  res.status(500).send(errorPage(500, 'Something Went Wrong', "We hit an unexpected error. Please try again in a moment or contact us at hello@gorevamp.ai."));
+});
+
 // ── Start ──
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 initDb().catch(err => console.error('[db init error — add PostgreSQL in Railway]', err.message));
