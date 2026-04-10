@@ -308,10 +308,21 @@
     }, 8000);
   }
 
+  function normalizeUrl(raw) {
+    let u = raw.trim().replace(/\s+/g, '');
+    if (!u) return '';
+    // strip any accidental leading slashes
+    u = u.replace(/^\/+/, '');
+    // add protocol if missing
+    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+    return u;
+  }
+
   async function runAudit() {
-    let url = document.getElementById('urlInput').value.trim();
+    const url = normalizeUrl(document.getElementById('urlInput').value);
     if (!url) { document.getElementById('urlInput').focus(); return; }
-    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    // update input to show normalized URL
+    document.getElementById('urlInput').value = url;
 
     // Reset UI
     document.getElementById('auditLoading').classList.add('show');
@@ -350,7 +361,11 @@
       clearInterval(stepTimer);
       document.getElementById('auditLoading').classList.remove('show');
       document.getElementById('auditError').classList.add('show');
-      document.getElementById('auditErrorMsg').textContent = err.message || 'Make sure the URL is correct and publicly accessible.';
+      const msg = err.message || '';
+      const friendly = msg.includes('Unable to process') || msg.includes('FAILED')
+        ? 'This site blocked the audit tool. Try a local business website instead — it works best on smaller sites.'
+        : msg || 'Make sure the URL is correct and the site is publicly accessible.';
+      document.getElementById('auditErrorMsg').textContent = friendly;
     }
 
     document.getElementById('auditBtn').disabled = false;
