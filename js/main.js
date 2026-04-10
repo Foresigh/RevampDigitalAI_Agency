@@ -126,6 +126,22 @@
         }
       });
 
+      // ── Validation: goals field must be at least 10 words ──
+      const goalsField = form.querySelector('[name="goals"]');
+      if (goalsField) {
+        const wordCount = goalsField.value.trim().split(/\s+/).filter(w => w).length;
+        if (wordCount < 10) {
+          goalsField.style.borderColor = '#ef4444';
+          goalsField.style.boxShadow   = '0 0 0 3px rgba(239,68,68,0.12)';
+          goalsField.placeholder = 'Please describe your challenge in at least 10 words…';
+          goalsField.addEventListener('input', () => {
+            goalsField.style.borderColor = '';
+            goalsField.style.boxShadow   = '';
+          }, { once: true });
+          isValid = false;
+        }
+      }
+
       if (!isValid) {
         // Shake the submit button to signal error
         const submitBtn = form.querySelector('[type="submit"]');
