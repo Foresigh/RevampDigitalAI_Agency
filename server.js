@@ -135,7 +135,7 @@ app.get('/admin', requireAuth, (req, res) => {
 });
 
 // ── Serve static site ──
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname), { extensions: ['html'] }));
 
 // ── Start ──
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
