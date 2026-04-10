@@ -171,22 +171,6 @@
   let allLeads = [];
   let currentFilter = 'all';
 
-  // ── Load statuses from localStorage ──
-  function getStatuses() {
-    try { return JSON.parse(localStorage.getItem('lead_statuses') || '{}'); } catch { return {}; }
-  }
-  function saveStatus(id, status) {
-    const s = getStatuses(); s[id] = status;
-    localStorage.setItem('lead_statuses', JSON.stringify(s));
-  }
-  function getNotes() {
-    try { return JSON.parse(localStorage.getItem('lead_notes') || '{}'); } catch { return {}; }
-  }
-  function saveNote(id, note) {
-    const n = getNotes(); n[id] = note;
-    localStorage.setItem('lead_notes', JSON.stringify(n));
-  }
-
   function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg; t.classList.add('show');
@@ -201,10 +185,9 @@
   }
 
   function updateStats(leads) {
-    const statuses = getStatuses();
     const counts = { new: 0, contacted: 0, demo_sent: 0, closed: 0, lost: 0 };
     leads.forEach(l => {
-      const s = statuses[l.id] || 'new';
+      const s = l.status || 'new';
       if (counts[s] !== undefined) counts[s]++;
     });
     document.getElementById('statTotal').textContent = leads.length;
@@ -216,12 +199,10 @@
   }
 
   function renderTable(leads) {
-    const statuses = getStatuses();
-    const notes = getNotes();
     const search = document.getElementById('searchInput').value.toLowerCase();
 
     let filtered = leads.filter(l => {
-      const s = statuses[l.id] || 'new';
+      const s = l.status || 'new';
       if (currentFilter !== 'all' && s !== currentFilter) return false;
       if (search) {
         const hay = [l.owner_name, l.business_name, l.email, l.business_type, l.current_website]
@@ -239,8 +220,8 @@
 
     const rows = filtered.map(l => {
       const id = l.id;
-      const status = statuses[id] || 'new';
-      const note = notes[id] || '';
+      const status = l.status || 'new';
+      const note = l.notes || '';
       const statusOptions = ['new','contacted','demo_sent','closed','lost']
         .map(s => `<option value="${s}" ${s===status?'selected':''}>${s.replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase())}</option>`)
         .join('');
@@ -287,17 +268,31 @@
     updateStats(leads);
   }
 
-  function changeStatus(sel) {
+  async function changeStatus(sel) {
     const id = sel.dataset.id;
     const status = sel.value;
-    saveStatus(id, status);
     sel.className = `status-select status-${status}`;
+    const lead = allLeads.find(l => String(l.id) === String(id));
+    if (lead) lead.status = status;
     updateStats(allLeads);
+    await fetch(`/api/leads/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
     showToast('Status updated');
   }
 
-  function saveNoteHandler(el) {
-    saveNote(el.dataset.id, el.value);
+  async function saveNoteHandler(el) {
+    const id = el.dataset.id;
+    const notes = el.value;
+    const lead = allLeads.find(l => String(l.id) === String(id));
+    if (lead) lead.notes = notes;
+    await fetch(`/api/leads/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes })
+    });
     showToast('Note saved');
   }
 

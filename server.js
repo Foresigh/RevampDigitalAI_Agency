@@ -3,25 +3,37 @@
 const express  = require('express');
 const session  = require('express-session');
 const path     = require('path');
-const fs       = require('fs');
+const { Pool } = require('pg');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'revamp2024';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'revamp-secret-key-change-me';
-const LEADS_FILE     = path.join(__dirname, 'leads.json');
 
-// ── Leads persistence helpers ──
-function readLeads() {
-  try {
-    if (!fs.existsSync(LEADS_FILE)) return [];
-    return JSON.parse(fs.readFileSync(LEADS_FILE, 'utf8'));
-  } catch { return []; }
-}
+// ── PostgreSQL ──
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+});
 
-function writeLeads(leads) {
-  fs.writeFileSync(LEADS_FILE, JSON.stringify(leads, null, 2));
+async function initDb() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS leads (
+      id          SERIAL PRIMARY KEY,
+      submitted_at TIMESTAMPTZ DEFAULT NOW(),
+      owner_name  TEXT NOT NULL,
+      business_name TEXT,
+      business_type TEXT,
+      email       TEXT NOT NULL,
+      phone       TEXT,
+      current_website TEXT,
+      goals       TEXT,
+      status      TEXT DEFAULT 'new',
+      notes       TEXT DEFAULT ''
+    )
+  `);
+  console.log('[db] leads table ready');
 }
 
 app.use(express.json());
@@ -31,7 +43,7 @@ app.use(session({
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
 }));
 
 // ── Auth middleware ──
@@ -100,30 +112,28 @@ app.get('/admin/logout', (req, res) => {
   res.redirect('/admin/login');
 });
 
-// ── API: receive form submission from website ──
-app.post('/api/submit', (req, res) => {
+// ── API: receive form submission ──
+app.post('/api/submit', async (req, res) => {
   const b = req.body;
   const owner_name = b.owner_name || b.name || '';
   const email      = b.email || '';
   if (!owner_name || !email) return res.status(400).json({ error: 'Missing required fields' });
 
-  const lead = {
-    id: Date.now().toString(),
-    submittedAt: new Date().toISOString(),
-    owner_name,
-    business_name: b.business_name || b.business || '',
-    business_type: b.business_type || b.reason || '',
-    email,
-    phone: b.phone || '',
-    current_website: b.current_website || '',
-    goals: b.goals || b.message || ''
-  };
-
   try {
-    const leads = readLeads();
-    leads.unshift(lead);
-    writeLeads(leads);
-    console.log(`[lead saved] ${lead.owner_name} <${lead.email}> — total: ${leads.length}`);
+    const result = await pool.query(
+      `INSERT INTO leads (owner_name, business_name, business_type, email, phone, current_website, goals)
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+      [
+        owner_name,
+        b.business_name || b.business || '',
+        b.business_type || b.reason  || '',
+        email,
+        b.phone           || '',
+        b.current_website || '',
+        b.goals || b.message || ''
+      ]
+    );
+    console.log(`[lead saved] id=${result.rows[0].id} ${owner_name} <${email}>`);
     res.json({ ok: true });
   } catch (err) {
     console.error('[lead save error]', err);
@@ -132,13 +142,35 @@ app.post('/api/submit', (req, res) => {
 });
 
 // ── API: get all leads (admin only) ──
-app.get('/api/leads', requireAuth, (req, res) => {
-  const leads = readLeads();
-  console.log(`[api/leads] returning ${leads.length} leads, file: ${LEADS_FILE}`);
-  res.json(leads);
+app.get('/api/leads', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, submitted_at AS "submittedAt", owner_name, business_name,
+              business_type, email, phone, current_website, goals, status, notes
+       FROM leads ORDER BY submitted_at DESC`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// ── Admin dashboard (serves the HTML) ──
+// ── API: update lead status/notes ──
+app.patch('/api/leads/:id', requireAuth, async (req, res) => {
+  const { status, notes } = req.body;
+  const { id } = req.params;
+  try {
+    await pool.query(
+      `UPDATE leads SET status = COALESCE($1, status), notes = COALESCE($2, notes) WHERE id = $3`,
+      [status || null, notes !== undefined ? notes : null, id]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Admin dashboard ──
 app.get('/admin', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard', 'index.html'));
 });
@@ -147,4 +179,9 @@ app.get('/admin', requireAuth, (req, res) => {
 app.use(express.static(path.join(__dirname), { extensions: ['html'] }));
 
 // ── Start ──
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+initDb().then(() => {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}).catch(err => {
+  console.error('[db init error]', err);
+  process.exit(1);
+});
