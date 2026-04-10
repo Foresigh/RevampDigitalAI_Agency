@@ -452,7 +452,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 /* ── Audit Teaser ── */
-.audit-teaser{background:linear-gradient(135deg,rgba(31,122,140,0.1),rgba(245,200,66,0.03));border-top:1px solid rgba(61,214,245,0.08);border-bottom:1px solid rgba(61,214,245,0.08);padding:48px 0}
+.audit-teaser{position:relative;z-index:5;background:linear-gradient(135deg,rgba(31,122,140,0.14),rgba(5,8,15,0.95));border-top:1px solid rgba(61,214,245,0.12);border-bottom:1px solid rgba(61,214,245,0.12);padding:48px 0}
 .audit-teaser-inner{display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap}
 .audit-teaser-text{flex:1;min-width:260px}
 .audit-teaser-eyebrow{font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--teal);font-weight:700;margin-bottom:10px}
