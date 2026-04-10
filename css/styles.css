@@ -879,11 +879,11 @@ button { font-family: inherit; cursor: pointer; }
 .price-feature svg { width: 17px; height: 17px; fill: none; stroke: #3dd6f5; stroke-width: 2; flex-shrink: 0; margin-top: 2px; }
 
 /* =================== LEAD FORM SECTION =================== */
-.demo-section {
+.revamp-request-section {
   background: #05080f;
   position: relative; overflow: hidden;
 }
-.demo-section::before {
+.revamp-request-section::before {
   content: '';
   position: absolute; inset: 0;
   background:

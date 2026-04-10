@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 rewrite.py)",
+      "Bash(curl -s -X POST https://formspree.io/f/xvzvnkdd -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{\"owner_name\":\"Test User\",\"business_name\":\"Test Business\",\"business_type\":\"Plumber\",\"email\":\"test@test.com\",\"phone\":\"3852532318\",\"current_website\":\"https://testbusiness.com\",\"goals\":\"Testing form submission\"}')"
+    ]
+  }
+}
