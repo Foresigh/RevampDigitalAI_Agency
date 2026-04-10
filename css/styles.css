@@ -196,8 +196,7 @@ button { font-family: inherit; cursor: pointer; }
 .navbar {
   position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
   z-index: 1000; width: auto; min-width: 720px;
-  background: rgba(10,15,25,0.85);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  background: rgba(10,15,25,0.97);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 999px;
   transition: var(--transition);
@@ -347,11 +346,21 @@ button { font-family: inherit; cursor: pointer; }
     0 -20px 80px rgba(31,122,140,0.5),
     0 -40px 160px rgba(31,122,140,0.25),
     inset 0 20px 60px rgba(31,122,140,0.15);
+  position: relative;
+  will-change: transform;
+}
+/* Glow pulse via opacity on pseudo-element — no box-shadow repaint */
+.hero-planet::after {
+  content: '';
+  position: absolute; inset: -40px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 30%, rgba(31,122,140,0.5) 0%, transparent 70%);
   animation: planet-pulse 6s ease-in-out infinite;
+  pointer-events: none;
 }
 @keyframes planet-pulse {
-  0%,100% { box-shadow: 0 0 0 1px rgba(31,122,140,0.3), 0 -20px 80px rgba(31,122,140,0.5), 0 -40px 160px rgba(31,122,140,0.25), inset 0 20px 60px rgba(31,122,140,0.15); }
-  50%      { box-shadow: 0 0 0 1px rgba(31,122,140,0.5), 0 -20px 120px rgba(31,122,140,0.7), 0 -60px 200px rgba(31,122,140,0.35), inset 0 20px 80px rgba(31,122,140,0.2); }
+  0%,100% { opacity: 0.6; }
+  50%      { opacity: 1; }
 }
 
 /* Centered hero content */
@@ -1009,7 +1018,6 @@ button { font-family: inherit; cursor: pointer; }
   box-shadow: 0 -20px 80px rgba(31,122,140,0.4), 0 -40px 160px rgba(31,122,140,0.2);
   pointer-events: none;
   bottom: -480px;
-  animation: planet-pulse 6s ease-in-out infinite;
 }
 .page-hero-inner { position: relative; z-index: 2; }
 .breadcrumb {
