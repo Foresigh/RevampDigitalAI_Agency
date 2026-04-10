@@ -179,9 +179,5 @@ app.get('/admin', requireAuth, (req, res) => {
 app.use(express.static(path.join(__dirname), { extensions: ['html'] }));
 
 // ── Start ──
-initDb().then(() => {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}).catch(err => {
-  console.error('[db init error]', err);
-  process.exit(1);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+initDb().catch(err => console.error('[db init error — add PostgreSQL in Railway]', err.message));
