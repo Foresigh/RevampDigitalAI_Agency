@@ -153,6 +153,7 @@
     <div class="audit-step" id="step1"><span class="step-dot"></span> Performance</div>
     <div class="audit-step" id="step2"><span class="step-dot"></span> SEO</div>
     <div class="audit-step" id="step3"><span class="step-dot"></span> Mobile</div>
+    <div class="audit-step" id="step4"><span class="step-dot"></span> Desktop</div>
   </div>
 </div>
 
@@ -354,7 +355,7 @@
 
   let stepTimer;
   function startStepAnim() {
-    const steps = ['step1','step2','step3'];
+    const steps = ['step1','step2','step3','step4'];
     let i = 0;
     stepTimer = setInterval(() => {
       if (i < steps.length) { document.getElementById(steps[i]).classList.add('done'); i++; }
@@ -388,7 +389,7 @@
     document.getElementById('auditLoading').classList.add('show');
     document.getElementById('auditResults').classList.remove('show');
     document.getElementById('auditError').classList.remove('show');
-    ['step1','step2','step3'].forEach(s => document.getElementById(s).classList.remove('done'));
+    ['step1','step2','step3','step4'].forEach(s => document.getElementById(s).classList.remove('done'));
     document.getElementById('auditBtn').disabled = true;
     document.getElementById('auditBtn').textContent = 'Analyzing…';
     startStepAnim();
