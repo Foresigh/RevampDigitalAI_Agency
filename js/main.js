@@ -82,11 +82,13 @@ function goAudit() {
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
       const id     = this.getAttribute('href').slice(1);
+      if (!id) return;
       const target = document.getElementById(id);
       if (!target) return;
       e.preventDefault();
       const offset = (document.getElementById('navbar')?.offsetHeight || 72) + 8;
-      window.scrollTo({ top: target.offsetTop - offset, behavior: 'smooth' });
+      const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+      window.scrollTo({ top, behavior: 'smooth' });
     });
   });
 })();
