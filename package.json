@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "description": "Revamp Digital AI — Agency Website",
   "scripts": {
-    "start": "serve . --listen $PORT --no-clipboard",
-    "dev": "serve . --listen 3000"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "dependencies": {
-    "serve": "^14.2.4"
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "node-fetch": "^2.7.0"
   },
   "engines": {
     "node": ">=18"

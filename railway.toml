@@ -2,5 +2,5 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "npx serve . --listen $PORT --no-clipboard"
+startCommand = "node server.js"
 restartPolicyType = "on_failure"

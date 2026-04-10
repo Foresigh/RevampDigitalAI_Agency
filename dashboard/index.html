@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Admin Dashboard | Revamp Digital</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#05080f;color:#e8f0fe;font-family:'Poppins',sans-serif;min-height:100vh}
+
+    /* ── Header ── */
+    .header{background:linear-gradient(135deg,rgba(31,122,140,0.12),rgba(5,8,15,0.95));border-bottom:1px solid rgba(61,214,245,0.1);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+    .header-logo{font-size:1.1rem;font-weight:700;color:#e8f0fe}
+    .header-logo span{color:#3dd6f5}
+    .header-right{display:flex;align-items:center;gap:16px}
+    .header-badge{background:rgba(61,214,245,0.1);border:1px solid rgba(61,214,245,0.2);border-radius:20px;padding:4px 14px;font-size:0.75rem;color:#3dd6f5;font-weight:600}
+    .logout-btn{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:7px 16px;color:#f87171;font-size:0.8rem;font-weight:600;cursor:pointer;text-decoration:none;transition:background 0.2s}
+    .logout-btn:hover{background:rgba(239,68,68,0.2)}
+
+    /* ── Layout ── */
+    .main{padding:32px}
+    .page-title{font-size:1.5rem;font-weight:700;margin-bottom:6px}
+    .page-sub{font-size:0.85rem;color:rgba(255,255,255,0.42);margin-bottom:32px}
+
+    /* ── Stats cards ── */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:32px}
+    .stat-card{background:linear-gradient(135deg,rgba(31,122,140,0.1),rgba(255,255,255,0.02));border:1px solid rgba(61,214,245,0.12);border-radius:16px;padding:20px 24px;position:relative;overflow:hidden}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(61,214,245,0.35),transparent)}
+    .stat-label{font-size:0.72rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+    .stat-value{font-size:2rem;font-weight:700;color:#e8f0fe;line-height:1}
+    .stat-value.teal{color:#3dd6f5}
+    .stat-value.yellow{color:#f5c842}
+    .stat-value.green{color:#4ade80}
+    .stat-value.red{color:#f87171}
+
+    /* ── Controls ── */
+    .controls{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+    .search-input{flex:1;min-width:200px;background:rgba(255,255,255,0.04);border:1px solid rgba(61,214,245,0.12);border-radius:10px;padding:10px 16px;color:#e8f0fe;font-size:0.88rem;font-family:inherit;outline:none;transition:border 0.2s}
+    .search-input:focus{border-color:rgba(61,214,245,0.4)}
+    .search-input::placeholder{color:rgba(255,255,255,0.25)}
+    .filter-btn{background:rgba(255,255,255,0.04);border:1px solid rgba(61,214,245,0.12);border-radius:10px;padding:10px 18px;color:rgba(255,255,255,0.6);font-size:0.82rem;font-family:inherit;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+    .filter-btn:hover,.filter-btn.active{background:rgba(61,214,245,0.12);border-color:rgba(61,214,245,0.3);color:#3dd6f5}
+    .refresh-btn{background:rgba(31,122,140,0.2);border:1px solid rgba(61,214,245,0.2);border-radius:10px;padding:10px 18px;color:#3dd6f5;font-size:0.82rem;font-family:inherit;cursor:pointer;font-weight:600;transition:all 0.2s}
+    .refresh-btn:hover{background:rgba(31,122,140,0.35)}
+
+    /* ── Table ── */
+    .table-wrap{background:linear-gradient(135deg,rgba(31,122,140,0.06),rgba(255,255,255,0.01));border:1px solid rgba(61,214,245,0.1);border-radius:16px;overflow:hidden}
+    .table-wrap table{width:100%;border-collapse:collapse}
+    .table-wrap th{padding:14px 16px;text-align:left;font-size:0.72rem;color:rgba(255,255,255,0.38);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(61,214,245,0.08);white-space:nowrap}
+    .table-wrap td{padding:14px 16px;font-size:0.84rem;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:top}
+    .table-wrap tr:last-child td{border-bottom:none}
+    .table-wrap tr:hover td{background:rgba(61,214,245,0.03)}
+    .lead-name{font-weight:600;color:#e8f0fe;margin-bottom:2px}
+    .lead-biz{font-size:0.78rem;color:rgba(255,255,255,0.42)}
+    .lead-email a{color:#3dd6f5;text-decoration:none;font-size:0.82rem}
+    .lead-email a:hover{text-decoration:underline}
+    .lead-phone{font-size:0.82rem;color:rgba(255,255,255,0.6)}
+    .lead-site{font-size:0.78rem;color:#3dd6f5;word-break:break-all}
+    .lead-site a{color:#3dd6f5;text-decoration:none}
+    .lead-site a:hover{text-decoration:underline}
+    .lead-goals{font-size:0.78rem;color:rgba(255,255,255,0.5);max-width:180px;line-height:1.5}
+    .lead-date{font-size:0.78rem;color:rgba(255,255,255,0.38);white-space:nowrap}
+
+    /* ── Status badge ── */
+    .status-select{background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:4px 10px;font-size:0.72rem;font-family:inherit;cursor:pointer;outline:none;font-weight:600}
+    .status-new{color:#3dd6f5;border-color:rgba(61,214,245,0.3);background:rgba(61,214,245,0.08)}
+    .status-contacted{color:#f5c842;border-color:rgba(245,200,66,0.3);background:rgba(245,200,66,0.08)}
+    .status-demo_sent{color:#a78bfa;border-color:rgba(167,139,250,0.3);background:rgba(167,139,250,0.08)}
+    .status-closed{color:#4ade80;border-color:rgba(74,222,128,0.3);background:rgba(74,222,128,0.08)}
+    .status-lost{color:#f87171;border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.08)}
+
+    /* ── Notes ── */
+    .notes-cell{min-width:160px}
+    .notes-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 10px;color:#e8f0fe;font-size:0.78rem;font-family:inherit;resize:vertical;min-height:48px;outline:none;transition:border 0.2s}
+    .notes-input:focus{border-color:rgba(61,214,245,0.3)}
+    .notes-input::placeholder{color:rgba(255,255,255,0.2)}
+
+    /* ── Empty / Loading ── */
+    .empty{text-align:center;padding:64px 32px;color:rgba(255,255,255,0.3)}
+    .empty h3{font-size:1rem;margin-bottom:8px;color:rgba(255,255,255,0.5)}
+    .loading{text-align:center;padding:64px;color:rgba(255,255,255,0.3)}
+    .spinner{width:32px;height:32px;border:3px solid rgba(61,214,245,0.15);border-top-color:#3dd6f5;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 16px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── Toast ── */
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1F7A8C;color:#fff;padding:10px 24px;border-radius:10px;font-size:0.85rem;font-weight:600;z-index:9999;opacity:0;transition:all 0.3s;pointer-events:none}
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+    /* ── API key warning ── */
+    .api-warning{background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.25);border-radius:12px;padding:16px 20px;margin-bottom:24px;font-size:0.85rem;color:#f5c842;line-height:1.6}
+    .api-warning strong{display:block;margin-bottom:4px}
+    .api-warning code{background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;font-size:0.8rem}
+
+    @media(max-width:768px){
+      .main{padding:16px}
+      .header{padding:0 16px}
+      .table-wrap{overflow-x:auto}
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-logo">Revamp <span>Digital</span></div>
+  <div class="header-right">
+    <span class="header-badge">Admin</span>
+    <a href="/admin/logout" class="logout-btn">Sign Out</a>
+  </div>
+</header>
+
+<main class="main">
+  <div class="page-title">Lead Dashboard</div>
+  <div class="page-sub">All website revamp inquiries from your contact form</div>
+
+  <div id="apiWarning" style="display:none" class="api-warning">
+    <strong>Formspree API Key Not Set</strong>
+    Add <code>FORMSPREE_API_KEY</code> to your Railway environment variables to load live leads.
+    Get your API key at <strong>formspree.io → Account → API Keys</strong>.
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total Leads</div>
+      <div class="stat-value teal" id="statTotal">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">New</div>
+      <div class="stat-value" id="statNew">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Contacted</div>
+      <div class="stat-value yellow" id="statContacted">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Demo Sent</div>
+      <div class="stat-value" style="color:#a78bfa" id="statDemo">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Closed / Won</div>
+      <div class="stat-value green" id="statClosed">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Lost</div>
+      <div class="stat-value red" id="statLost">—</div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <input class="search-input" id="searchInput" type="text" placeholder="Search by name, business, email..."/>
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="new">New</button>
+    <button class="filter-btn" data-filter="contacted">Contacted</button>
+    <button class="filter-btn" data-filter="demo_sent">Demo Sent</button>
+    <button class="filter-btn" data-filter="closed">Closed</button>
+    <button class="filter-btn" data-filter="lost">Lost</button>
+    <button class="refresh-btn" id="refreshBtn">↻ Refresh</button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <div id="tableContent">
+      <div class="loading">
+        <div class="spinner"></div>
+        Loading leads...
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let allLeads = [];
+  let currentFilter = 'all';
+
+  // ── Load statuses from localStorage ──
+  function getStatuses() {
+    try { return JSON.parse(localStorage.getItem('lead_statuses') || '{}'); } catch { return {}; }
+  }
+  function saveStatus(id, status) {
+    const s = getStatuses(); s[id] = status;
+    localStorage.setItem('lead_statuses', JSON.stringify(s));
+  }
+  function getNotes() {
+    try { return JSON.parse(localStorage.getItem('lead_notes') || '{}'); } catch { return {}; }
+  }
+  function saveNote(id, note) {
+    const n = getNotes(); n[id] = note;
+    localStorage.setItem('lead_notes', JSON.stringify(n));
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function formatDate(str) {
+    if (!str) return '—';
+    const d = new Date(str);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
+      ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function updateStats(leads) {
+    const statuses = getStatuses();
+    const counts = { new: 0, contacted: 0, demo_sent: 0, closed: 0, lost: 0 };
+    leads.forEach(l => {
+      const s = statuses[l.id] || 'new';
+      if (counts[s] !== undefined) counts[s]++;
+    });
+    document.getElementById('statTotal').textContent = leads.length;
+    document.getElementById('statNew').textContent = counts.new;
+    document.getElementById('statContacted').textContent = counts.contacted;
+    document.getElementById('statDemo').textContent = counts.demo_sent;
+    document.getElementById('statClosed').textContent = counts.closed;
+    document.getElementById('statLost').textContent = counts.lost;
+  }
+
+  function renderTable(leads) {
+    const statuses = getStatuses();
+    const notes = getNotes();
+    const search = document.getElementById('searchInput').value.toLowerCase();
+
+    let filtered = leads.filter(l => {
+      const s = statuses[l.id] || 'new';
+      if (currentFilter !== 'all' && s !== currentFilter) return false;
+      if (search) {
+        const hay = [l.owner_name, l.business_name, l.email, l.business_type, l.current_website]
+          .join(' ').toLowerCase();
+        if (!hay.includes(search)) return false;
+      }
+      return true;
+    });
+
+    if (!filtered.length) {
+      document.getElementById('tableContent').innerHTML =
+        '<div class="empty"><h3>No leads found</h3><p>Try a different filter or search term.</p></div>';
+      return;
+    }
+
+    const rows = filtered.map(l => {
+      const id = l.id;
+      const status = statuses[id] || 'new';
+      const note = notes[id] || '';
+      const statusOptions = ['new','contacted','demo_sent','closed','lost']
+        .map(s => `<option value="${s}" ${s===status?'selected':''}>${s.replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase())}</option>`)
+        .join('');
+      return `<tr>
+        <td>
+          <div class="lead-name">${l.owner_name || '—'}</div>
+          <div class="lead-biz">${l.business_name || ''}</div>
+          <div class="lead-biz" style="margin-top:2px;color:rgba(255,255,255,0.3)">${l.business_type || ''}</div>
+        </td>
+        <td>
+          <div class="lead-email"><a href="mailto:${l.email}">${l.email || '—'}</a></div>
+          <div class="lead-phone">${l.phone || ''}</div>
+        </td>
+        <td><div class="lead-site">${l.current_website ? `<a href="${l.current_website}" target="_blank" rel="noopener">${l.current_website.replace(/^https?:\/\//,'')}</a>` : '<span style="color:rgba(255,255,255,0.2)">No website</span>'}</div></td>
+        <td><div class="lead-goals">${l.goals || '—'}</div></td>
+        <td>
+          <select class="status-select status-${status}" data-id="${id}" onchange="changeStatus(this)">
+            ${statusOptions}
+          </select>
+        </td>
+        <td class="notes-cell">
+          <textarea class="notes-input" data-id="${id}" placeholder="Add notes..." onblur="saveNoteHandler(this)">${note}</textarea>
+        </td>
+        <td><div class="lead-date">${formatDate(l.submitted_at)}</div></td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('tableContent').innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Lead</th>
+            <th>Contact</th>
+            <th>Current Website</th>
+            <th>Challenge</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+    updateStats(leads);
+  }
+
+  function changeStatus(sel) {
+    const id = sel.dataset.id;
+    const status = sel.value;
+    saveStatus(id, status);
+    sel.className = `status-select status-${status}`;
+    updateStats(allLeads);
+    showToast('Status updated');
+  }
+
+  function saveNoteHandler(el) {
+    saveNote(el.dataset.id, el.value);
+    showToast('Note saved');
+  }
+
+  // ── Fetch leads ──
+  async function loadLeads() {
+    document.getElementById('tableContent').innerHTML =
+      '<div class="loading"><div class="spinner"></div>Loading leads...</div>';
+    try {
+      const res = await fetch('/api/leads');
+      const data = await res.json();
+      if (data.error) {
+        if (data.error.includes('No Formspree API key')) {
+          document.getElementById('apiWarning').style.display = 'block';
+          document.getElementById('tableContent').innerHTML =
+            '<div class="empty"><h3>API key required</h3><p>See the yellow banner above for setup instructions.</p></div>';
+          return;
+        }
+        throw new Error(data.error);
+      }
+      allLeads = (data.submissions || []).map(s => ({ id: s.id, ...s }));
+      updateStats(allLeads);
+      renderTable(allLeads);
+    } catch (err) {
+      document.getElementById('tableContent').innerHTML =
+        `<div class="empty"><h3>Error loading leads</h3><p style="color:#f87171">${err.message}</p></div>`;
+    }
+  }
+
+  // ── Filter buttons ──
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      renderTable(allLeads);
+    });
+  });
+
+  // ── Search ──
+  document.getElementById('searchInput').addEventListener('input', () => renderTable(allLeads));
+
+  // ── Refresh ──
+  document.getElementById('refreshBtn').addEventListener('click', loadLeads);
+
+  // ── Init ──
+  loadLeads();
+</script>
+</body>
+</html>
