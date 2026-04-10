@@ -465,7 +465,7 @@
       previewImg.classList.remove('loaded');
       document.getElementById('previewLoading').style.display = 'flex';
       document.getElementById('previewLoading').textContent = 'Loading preview…';
-      previewImg.src = 'https://image.thum.io/get/width/640/crop/420/' + encodeURIComponent(data.url);
+      previewImg.src = 'https://api.microlink.io/?url=' + encodeURIComponent(data.url) + '&screenshot=true&meta=false&embed=screenshot.url';
 
       // Overall grade (weighted average)
       const s = data.scores;
