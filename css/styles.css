@@ -447,7 +447,7 @@ button { font-family: inherit; cursor: pointer; }
 .over-planet {
   position: relative;
   z-index: 10;
-  margin-top: -4vw;
+  margin-top: 0;
   background: transparent;
 }
 
