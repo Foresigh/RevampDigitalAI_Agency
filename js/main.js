@@ -13,7 +13,13 @@ function goAudit() {
   let url = input ? input.value.trim().replace(/\s+/g,'').replace(/^\/+/,'') : '';
   if (!url) { if (input) input.focus(); return; }
   if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-  window.location.href = '/audit?url=' + encodeURIComponent(url);
+  // Extract just the hostname for a clean URL
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, '');
+    window.location.href = '/audit/' + host;
+  } catch(e) {
+    window.location.href = '/audit/' + url.replace(/^https?:\/\//i,'').replace(/^www\./,'');
+  }
 }
 
 /* ── Navbar: solidify on scroll ── */

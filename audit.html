@@ -374,6 +374,13 @@
   async function runAudit() {
     const url = normalizeUrl(document.getElementById('urlInput').value);
     if (!url) { document.getElementById('urlInput').focus(); return; }
+
+    // Update to clean URL in browser bar
+    try {
+      const host = new URL(url).hostname.replace(/^www\./, '');
+      window.history.replaceState(null, '', '/audit/' + host);
+    } catch(e) {}
+
     // update input to show normalized URL
     document.getElementById('urlInput').value = url;
 
@@ -427,10 +434,13 @@
     document.getElementById('auditBtn').textContent = 'Analyze My Website';
   }
 
-  // Auto-run if URL in query string
+  // Auto-run if domain in path: /audit/domain.com
   window.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    const u = params.get('url');
+    const pathParts = window.location.pathname.split('/audit/');
+    const site = pathParts[1] ? decodeURIComponent(pathParts[1]) : null;
+    // Also support legacy ?url= query string
+    const legacy = new URLSearchParams(window.location.search).get('url');
+    const u = site || legacy;
     if (u) {
       document.getElementById('urlInput').value = u;
       runAudit();

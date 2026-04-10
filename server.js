@@ -292,6 +292,11 @@ app.patch('/api/leads/:id', requireAuth, async (req, res) => {
   }
 });
 
+// ── Audit page with clean URL: /audit/domain.com ──
+app.get('/audit/:site(*)', (req, res) => {
+  res.sendFile(path.join(__dirname, 'audit.html'));
+});
+
 // ── Admin dashboard ──
 app.get('/admin', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard', 'index.html'));
