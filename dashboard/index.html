@@ -235,7 +235,10 @@
           <div class="lead-email"><a href="mailto:${l.email}">${l.email || '—'}</a></div>
           <div class="lead-phone">${l.phone || ''}</div>
         </td>
-        <td><div class="lead-site">${l.current_website ? `<a href="${l.current_website}" target="_blank" rel="noopener">${l.current_website.replace(/^https?:\/\//,'')}</a>` : '<span style="color:rgba(255,255,255,0.2)">No website</span>'}</div></td>
+        <td>
+          <div class="lead-site">${l.current_website ? `<a href="${l.current_website}" target="_blank" rel="noopener">${l.current_website.replace(/^https?:\/\//,'')}</a>` : '<span style="color:rgba(255,255,255,0.2)">No website</span>'}</div>
+          ${l.inspire_url ? `<div class="lead-site" style="margin-top:4px;font-size:0.72rem;color:rgba(61,214,245,0.6)">Likes: <a href="${l.inspire_url}" target="_blank" rel="noopener">${l.inspire_url.replace(/^https?:\/\//,'')}</a></div>` : ''}
+        </td>
         <td><div class="lead-goals">${l.goals || '—'}</div></td>
         <td>
           <select class="status-select status-${status}" data-id="${id}" onchange="changeStatus(this)">

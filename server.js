@@ -28,11 +28,14 @@ async function initDb() {
       email       TEXT NOT NULL,
       phone       TEXT,
       current_website TEXT,
+      inspire_url TEXT,
       goals       TEXT,
       status      TEXT DEFAULT 'new',
       notes       TEXT DEFAULT ''
     )
   `);
+  // add inspire_url column if missing (migration)
+  await pool.query(`ALTER TABLE leads ADD COLUMN IF NOT EXISTS inspire_url TEXT DEFAULT ''`);
   console.log('[db] leads table ready');
 }
 
@@ -121,8 +124,8 @@ app.post('/api/submit', async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO leads (owner_name, business_name, business_type, email, phone, current_website, goals)
-       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+      `INSERT INTO leads (owner_name, business_name, business_type, email, phone, current_website, inspire_url, goals)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id`,
       [
         owner_name,
         b.business_name || b.business || '',
@@ -130,6 +133,7 @@ app.post('/api/submit', async (req, res) => {
         email,
         b.phone           || '',
         b.current_website || '',
+        b.inspire_url     || '',
         b.goals || b.message || ''
       ]
     );
@@ -146,7 +150,7 @@ app.get('/api/leads', requireAuth, async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT id, submitted_at AS "submittedAt", owner_name, business_name,
-              business_type, email, phone, current_website, goals, status, notes
+              business_type, email, phone, current_website, inspire_url, goals, status, notes
        FROM leads ORDER BY submitted_at DESC`
     );
     res.json(result.rows);
