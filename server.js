@@ -264,12 +264,45 @@ function parseAudit(mobile, desktop) {
   else
     suggestion = "Adding a visible phone number and a 'Call Now' button above the fold could increase your leads by 20–40%. Most mobile visitors want to call — not fill out a form. Make it as easy as possible for them to contact you the moment they land on your page.";
 
+  // ── Core Web Vitals metrics ──
+  const metricVal = key => ma[key]?.displayValue || null;
+  const metricScore = key => ma[key]?.score ?? null;
+  const metrics = {
+    fcp:   { label: 'First Contentful Paint', value: metricVal('first-contentful-paint'),   score: metricScore('first-contentful-paint') },
+    lcp:   { label: 'Largest Contentful Paint', value: metricVal('largest-contentful-paint'), score: metricScore('largest-contentful-paint') },
+    tbt:   { label: 'Total Blocking Time',    value: metricVal('total-blocking-time'),       score: metricScore('total-blocking-time') },
+    cls:   { label: 'Cumulative Layout Shift', value: metricVal('cumulative-layout-shift'),  score: metricScore('cumulative-layout-shift') },
+    si:    { label: 'Speed Index',             value: metricVal('speed-index'),               score: metricScore('speed-index') },
+    tti:   { label: 'Time to Interactive',     value: metricVal('interactive'),               score: metricScore('interactive') },
+  };
+
+  // ── Accessibility diagnostics ──
+  const a11yAudits = mobile.lighthouseResult?.categories?.accessibility?.auditRefs || [];
+  const a11yIssues = a11yAudits
+    .filter(ref => ref.weight > 0)
+    .map(ref => ma[ref.id])
+    .filter(a => a && a.score !== null && a.score < 1 && a.score !== undefined)
+    .slice(0, 5)
+    .map(a => ({ text: a.title, severity: a.score < 0.5 ? 'high' : 'medium' }));
+
+  // ── Best practices diagnostics ──
+  const bpAudits = mobile.lighthouseResult?.categories?.['best-practices']?.auditRefs || [];
+  const bpIssues = bpAudits
+    .filter(ref => ref.weight > 0)
+    .map(ref => ma[ref.id])
+    .filter(a => a && a.score !== null && a.score < 1 && a.score !== undefined)
+    .slice(0, 5)
+    .map(a => ({ text: a.title, severity: a.score < 0.5 ? 'high' : 'medium' }));
+
   return {
     scores: { performance: perf, seo, accessibility, bestPractices, desktop: desktopPerf, mobileFriendly },
+    metrics,
     issues: issues.slice(0, 5),
     wins:   wins.slice(0, 3),
     mobileIssues: mobileIssues.slice(0, 4),
     mobileWins:   mobileWins.slice(0, 3),
+    a11yIssues,
+    bpIssues,
     suggestion
   };
 }
