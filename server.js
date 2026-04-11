@@ -500,6 +500,11 @@ app.get('/audit-report/:id', (req, res) => {
   res.sendFile(path.join(__dirname, 'audit-report.html'));
 });
 
+// ── Business card ──
+app.get('/business-card', (req, res) => {
+  res.sendFile(path.join(__dirname, 'business-card.html'));
+});
+
 // ── Audit page with clean URL: /audit/domain.com ──
 app.get('/audit/:site(*)', (req, res) => {
   res.sendFile(path.join(__dirname, 'audit.html'));
