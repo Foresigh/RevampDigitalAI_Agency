@@ -132,6 +132,7 @@
   <div class="tabs">
     <button class="tab-btn active" data-tab="leads">Leads</button>
     <button class="tab-btn" data-tab="audits">Website Audits</button>
+    <button class="tab-btn" data-tab="report-leads">Report Downloads</button>
   </div>
 
   <!-- ══ LEADS TAB ══ -->
@@ -233,6 +234,42 @@
     </div>
 
   </div><!-- /tab-audits -->
+
+  <!-- ══ REPORT DOWNLOADS TAB ══ -->
+  <div class="tab-panel" id="tab-report-leads">
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Downloads</div>
+        <div class="stat-value teal" id="statRlTotal">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Unique Emails</div>
+        <div class="stat-value" id="statRlUniq">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Countries</div>
+        <div class="stat-value yellow" id="statRlCountries">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">This Week</div>
+        <div class="stat-value green" id="statRlWeek">—</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <input class="search-input" id="rlSearch" type="text" placeholder="Search by email, city, website..."/>
+      <button class="refresh-btn" id="refreshRlBtn">↻ Refresh</button>
+    </div>
+
+    <div class="table-wrap">
+      <div id="rlTableContent">
+        <div class="loading"><div class="spinner"></div>Loading report downloads...</div>
+      </div>
+    </div>
+
+  </div><!-- /tab-report-leads -->
 
 </main>
 
@@ -402,17 +439,6 @@
   // ── Refresh ──
   document.getElementById('refreshBtn').addEventListener('click', loadLeads);
 
-  // ── Tabs ──
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-      if (btn.dataset.tab === 'audits' && !auditsLoaded) loadAudits();
-    });
-  });
-
   // ── Audits ──
   let allAudits = [];
   let auditsLoaded = false;
@@ -500,6 +526,105 @@
 
   document.getElementById('auditSearch').addEventListener('input', () => renderAudits(allAudits));
   document.getElementById('refreshAuditsBtn').addEventListener('click', () => { auditsLoaded = false; loadAudits(); });
+
+  // ── Tab switching (updated to support 3 tabs) ──
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab;
+      document.getElementById('tab-' + tab).classList.add('active');
+      if (tab === 'audits' && !auditsLoaded) loadAudits();
+      if (tab === 'report-leads' && !rlLoaded) loadReportLeads();
+    });
+  });
+
+  // ── Report Download Leads ──
+  let allRl = [], rlLoaded = false;
+
+  function parseDevice(ua) {
+    if (!ua) return '—';
+    if (/mobile|android|iphone|ipad/i.test(ua)) return '📱 Mobile';
+    if (/tablet/i.test(ua)) return '📟 Tablet';
+    return '🖥 Desktop';
+  }
+
+  function updateRlStats(rows) {
+    document.getElementById('statRlTotal').textContent = rows.length;
+    document.getElementById('statRlUniq').textContent  = new Set(rows.map(r => r.email)).size;
+    document.getElementById('statRlCountries').textContent = new Set(rows.map(r => r.country).filter(Boolean)).size || '—';
+    const weekAgo = new Date(Date.now() - 7 * 864e5);
+    document.getElementById('statRlWeek').textContent = rows.filter(r => new Date(r.downloadedAt) > weekAgo).length;
+  }
+
+  function renderRl(rows) {
+    const q = document.getElementById('rlSearch').value.toLowerCase();
+    const filtered = q ? rows.filter(r =>
+      [r.email, r.url, r.city, r.region, r.country].join(' ').toLowerCase().includes(q)
+    ) : rows;
+
+    if (!filtered.length) {
+      document.getElementById('rlTableContent').innerHTML =
+        '<div class="empty"><h3>No report downloads yet</h3><p>When visitors download the PDF report, they\'ll appear here.</p></div>';
+      return;
+    }
+
+    const rows_html = filtered.map(r => {
+      const location = [r.city, r.region, r.country].filter(Boolean).join(', ') || '—';
+      const auditedHost = (() => { try { return new URL(r.url).hostname; } catch(e) { return r.url || '—'; } })();
+      return `<tr>
+        <td>
+          <div style="font-weight:600;color:#e8f0fe">${r.email}</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:2px">${parseDevice(r.userAgent)}</div>
+        </td>
+        <td>
+          <div class="lead-site">${r.url ? `<a href="/audit/${auditedHost}" target="_blank" rel="noopener">${auditedHost}</a>` : '—'}</div>
+        </td>
+        <td>
+          <div style="font-size:0.83rem;color:rgba(255,255,255,0.7)">${location}</div>
+          ${r.ip ? `<div style="font-size:0.7rem;color:rgba(255,255,255,0.25);margin-top:2px">${r.ip}</div>` : ''}
+        </td>
+        <td>
+          <div class="lead-date">${formatDate(r.downloadedAt)}</div>
+        </td>
+        <td>
+          <a href="mailto:${r.email}" style="background:rgba(61,214,245,0.1);border:1px solid rgba(61,214,245,0.2);border-radius:7px;padding:5px 12px;color:#3dd6f5;font-size:0.75rem;font-weight:600;text-decoration:none;display:inline-block">Follow Up →</a>
+        </td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('rlTableContent').innerHTML = `
+      <table>
+        <thead><tr>
+          <th>Email</th>
+          <th>Website Audited</th>
+          <th>Location</th>
+          <th>Downloaded</th>
+          <th>Action</th>
+        </tr></thead>
+        <tbody>${rows_html}</tbody>
+      </table>`;
+  }
+
+  async function loadReportLeads() {
+    rlLoaded = true;
+    document.getElementById('rlTableContent').innerHTML =
+      '<div class="loading"><div class="spinner"></div>Loading report downloads...</div>';
+    try {
+      const res = await fetch('/api/audit-leads');
+      if (!res.ok) throw new Error('Failed');
+      allRl = await res.json();
+      updateRlStats(allRl);
+      renderRl(allRl);
+    } catch (e) {
+      document.getElementById('rlTableContent').innerHTML =
+        `<div class="empty"><h3>Error loading data</h3><p style="color:#f87171">${e.message}</p></div>`;
+    }
+  }
+
+  document.getElementById('rlSearch').addEventListener('input', () => renderRl(allRl));
+  document.getElementById('refreshRlBtn').addEventListener('click', () => { rlLoaded = false; loadReportLeads(); });
 
   // ── Init ──
   loadLeads();

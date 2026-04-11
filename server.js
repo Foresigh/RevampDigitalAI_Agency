@@ -61,9 +61,19 @@ async function initDb() {
       id           SERIAL PRIMARY KEY,
       downloaded_at TIMESTAMPTZ DEFAULT NOW(),
       email        TEXT NOT NULL,
-      url          TEXT
+      url          TEXT,
+      ip           TEXT,
+      city         TEXT,
+      region       TEXT,
+      country      TEXT,
+      user_agent   TEXT
     )
   `);
+  await pool.query(`ALTER TABLE audit_downloads ADD COLUMN IF NOT EXISTS ip TEXT`);
+  await pool.query(`ALTER TABLE audit_downloads ADD COLUMN IF NOT EXISTS city TEXT`);
+  await pool.query(`ALTER TABLE audit_downloads ADD COLUMN IF NOT EXISTS region TEXT`);
+  await pool.query(`ALTER TABLE audit_downloads ADD COLUMN IF NOT EXISTS country TEXT`);
+  await pool.query(`ALTER TABLE audit_downloads ADD COLUMN IF NOT EXISTS user_agent TEXT`);
   console.log('[db] tables ready');
 }
 
@@ -431,15 +441,46 @@ app.get('/api/audits', requireAuth, async (req, res) => {
 app.post('/api/audit-email', async (req, res) => {
   const { email, url } = req.body;
   if (!email || !email.includes('@')) return res.status(400).json({ error: 'Valid email required' });
+
+  // Get IP (Railway puts real IP in X-Forwarded-For)
+  const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+  const ua = req.headers['user-agent'] || '';
+
+  // Geolocation via ip-api.com (free, no key, 45 req/min)
+  let city = '', region = '', country = '';
+  try {
+    if (ip && !ip.startsWith('127.') && !ip.startsWith('::')) {
+      const geo = await fetch(`http://ip-api.com/json/${ip}?fields=city,regionName,country`);
+      const gd  = await geo.json();
+      if (gd.city)       city    = gd.city;
+      if (gd.regionName) region  = gd.regionName;
+      if (gd.country)    country = gd.country;
+    }
+  } catch (e) { /* non-critical */ }
+
   try {
     await pool.query(
-      `INSERT INTO audit_downloads (email, url) VALUES ($1, $2)`,
-      [email, url || '']
+      `INSERT INTO audit_downloads (email, url, ip, city, region, country, user_agent) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+      [email, url || '', ip, city, region, country, ua]
     );
+    console.log(`[audit-download] ${email} from ${city}, ${region} | ${url}`);
     res.json({ ok: true });
   } catch (e) {
     console.error('[audit-email error]', e.message);
     res.status(500).json({ error: 'Could not save email' });
+  }
+});
+
+// ── API: get audit download leads (admin only) ──
+app.get('/api/audit-leads', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT id, downloaded_at AS "downloadedAt", email, url, ip, city, region, country, user_agent AS "userAgent"
+       FROM audit_downloads ORDER BY downloaded_at DESC LIMIT 500`
+    );
+    res.json(r.rows);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 });
 
