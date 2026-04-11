@@ -47,7 +47,19 @@ async function initDb() {
       score_perf   INT,
       score_seo    INT,
       score_mobile INT,
-      score_desktop INT
+      score_desktop INT,
+      result_json  JSONB
+    )
+  `);
+  await pool.query(`ALTER TABLE audits ADD COLUMN IF NOT EXISTS result_json JSONB`);
+
+  // Audit PDF downloads — tracks who requested a report
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS audit_downloads (
+      id           SERIAL PRIMARY KEY,
+      downloaded_at TIMESTAMPTZ DEFAULT NOW(),
+      email        TEXT NOT NULL,
+      url          TEXT
     )
   `);
   console.log('[db] tables ready');
@@ -271,13 +283,17 @@ app.get('/api/audit', async (req, res) => {
     const desktop = await dr.json();
     if (mobile.error) throw new Error(mobile.error.message || 'Could not analyze that URL');
     const result = parseAudit(mobile, desktop);
-    // Save to DB (non-blocking)
-    pool.query(
-      `INSERT INTO audits (url, score_perf, score_seo, score_mobile, score_desktop)
-       VALUES ($1,$2,$3,$4,$5)`,
-      [url, result.scores.performance, result.scores.seo, result.scores.mobileFriendly, result.scores.desktop]
-    ).catch(e => console.error('[audit save error]', e.message));
-    res.json({ url, ...result });
+    // Save to DB and return audit ID
+    let auditId = null;
+    try {
+      const ins = await pool.query(
+        `INSERT INTO audits (url, score_perf, score_seo, score_mobile, score_desktop, result_json)
+         VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
+        [url, result.scores.performance, result.scores.seo, result.scores.mobileFriendly, result.scores.desktop, JSON.stringify({ url, ...result })]
+      );
+      auditId = ins.rows[0].id;
+    } catch (e) { console.error('[audit save error]', e.message); }
+    res.json({ url, auditId, ...result });
   } catch (err) {
     console.error('[audit error]', err.message);
     res.status(500).json({ error: err.message });
@@ -324,6 +340,38 @@ app.get('/api/audits', requireAuth, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// ── API: save email before PDF download ──
+app.post('/api/audit-email', async (req, res) => {
+  const { email, url } = req.body;
+  if (!email || !email.includes('@')) return res.status(400).json({ error: 'Valid email required' });
+  try {
+    await pool.query(
+      `INSERT INTO audit_downloads (email, url) VALUES ($1, $2)`,
+      [email, url || '']
+    );
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[audit-email error]', e.message);
+    res.status(500).json({ error: 'Could not save email' });
+  }
+});
+
+// ── API: get stored audit result by ID ──
+app.get('/api/audit-data/:id', async (req, res) => {
+  try {
+    const r = await pool.query(`SELECT result_json FROM audits WHERE id = $1`, [req.params.id]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(r.rows[0].result_json);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ── Audit report page (print/PDF) ──
+app.get('/audit-report/:id', (req, res) => {
+  res.sendFile(path.join(__dirname, 'audit-report.html'));
 });
 
 // ── Audit page with clean URL: /audit/domain.com ──

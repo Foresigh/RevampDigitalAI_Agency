@@ -132,6 +132,31 @@
     .grade-mini-val{font-size:1.1rem;font-weight:700}
     .grade-mini-lbl{font-size:0.62rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
 
+    /* ── Download button ── */
+    .download-bar{text-align:center;margin-bottom:36px}
+    .download-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#1F7A8C,#15606e);border:none;border-radius:12px;padding:14px 32px;color:#fff;font-size:0.95rem;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;transition:opacity 0.2s;text-decoration:none}
+    .download-btn:hover{opacity:.88}
+    .download-btn svg{flex-shrink:0}
+
+    /* ── Email gate modal ── */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px)}
+    .modal-backdrop.show{display:flex}
+    .modal{background:linear-gradient(135deg,rgba(31,122,140,0.15),rgba(5,8,15,0.98));border:1px solid rgba(61,214,245,0.2);border-radius:24px;padding:40px;max-width:460px;width:100%;position:relative;overflow:hidden}
+    .modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(61,214,245,0.5),transparent)}
+    .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:rgba(255,255,255,0.35);font-size:1.4rem;cursor:pointer;line-height:1;padding:4px 8px;transition:color 0.2s}
+    .modal-close:hover{color:#fff}
+    .modal-icon{width:56px;height:56px;background:rgba(61,214,245,0.1);border:1px solid rgba(61,214,245,0.2);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+    .modal h2{font-size:1.4rem;font-weight:800;margin-bottom:8px}
+    .modal p{font-size:0.88rem;color:rgba(255,255,255,0.5);line-height:1.6;margin-bottom:24px}
+    .modal-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(61,214,245,0.2);border-radius:10px;padding:13px 16px;color:#e8f0fe;font-size:0.95rem;font-family:'Poppins',sans-serif;outline:none;margin-bottom:12px;transition:border 0.2s}
+    .modal-input:focus{border-color:rgba(61,214,245,0.5)}
+    .modal-input::placeholder{color:rgba(255,255,255,0.25)}
+    .modal-submit{width:100%;background:linear-gradient(135deg,#1F7A8C,#15606e);border:none;border-radius:10px;padding:14px;color:#fff;font-size:0.95rem;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;transition:opacity 0.2s}
+    .modal-submit:hover{opacity:.88}
+    .modal-submit:disabled{opacity:.5;cursor:not-allowed}
+    .modal-err{font-size:0.8rem;color:#f87171;margin-bottom:10px;display:none}
+    .modal-fine{font-size:0.72rem;color:rgba(255,255,255,0.25);text-align:center;margin-top:10px;line-height:1.5}
+
     /* ── Error ── */
     .audit-error{display:none;text-align:center;padding:48px 24px;max-width:500px;margin:0 auto}
     .audit-error.show{display:block}
@@ -298,6 +323,14 @@
     <div class="suggestion-text" id="suggestionText"></div>
   </div>
 
+  <!-- Download PDF -->
+  <div class="download-bar">
+    <button class="download-btn" id="downloadPdfBtn">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      Download Full PDF Report
+    </button>
+  </div>
+
   <!-- CTA -->
   <div class="audit-cta">
     <h2>Want Us to Fix All of This — Free?</h2>
@@ -309,6 +342,22 @@
     <div class="cta-sub">48-hour turnaround. Zero cost to see it.</div>
   </div>
 
+</div>
+
+<!-- Email gate modal -->
+<div class="modal-backdrop" id="emailModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-icon">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#3dd6f5" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+    </div>
+    <h2>Get Your Free PDF Report</h2>
+    <p>Enter your email and we'll open your full audit report — ready to download or print as a PDF.</p>
+    <div class="modal-err" id="modalErr"></div>
+    <input class="modal-input" id="modalEmail" type="email" placeholder="your@email.com" autocomplete="email"/>
+    <button class="modal-submit" id="modalSubmit" onclick="submitModalEmail()">Open My Report →</button>
+    <div class="modal-fine">No spam. We may follow up about your audit results.</div>
+  </div>
 </div>
 
 <script>
@@ -405,6 +454,57 @@
       </div>`).join('');
   }
 
+  // ── Email modal ──
+  let currentAuditId = null;
+  let currentAuditUrl = null;
+
+  document.getElementById('downloadPdfBtn').addEventListener('click', () => {
+    document.getElementById('emailModal').classList.add('show');
+    document.getElementById('modalEmail').focus();
+  });
+
+  function closeModal() {
+    document.getElementById('emailModal').classList.remove('show');
+    document.getElementById('modalErr').style.display = 'none';
+    document.getElementById('modalEmail').value = '';
+  }
+
+  document.getElementById('emailModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('emailModal')) closeModal();
+  });
+
+  document.getElementById('modalEmail').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submitModalEmail();
+  });
+
+  async function submitModalEmail() {
+    const email = document.getElementById('modalEmail').value.trim();
+    const errEl = document.getElementById('modalErr');
+    errEl.style.display = 'none';
+    if (!email || !email.includes('@')) {
+      errEl.textContent = 'Please enter a valid email address.';
+      errEl.style.display = 'block';
+      return;
+    }
+    const btn = document.getElementById('modalSubmit');
+    btn.disabled = true;
+    btn.textContent = 'Opening…';
+    try {
+      await fetch('/api/audit-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, url: currentAuditUrl })
+      });
+      closeModal();
+      window.open('/audit-report/' + currentAuditId, '_blank');
+    } catch (e) {
+      errEl.textContent = 'Something went wrong. Please try again.';
+      errEl.style.display = 'block';
+    }
+    btn.disabled = false;
+    btn.textContent = 'Open My Report →';
+  }
+
   let stepTimer;
   function startStepAnim() {
     const steps = ['step1','step2','step3','step4'];
@@ -456,6 +556,10 @@
       // Show results
       document.getElementById('auditLoading').classList.remove('show');
       document.getElementById('auditResults').classList.add('show');
+      // Store for PDF download
+      currentAuditId = data.auditId;
+      currentAuditUrl = data.url;
+
       // Site preview screenshot (thum.io — free, no API key)
       const previewImg = document.getElementById('sitePreview');
       previewImg.classList.remove('loaded');
