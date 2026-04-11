@@ -477,7 +477,7 @@
     if (e.key === 'Enter') submitModalEmail();
   });
 
-  async function submitModalEmail() {
+  function submitModalEmail() {
     const email = document.getElementById('modalEmail').value.trim();
     const errEl = document.getElementById('modalErr');
     errEl.style.display = 'none';
@@ -486,23 +486,19 @@
       errEl.style.display = 'block';
       return;
     }
-    const btn = document.getElementById('modalSubmit');
-    btn.disabled = true;
-    btn.textContent = 'Opening…';
-    try {
-      await fetch('/api/audit-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, url: currentAuditUrl })
-      });
-      closeModal();
-      window.open('/audit-report/' + currentAuditId, '_blank');
-    } catch (e) {
-      errEl.textContent = 'Something went wrong. Please try again.';
-      errEl.style.display = 'block';
+    // Open window FIRST (synchronous, inside user gesture — no popup block)
+    const reportWin = window.open('/audit-report/' + currentAuditId, '_blank');
+    closeModal();
+    // Save email in background (non-blocking)
+    fetch('/api/audit-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, url: currentAuditUrl })
+    }).catch(() => {});
+    // Fallback if popup was blocked
+    if (!reportWin) {
+      window.location.href = '/audit-report/' + currentAuditId;
     }
-    btn.disabled = false;
-    btn.textContent = 'Open My Report →';
   }
 
   let stepTimer;
