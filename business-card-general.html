@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Business Card — Feyisa Berisa | Revamp Digital LLC</title>
+  <title>Business Card — Revamp Digital LLC</title>
   <link rel="icon" type="image/png" href="images/logo.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -65,7 +65,7 @@
       text-align:center;margin-bottom:10px;
     }
 
-    /* ── Business card base (3.5 × 2 in → 525 × 300 px at 150dpi) ── */
+    /* ── Business card base ── */
     .biz-card{
       width:525px;height:300px;
       border-radius:16px;
@@ -82,7 +82,6 @@
         0 20px 60px rgba(0,0,0,0.7),
         0 0 80px rgba(61,214,245,0.06);
     }
-    /* grid lines */
     .card-front::before{
       content:'';position:absolute;inset:0;
       background-image:
@@ -91,7 +90,6 @@
       background-size:40px 40px;
       pointer-events:none;
     }
-    /* corner glow */
     .card-front::after{
       content:'';position:absolute;
       bottom:-60px;right:-60px;
@@ -105,7 +103,6 @@
       display:flex;
       padding:28px 30px;
     }
-    /* left column */
     .front-left{
       flex:1;
       display:flex;flex-direction:column;
@@ -115,33 +112,36 @@
       display:flex;align-items:center;gap:10px;
     }
     .brand-logo-wrap{
-      width:34px;height:34px;
-      border-radius:8px;
+      width:36px;height:36px;
+      border-radius:9px;
       background:linear-gradient(135deg,rgba(61,214,245,0.15),rgba(61,214,245,0.05));
       border:1px solid rgba(61,214,245,0.25);
       display:flex;align-items:center;justify-content:center;
       flex-shrink:0;
       overflow:hidden;
     }
-    .brand-logo-wrap img{width:26px;height:26px;object-fit:contain}
+    .brand-logo-wrap img{width:28px;height:28px;object-fit:contain}
     .brand-name{font-size:0.78rem;font-weight:700;line-height:1.2}
     .brand-name span{color:#3dd6f5}
     .brand-tagline{font-size:0.52rem;color:rgba(255,255,255,0.35);margin-top:1px;font-weight:400}
 
-    .front-person{}
-    .person-name{font-size:1.22rem;font-weight:800;color:#fff;line-height:1.1;margin-bottom:4px}
-    .person-title{
-      font-size:0.65rem;font-weight:600;
-      color:#3dd6f5;
-      text-transform:uppercase;letter-spacing:1.2px;
-      margin-bottom:14px;
+    /* Center hero — large logo + tagline */
+    .front-hero{
+      display:flex;flex-direction:column;gap:8px;
     }
-    .person-contacts{display:flex;flex-direction:column;gap:4px}
+    .hero-tagline{
+      font-size:1.1rem;font-weight:800;color:#fff;line-height:1.2;
+    }
+    .hero-tagline span{color:#3dd6f5}
+    .hero-sub{
+      font-size:0.65rem;color:rgba(255,255,255,0.45);line-height:1.6;max-width:240px;
+    }
+    .front-contacts{display:flex;flex-direction:column;gap:4px}
     .contact-row{display:flex;align-items:center;gap:7px}
     .contact-row svg{width:11px;height:11px;color:#3dd6f5;flex-shrink:0;opacity:0.8}
     .contact-row span{font-size:0.67rem;color:rgba(255,255,255,0.55)}
 
-    /* right column — QR */
+    /* right — QR */
     .front-right{
       width:118px;
       display:flex;flex-direction:column;
@@ -264,7 +264,7 @@
 
 <!-- Heading -->
 <div class="page-heading">
-  <h1>Business Card</h1>
+  <h1>Business Card — General</h1>
   <p>Click "Save / Print" to download as PDF or print</p>
 </div>
 
@@ -289,27 +289,25 @@
             </div>
           </div>
 
-          <!-- Person info -->
-          <div class="front-person">
-            <div class="person-name">Feyisa Berisa</div>
-            <div class="person-title">Founder &amp; CEO</div>
-            <div class="person-contacts">
-              <div class="contact-row">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                <span>feyisa.berisa@gorevamp.ai</span>
-              </div>
-              <div class="contact-row">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.82 19.79 19.79 0 01.07 2.18 2 2 0 012.04 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-                <span>(385) 253-2318</span>
-              </div>
-              <div class="contact-row">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-                <span>gorevamp.ai</span>
-              </div>
-              <div class="contact-row">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span>Utah, United States</span>
-              </div>
+          <!-- Hero tagline -->
+          <div class="front-hero">
+            <div class="hero-tagline">Your Website.<br><span>Revamped.</span> Free.</div>
+            <div class="hero-sub">We design high-converting websites for local businesses — fast, modern, and built to grow.</div>
+          </div>
+
+          <!-- Contacts -->
+          <div class="front-contacts">
+            <div class="contact-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <span>hello@gorevamp.ai</span>
+            </div>
+            <div class="contact-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.82 19.79 19.79 0 01.07 2.18 2 2 0 012.04 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+              <span>(385) 253-2318</span>
+            </div>
+            <div class="contact-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+              <span>gorevamp.ai</span>
             </div>
           </div>
         </div>
