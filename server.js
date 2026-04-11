@@ -249,20 +249,63 @@ function parseAudit(mobile, desktop) {
     'No robots.txt — search engines may have trouble crawling your site',
     'robots.txt is present', 1);
 
-  // Suggestion based on worst problem
-  let suggestion;
-  if (mobileFriendly < 60)
-    suggestion = "Over 70% of your potential customers search on their phones. Your site has serious mobile issues that are causing most visitors to leave immediately. A mobile-first revamp could immediately increase calls and form submissions.";
-  else if (perf < 50)
-    suggestion = "Your biggest win is fixing page speed. A site that loads in under 3 seconds converts 3x better than one that takes 8+ seconds. On mobile, most visitors leave before your page finishes loading — fixing this alone could double your leads.";
-  else if (seo < 60)
-    suggestion = "Your site has SEO gaps making it nearly invisible to Google. Local businesses that rank on page 1 get 10x more calls than those on page 2. Fixing your titles, meta descriptions, and content structure is the fastest path to free organic leads.";
-  else if (accessibility < 70)
-    suggestion = "Your site has accessibility issues that are also hurting your SEO. Google uses accessibility signals as a ranking factor. Fixing alt text, contrast, and label issues will help both disabled visitors and your search rankings.";
-  else if (bestPractices < 70)
-    suggestion = "Your site has security and code quality issues flagged by Google. Using HTTPS everywhere, removing insecure scripts, and fixing console errors will improve trust scores and protect your visitors.";
-  else
-    suggestion = "Adding a visible phone number and a 'Call Now' button above the fold could increase your leads by 20–40%. Most mobile visitors want to call — not fill out a form. Make it as easy as possible for them to contact you the moment they land on your page.";
+  // ── Specific, data-driven recommendations ──
+  const lcpVal  = ma['largest-contentful-paint']?.displayValue || null;
+  const tbtVal  = ma['total-blocking-time']?.displayValue || null;
+  const clsVal  = ma['cumulative-layout-shift']?.displayValue || null;
+  const lcpScore= ma['largest-contentful-paint']?.score ?? 1;
+  const tbtScore= ma['total-blocking-time']?.score ?? 1;
+  const noMeta  = (ma['meta-description']?.score ?? 1) < 1;
+  const noTitle = (ma['document-title']?.score ?? 1) < 1;
+  const noHttps = (ma['is-on-https']?.score ?? 1) < 1;
+  const imgUnopt= (ma['uses-optimized-images']?.score ?? 1) < 0.9;
+  const noAlt   = (ma['image-alt']?.score ?? 1) < 1;
+  const hasViewport = (ma['viewport']?.score ?? 1) >= 0.9;
+  const smallFont   = (ma['font-size']?.score ?? 1) < 0.9;
+  const badTap      = (ma['tap-targets']?.score ?? 1) < 0.9;
+
+  const recs = [];
+
+  if (noHttps) {
+    recs.push({ priority: 1, title: 'Switch to HTTPS immediately', detail: 'Your site is running over HTTP, which means browsers display a "Not Secure" warning to every visitor. Google also penalizes non-HTTPS sites in search rankings. This single fix removes a trust barrier that is actively driving visitors away.' });
+  }
+  if (lcpScore < 0.5 && lcpVal) {
+    recs.push({ priority: 2, title: `Fix your page load time (currently ${lcpVal})`, detail: `Your Largest Contentful Paint is ${lcpVal} — the industry standard is under 2.5 seconds. At this speed, over 50% of mobile visitors leave before your page finishes loading. Compressing images, removing unused scripts, and enabling caching could cut this in half.` });
+  } else if (lcpScore < 0.9 && lcpVal) {
+    recs.push({ priority: 3, title: `Improve page load speed (currently ${lcpVal})`, detail: `Your Largest Contentful Paint is ${lcpVal}. Google targets under 2.5 seconds for a good user experience. Optimizing your largest images and deferring non-critical scripts would push you into the green zone.` });
+  }
+  if (tbtScore < 0.5 && tbtVal) {
+    recs.push({ priority: 2, title: `Reduce page blocking time (currently ${tbtVal})`, detail: `Your Total Blocking Time of ${tbtVal} means the page appears frozen for visitors while scripts load. They click buttons and nothing happens. Breaking up long JavaScript tasks is the fix — this directly improves your conversion rate.` });
+  }
+  if (!hasViewport || smallFont || badTap) {
+    const mobileProblems = [];
+    if (!hasViewport) mobileProblems.push('no mobile viewport configured');
+    if (smallFont) mobileProblems.push('text too small to read without zooming');
+    if (badTap) mobileProblems.push('buttons too small to tap accurately');
+    recs.push({ priority: 2, title: 'Fix critical mobile usability issues', detail: `Your site has ${mobileProblems.join(', ')}. With over 70% of searches happening on phones, these issues are causing most of your mobile visitors to leave immediately and call a competitor instead.` });
+  }
+  if (noMeta && noTitle) {
+    recs.push({ priority: 3, title: 'Add a page title and meta description', detail: "Your page has no title tag and no meta description. These are the two most basic SEO elements — without them Google doesn't know what your page is about and won't rank it. Adding them takes under an hour and can meaningfully improve your search visibility within weeks." });
+  } else if (noMeta) {
+    recs.push({ priority: 3, title: 'Add a meta description for Google', detail: "Your page is missing a meta description — the short summary Google shows under your link in search results. Without it, Google generates one automatically, often poorly. A well-written description increases click-through rates by 5–10%." });
+  }
+  if (imgUnopt) {
+    recs.push({ priority: 3, title: 'Compress and modernize your images', detail: 'Your images are not optimized. Switching to WebP format and compressing images typically reduces page size by 30–60%, directly improving your load time score and reducing mobile data usage for your visitors.' });
+  }
+  if (noAlt) {
+    recs.push({ priority: 4, title: 'Add alt text to all images', detail: 'Images on your site are missing alt text. This hurts both accessibility (screen readers cannot describe your images) and SEO (Google cannot index your image content). Each image should have a concise description of what it shows.' });
+  }
+  if (accessibility < 70) {
+    recs.push({ priority: 4, title: `Fix accessibility issues (score: ${accessibility}/100)`, detail: 'Your accessibility score is below 70. Poor accessibility affects users with disabilities and is increasingly used by Google as a quality signal. Common quick wins include fixing color contrast ratios and adding labels to form inputs.' });
+  }
+
+  // Sort by priority and always return at least one
+  recs.sort((a, b) => a.priority - b.priority);
+  if (!recs.length) {
+    recs.push({ priority: 5, title: 'Add a clear call-to-action above the fold', detail: `Your technical scores are solid. The next growth lever is conversion rate optimization. Most visitors decide to stay or leave within 5 seconds — adding a prominent phone number, a single clear headline, and one call-to-action button above the fold typically increases contact form submissions by 20–40%.` });
+  }
+
+  const suggestion = recs[0].detail; // keep backward compat for audit page
 
   // ── Core Web Vitals metrics ──
   const metricVal = key => ma[key]?.displayValue || null;
@@ -303,6 +346,7 @@ function parseAudit(mobile, desktop) {
     mobileWins:   mobileWins.slice(0, 3),
     a11yIssues,
     bpIssues,
+    recommendations: recs.slice(0, 4),
     suggestion
   };
 }

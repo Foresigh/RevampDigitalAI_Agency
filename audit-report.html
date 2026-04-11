@@ -7,133 +7,152 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    :root{--navy:#05080f;--teal:#3dd6f5;--yellow:#f5c842;--green:#4ade80;--red:#ef4444;--card:rgba(31,122,140,0.08)}
-    body{background:var(--navy);color:#e8f0fe;font-family:'Poppins',sans-serif;min-height:100vh}
+    body{background:#f0f4f8;color:#1a202c;font-family:'Poppins',sans-serif;min-height:100vh}
 
-    /* ── Top bar ── */
-    .topbar{background:rgba(5,8,15,0.92);border-bottom:1px solid rgba(61,214,245,0.1);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
-    .topbar-logo{font-size:1rem;font-weight:700;color:#e8f0fe;text-decoration:none}
-    .topbar-logo span{color:var(--teal)}
-    .topbar-right{display:flex;align-items:center;gap:12px}
-    .save-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#1F7A8C,#15606e);border:none;border-radius:8px;padding:10px 22px;color:#fff;font-size:0.85rem;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;transition:opacity 0.2s}
-    .save-btn:hover{opacity:.88}
-    .back-link{font-size:0.82rem;color:rgba(255,255,255,0.4);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color 0.2s}
-    .back-link:hover{color:var(--teal)}
+    /* ── Top action bar (screen only) ── */
+    .actionbar{background:#0d1117;padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .ab-logo{font-size:0.92rem;font-weight:700;color:#fff;text-decoration:none;letter-spacing:-0.3px}
+    .ab-logo span{color:#3dd6f5}
+    .ab-right{display:flex;align-items:center;gap:10px}
+    .ab-back{font-size:0.78rem;color:rgba(255,255,255,0.4);text-decoration:none;display:flex;align-items:center;gap:5px;transition:color 0.2s}
+    .ab-back:hover{color:#3dd6f5}
+    .ab-save{display:inline-flex;align-items:center;gap:7px;background:#1F7A8C;border:none;border-radius:7px;padding:9px 20px;color:#fff;font-size:0.8rem;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;transition:background 0.2s}
+    .ab-save:hover{background:#15606e}
 
-    /* ── Page wrapper ── */
-    .page{max-width:880px;margin:0 auto;padding:40px 24px 80px}
+    /* ── Page ── */
+    .page{max-width:900px;margin:0 auto;padding:32px 20px 80px}
 
-    /* ── Cover card ── */
-    .cover-card{background:linear-gradient(135deg,rgba(31,122,140,0.14),rgba(5,8,15,0.6));border:1px solid rgba(61,214,245,0.15);border-radius:24px;overflow:hidden;margin-bottom:24px;position:relative}
-    .cover-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(61,214,245,0.5),transparent)}
-    .cover-top{display:grid;grid-template-columns:1fr 320px;gap:0}
-    @media(max-width:680px){.cover-top{grid-template-columns:1fr}}
-    .cover-info{padding:36px 36px 32px}
-    .cover-eyebrow{font-size:0.65rem;text-transform:uppercase;letter-spacing:2.5px;color:var(--teal);font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-    .cover-eyebrow::before{content:'';width:20px;height:1px;background:var(--teal)}
-    .cover-title{font-size:1.7rem;font-weight:800;line-height:1.2;margin-bottom:10px}
-    .cover-url{font-size:0.82rem;color:rgba(255,255,255,0.4);margin-bottom:28px;word-break:break-all}
-    .cover-meta-row{display:flex;gap:20px;flex-wrap:wrap}
-    .cover-meta-item strong{display:block;font-size:0.68rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);margin-bottom:3px}
-    .cover-meta-item span{font-size:0.8rem;color:rgba(255,255,255,0.65)}
-    .cover-preview{position:relative;overflow:hidden;min-height:240px;background:rgba(0,0,0,0.3)}
+    /* ── Cover ── */
+    .cover{background:#0d1117;border-radius:20px;overflow:hidden;margin-bottom:20px;display:grid;grid-template-columns:1fr 300px}
+    @media(max-width:680px){.cover{grid-template-columns:1fr}}
+    .cover-left{padding:40px 40px 36px;display:flex;flex-direction:column;justify-content:space-between}
+    .cover-brand{display:flex;align-items:center;gap:10px;margin-bottom:36px}
+    .cover-brand-name{font-size:0.88rem;font-weight:700;color:#fff}
+    .cover-brand-name span{color:#3dd6f5}
+    .cover-badge{background:rgba(61,214,245,0.12);border:1px solid rgba(61,214,245,0.2);border-radius:20px;padding:3px 12px;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#3dd6f5}
+    .cover-heading{font-size:1.6rem;font-weight:800;color:#fff;line-height:1.25;margin-bottom:10px}
+    .cover-url{font-size:0.8rem;color:rgba(255,255,255,0.35);word-break:break-all;margin-bottom:28px}
+    .cover-meta{display:flex;gap:24px;flex-wrap:wrap}
+    .cover-meta-item{border-left:2px solid rgba(61,214,245,0.3);padding-left:10px}
+    .cover-meta-item small{display:block;font-size:0.6rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);margin-bottom:3px}
+    .cover-meta-item span{font-size:0.75rem;color:rgba(255,255,255,0.6);font-weight:500}
+    .cover-preview{position:relative;overflow:hidden;background:#111827;min-height:260px}
     .cover-preview img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0;transition:opacity 0.5s}
     .cover-preview img.loaded{opacity:1}
-    .cover-preview-loader{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.78rem;color:rgba(255,255,255,0.2)}
+    .cover-preview-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:rgba(255,255,255,0.2)}
 
-    /* ── Overall grade strip ── */
-    .grade-strip{background:linear-gradient(135deg,rgba(31,122,140,0.12),rgba(255,255,255,0.02));border:1px solid rgba(61,214,245,0.12);border-radius:20px;padding:28px 36px;display:flex;align-items:center;gap:28px;flex-wrap:wrap;margin-bottom:24px;position:relative;overflow:hidden}
-    .grade-strip::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(61,214,245,0.4),transparent)}
-    .grade-num{font-size:4rem;font-weight:800;line-height:1;flex-shrink:0}
-    .grade-denom{font-size:1.4rem;color:rgba(255,255,255,0.3);font-weight:500}
-    .grade-text{flex:1;min-width:160px}
-    .grade-text h3{font-size:1rem;font-weight:700;margin-bottom:6px}
-    .grade-text p{font-size:0.78rem;color:rgba(255,255,255,0.4);line-height:1.6}
-    .grade-pills{display:flex;gap:8px;flex-wrap:wrap}
-    .grade-pill{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:4px 12px;font-size:0.72rem;font-weight:600;color:#e8f0fe}
-    .grade-pill b{margin-right:4px;font-size:0.82rem}
+    /* ── Grade row ── */
+    .grade-row{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;background:#fff;border-radius:16px;padding:28px 32px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.04)}
+    @media(max-width:580px){.grade-row{grid-template-columns:1fr}}
+    .grade-circle{width:100px;height:100px;position:relative;flex-shrink:0}
+    .grade-circle svg{transform:rotate(-90deg)}
+    .grade-circle-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+    .grade-circle-num b{font-size:1.9rem;font-weight:800}
+    .grade-circle-num small{font-size:0.6rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+    .grade-info h2{font-size:1.1rem;font-weight:700;color:#1a202c;margin-bottom:6px}
+    .grade-info p{font-size:0.78rem;color:#64748b;line-height:1.6;margin-bottom:14px}
+    .pill-row{display:flex;gap:8px;flex-wrap:wrap}
+    .pill{border-radius:20px;padding:4px 12px;font-size:0.7rem;font-weight:700;border:1px solid}
+    .pill-green{background:#f0fdf4;color:#16a34a;border-color:#bbf7d0}
+    .pill-yellow{background:#fefce8;color:#a16207;border-color:#fde68a}
+    .pill-red{background:#fff1f2;color:#be123c;border-color:#fecdd3}
 
-    /* ── Section cards ── */
-    .section-card{background:linear-gradient(135deg,rgba(31,122,140,0.07),rgba(255,255,255,0.01));border:1px solid rgba(61,214,245,0.1);border-radius:20px;padding:28px 32px;margin-bottom:20px;position:relative;overflow:hidden}
-    .section-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(61,214,245,0.25),transparent)}
-    .section-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.3);font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px}
-    .section-label::before{content:'';width:16px;height:1px;background:rgba(61,214,245,0.4)}
-
-    /* ── Score circles grid ── */
-    .scores-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    /* ── Score grid ── */
+    .scores-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
     @media(max-width:560px){.scores-grid{grid-template-columns:repeat(2,1fr)}}
-    .score-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:20px 12px;text-align:center}
-    .score-circle{width:80px;height:80px;margin:0 auto 12px;position:relative}
-    .score-circle svg{transform:rotate(-90deg)}
-    .sc-bg{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:8}
-    .sc-fill{fill:none;stroke-width:8;stroke-linecap:round}
-    .sc-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800}
-    .score-name{font-size:0.68rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35);font-weight:600}
-    .score-badge{display:inline-block;margin-top:6px;font-size:0.65rem;font-weight:700;padding:2px 10px;border-radius:10px}
-    .badge-green{background:rgba(74,222,128,0.12);color:#4ade80;border:1px solid rgba(74,222,128,0.2)}
-    .badge-yellow{background:rgba(245,200,66,0.12);color:var(--yellow);border:1px solid rgba(245,200,66,0.2)}
-    .badge-red{background:rgba(239,68,68,0.12);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+    .score-card{background:#fff;border-radius:14px;padding:22px 14px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.07);border-top:3px solid transparent}
+    .sc-green{border-color:#4ade80}
+    .sc-yellow{border-color:#f5c842}
+    .sc-red{border-color:#ef4444}
+    .score-ring{width:72px;height:72px;margin:0 auto 12px;position:relative}
+    .score-ring svg{transform:rotate(-90deg)}
+    .ring-bg{fill:none;stroke:#f1f5f9;stroke-width:7}
+    .ring-fill{fill:none;stroke-width:7;stroke-linecap:round}
+    .ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800}
+    .score-name{font-size:0.65rem;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;font-weight:600;margin-bottom:5px}
+    .score-lbl{display:inline-block;font-size:0.62rem;font-weight:700;padding:2px 9px;border-radius:10px}
 
-    /* ── Metrics grid (Core Web Vitals) ── */
-    .metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    /* ── Metrics ── */
+    .metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
     @media(max-width:560px){.metrics-grid{grid-template-columns:repeat(2,1fr)}}
-    .metric-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px;text-align:center}
-    .metric-dot{width:10px;height:10px;border-radius:50%;margin:0 auto 10px}
-    .metric-val{font-size:1.4rem;font-weight:800;margin-bottom:4px}
-    .metric-lbl{font-size:0.68rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);font-weight:600}
+    .metric-card{background:#fff;border-radius:14px;padding:18px 14px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.07);position:relative;overflow:hidden}
+    .metric-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+    .metric-card.mc-green::before{background:#4ade80}
+    .metric-card.mc-yellow::before{background:#f5c842}
+    .metric-card.mc-red::before{background:#ef4444}
+    .metric-card.mc-grey::before{background:#e2e8f0}
+    .metric-val{font-size:1.5rem;font-weight:800;line-height:1;margin-bottom:5px}
+    .metric-lbl{font-size:0.63rem;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;font-weight:600}
+    .metric-ref{font-size:0.6rem;color:#cbd5e1;margin-top:4px}
+
+    /* ── Section wrapper ── */
+    .section{background:#fff;border-radius:16px;padding:26px 28px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,0.07)}
+    .section-hdr{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+    .section-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .si-red{background:#fff1f2}
+    .si-green{background:#f0fdf4}
+    .si-blue{background:#eff6ff}
+    .si-orange{background:#fff7ed}
+    .si-purple{background:#faf5ff}
+    .section-title{font-size:0.8rem;font-weight:700;color:#1a202c;text-transform:uppercase;letter-spacing:1px}
 
     /* ── Issues / Wins ── */
-    .items-list{display:flex;flex-direction:column;gap:8px}
-    .item-row{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:12px}
-    .item-issue{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15)}
-    .item-issue-med{background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.15)}
-    .item-win{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.15)}
-    .item-icon{flex-shrink:0;width:18px;height:18px;margin-top:1px}
-    .item-text{font-size:0.84rem;color:rgba(255,255,255,0.75);line-height:1.5}
+    .items{display:flex;flex-direction:column;gap:8px}
+    .item{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:10px;font-size:0.83rem;line-height:1.5}
+    .item-high{background:#fff1f2;border-left:3px solid #ef4444;color:#7f1d1d}
+    .item-med{background:#fffbeb;border-left:3px solid #f5c842;color:#78350f}
+    .item-win{background:#f0fdf4;border-left:3px solid #4ade80;color:#14532d}
+    .item svg{flex-shrink:0;margin-top:1px}
 
-    /* ── Suggestion ── */
-    .suggestion-box{background:linear-gradient(135deg,rgba(31,122,140,0.12),rgba(245,200,66,0.04));border:1px solid rgba(61,214,245,0.2);border-radius:16px;padding:24px 28px}
-    .suggestion-lbl{font-size:0.65rem;text-transform:uppercase;letter-spacing:2px;color:var(--teal);font-weight:700;margin-bottom:10px}
-    .suggestion-txt{font-size:0.92rem;color:rgba(255,255,255,0.8);line-height:1.7}
+    /* ── Recommendations ── */
+    .rec-list{display:flex;flex-direction:column;gap:14px}
+    .rec-card{border-radius:12px;padding:18px 20px;border:1px solid}
+    .rec-1{background:#fff1f2;border-color:#fecdd3}
+    .rec-2{background:#fff7ed;border-color:#fed7aa}
+    .rec-3{background:#fefce8;border-color:#fde68a}
+    .rec-4{background:#eff6ff;border-color:#bfdbfe}
+    .rec-num{font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;opacity:0.6}
+    .rec-title{font-size:0.88rem;font-weight:700;color:#1a202c;margin-bottom:6px}
+    .rec-detail{font-size:0.8rem;color:#475569;line-height:1.65}
 
-    /* ── CTA footer ── */
-    .cta-footer{background:linear-gradient(135deg,rgba(31,122,140,0.15),rgba(255,255,255,0.02));border:1px solid rgba(61,214,245,0.15);border-radius:20px;padding:36px;text-align:center;position:relative;overflow:hidden;margin-bottom:20px}
-    .cta-footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(61,214,245,0.4),transparent)}
-    .cta-footer h2{font-size:1.5rem;font-weight:800;margin-bottom:10px}
-    .cta-footer p{font-size:0.9rem;color:rgba(255,255,255,0.5);margin-bottom:24px;line-height:1.6;max-width:500px;margin-left:auto;margin-right:auto}
-    .cta-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#1F7A8C,#15606e);border:none;border-radius:12px;padding:14px 36px;color:#fff;font-size:0.95rem;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;text-decoration:none;transition:opacity 0.2s}
+    /* ── CTA ── */
+    .cta-card{background:linear-gradient(135deg,#0d1117 0%,#0f2535 100%);border-radius:20px;padding:40px;text-align:center;margin-bottom:16px;position:relative;overflow:hidden}
+    .cta-card::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(ellipse,rgba(61,214,245,0.15),transparent 70%)}
+    .cta-card h2{font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:10px}
+    .cta-card p{font-size:0.85rem;color:rgba(255,255,255,0.5);line-height:1.7;margin-bottom:24px;max-width:480px;margin-left:auto;margin-right:auto}
+    .cta-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#1F7A8C,#15606e);border-radius:10px;padding:13px 32px;color:#fff;font-size:0.9rem;font-weight:700;text-decoration:none;font-family:'Poppins',sans-serif;transition:opacity 0.2s}
     .cta-btn:hover{opacity:.88}
-    .cta-sub{font-size:0.75rem;color:rgba(255,255,255,0.25);margin-top:12px}
+    .cta-sub{font-size:0.72rem;color:rgba(255,255,255,0.25);margin-top:12px}
 
-    .brand-footer{text-align:center;padding:16px;font-size:0.75rem;color:rgba(255,255,255,0.2)}
-    .brand-footer a{color:rgba(61,214,245,0.6);text-decoration:none}
+    .report-footer{text-align:center;padding:8px 0 24px;font-size:0.72rem;color:#94a3b8}
+    .report-footer a{color:#1F7A8C;text-decoration:none}
 
-    /* ── Loading / Error ── */
-    .page-loading{display:flex;align-items:center;justify-content:center;min-height:60vh;flex-direction:column;gap:16px;color:rgba(255,255,255,0.3)}
-    .spinner{width:36px;height:36px;border:3px solid rgba(61,214,245,0.15);border-top-color:var(--teal);border-radius:50%;animation:spin 0.7s linear infinite}
+    /* Loading */
+    .page-loading{display:flex;align-items:center;justify-content:center;min-height:60vh;flex-direction:column;gap:16px;color:#94a3b8}
+    .spinner{width:36px;height:36px;border:3px solid #e2e8f0;border-top-color:#1F7A8C;border-radius:50%;animation:spin 0.7s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* ── Print ── */
+    /* Print */
     @media print {
-      .topbar{display:none!important}
-      body{background:#05080f;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-      .cover-card,.grade-strip,.section-card,.cta-footer{-webkit-print-color-adjust:exact;print-color-adjust:exact;break-inside:avoid}
-      .page{padding:16px}
+      .actionbar{display:none!important}
+      body{background:#fff}
+      .page{padding:8px}
+      .cover,.grade-row,.scores-grid,.metrics-grid,.section,.rec-list,.cta-card{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .score-card,.metric-card,.section,.rec-card{break-inside:avoid}
     }
   </style>
 </head>
 <body>
 
-<!-- Top bar -->
-<div class="topbar">
-  <a class="topbar-logo" href="/">Revamp <span>Digital</span></a>
-  <div class="topbar-right">
-    <a class="back-link" href="javascript:history.back()">
-      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      Back
+<div class="actionbar">
+  <a class="ab-logo" href="/">Revamp <span>Digital</span></a>
+  <div class="ab-right">
+    <a class="ab-back" href="javascript:history.back()">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Back to Audit
     </a>
-    <button class="save-btn" onclick="window.print()">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+    <button class="ab-save" onclick="window.print()">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
       Save as PDF
     </button>
   </div>
@@ -147,7 +166,10 @@
 </div>
 
 <script>
-  function scoreColorHex(s) {
+  function scoreColor(s) {
+    return s >= 90 ? '#16a34a' : s >= 50 ? '#a16207' : '#be123c';
+  }
+  function scoreHex(s) {
     return s >= 90 ? '#4ade80' : s >= 50 ? '#f5c842' : '#ef4444';
   }
   function gradeLabel(s) {
@@ -156,33 +178,63 @@
   function badgeClass(s) {
     return s >= 90 ? 'badge-green' : s >= 50 ? 'badge-yellow' : 'badge-red';
   }
-  function metricDotColor(score) {
-    if (score === null || score === undefined) return 'rgba(255,255,255,0.2)';
-    return score >= 0.9 ? '#4ade80' : score >= 0.5 ? '#f5c842' : '#ef4444';
+  function pillClass(s) {
+    return s >= 90 ? 'pill pill-green' : s >= 50 ? 'pill pill-yellow' : 'pill pill-red';
+  }
+  function borderClass(s) {
+    return s >= 90 ? 'sc-green' : s >= 50 ? 'sc-yellow' : 'sc-red';
+  }
+  function metricClass(score) {
+    if (score === null || score === undefined) return 'mc-grey';
+    return score >= 0.9 ? 'mc-green' : score >= 0.5 ? 'mc-yellow' : 'mc-red';
+  }
+  function metricTextColor(score) {
+    if (score === null || score === undefined) return '#94a3b8';
+    return score >= 0.9 ? '#16a34a' : score >= 0.5 ? '#a16207' : '#be123c';
   }
 
-  function scoreCircle(score) {
-    const CIRC = 226;
-    const color = scoreColorHex(score);
-    const offset = CIRC * (1 - score / 100);
-    return `<div class="score-circle">
-      <svg width="80" height="80" viewBox="0 0 80 80">
-        <circle class="sc-bg" cx="40" cy="40" r="36"/>
-        <circle class="sc-fill" cx="40" cy="40" r="36" stroke="${color}" stroke-dasharray="${CIRC}" stroke-dashoffset="${offset}"/>
+  // Metric benchmarks shown under each value
+  const metricBenchmarks = {
+    'First Contentful Paint':    'Good: < 1.8s',
+    'Largest Contentful Paint':  'Good: < 2.5s',
+    'Total Blocking Time':       'Good: < 200ms',
+    'Cumulative Layout Shift':   'Good: < 0.1',
+    'Speed Index':               'Good: < 3.4s',
+    'Time to Interactive':       'Good: < 3.8s',
+  };
+
+  function scoreRing(score) {
+    const C = 188; // 2π×30
+    const color = scoreHex(score);
+    const offset = C * (1 - score / 100);
+    return `<div class="score-ring">
+      <svg width="72" height="72" viewBox="0 0 72 72">
+        <circle class="ring-bg" cx="36" cy="36" r="30"/>
+        <circle class="ring-fill" cx="36" cy="36" r="30" stroke="${color}" stroke-dasharray="${C}" stroke-dashoffset="${offset}"/>
       </svg>
-      <div class="sc-num" style="color:${color}">${score}</div>
+      <div class="ring-num" style="color:${color}">${score}</div>
     </div>`;
   }
 
-  function issueIcon(severity) {
-    const color = severity === 'high' ? '#ef4444' : '#f5c842';
-    return `<svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2">
-      <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+  function bigRing(score) {
+    const C = 283; // 2π×45
+    const color = scoreHex(score);
+    const offset = C * (1 - score / 100);
+    return `<svg width="100" height="100" viewBox="0 0 100 100">
+      <circle fill="none" stroke="#f1f5f9" stroke-width="8" cx="50" cy="50" r="45"/>
+      <circle fill="none" stroke="${color}" stroke-width="8" stroke-linecap="round"
+        cx="50" cy="50" r="45" stroke-dasharray="${C}" stroke-dashoffset="${offset}"
+        transform="rotate(-90 50 50)"/>
     </svg>`;
   }
 
-  function winIcon() {
-    return `<svg class="item-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#4ade80" stroke-width="2.5">
+  function icoIssue(s) {
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${s==='high'?'#ef4444':'#f5c842'}" stroke-width="2" style="flex-shrink:0;margin-top:1px">
+      <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+    </svg>`;
+  }
+  function icoWin() {
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" style="flex-shrink:0;margin-top:1px">
       <path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
     </svg>`;
   }
@@ -193,145 +245,178 @@
       (s.performance * 0.25) + (s.seo * 0.20) + (s.mobileFriendly * 0.20) +
       (s.desktop * 0.15) + ((s.accessibility||0) * 0.10) + ((s.bestPractices||0) * 0.10)
     );
-    const overallColor = scoreColorHex(overall);
     const date = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const overallColor = scoreHex(overall);
 
-    const allIssues = [...(d.issues||[]), ...(d.mobileIssues||[])];
-    const allWins   = [...(d.wins||[]),   ...(d.mobileWins||[])];
-    const a11yIssues = d.a11yIssues || [];
-    const bpIssues   = d.bpIssues   || [];
-
-    // Metrics section
-    const m = d.metrics || {};
-    const metricsHtml = Object.values(m).filter(v => v.value).map(v => `
-      <div class="metric-box">
-        <div class="metric-dot" style="background:${metricDotColor(v.score)}"></div>
-        <div class="metric-val" style="color:${metricDotColor(v.score)}">${v.value}</div>
-        <div class="metric-lbl">${v.label}</div>
+    // Scores
+    const scoreBoxes = [
+      ['Performance', s.performance], ['SEO', s.seo], ['Mobile Friendly', s.mobileFriendly],
+      ['Desktop Speed', s.desktop], ['Accessibility', s.accessibility||0], ['Best Practices', s.bestPractices||0]
+    ].map(([name, val]) => `
+      <div class="score-card ${borderClass(val)}">
+        ${scoreRing(val)}
+        <div class="score-name">${name}</div>
+        <span class="score-lbl ${badgeClass(val)}">${gradeLabel(val)}</span>
       </div>`).join('');
 
-    const issuesHtml = allIssues.length
-      ? allIssues.map(i => `<div class="item-row ${i.severity==='medium'?'item-issue-med':'item-issue'}">${issueIcon(i.severity)}<span class="item-text">${i.text}</span></div>`).join('')
-      : '<p style="font-size:0.85rem;color:rgba(255,255,255,0.3)">No major issues found.</p>';
+    // Metrics
+    const m = d.metrics || {};
+    const metricBoxes = Object.values(m).filter(v => v.value).map(v => `
+      <div class="metric-card ${metricClass(v.score)}">
+        <div class="metric-val" style="color:${metricTextColor(v.score)}">${v.value}</div>
+        <div class="metric-lbl">${v.label}</div>
+        <div class="metric-ref">${metricBenchmarks[v.label] || ''}</div>
+      </div>`).join('');
 
-    const winsHtml = allWins.map(w => `<div class="item-row item-win">${winIcon()}<span class="item-text">${w}</span></div>`).join('');
+    // Issues & wins
+    const allIssues = [...(d.issues||[]), ...(d.mobileIssues||[])];
+    const allWins   = [...(d.wins||[]),   ...(d.mobileWins||[])];
+    const issHtml = allIssues.length
+      ? allIssues.map(i => `<div class="item ${i.severity==='medium'?'item-med':'item-high'}">${icoIssue(i.severity)} ${i.text}</div>`).join('')
+      : '<p style="font-size:0.82rem;color:#94a3b8">No major performance or SEO issues found.</p>';
+    const winHtml = allWins.map(w => `<div class="item item-win">${icoWin()} ${w}</div>`).join('');
+    const a11yHtml = (d.a11yIssues||[]).length
+      ? (d.a11yIssues).map(i => `<div class="item ${i.severity==='medium'?'item-med':'item-high'}">${icoIssue(i.severity)} ${i.text}</div>`).join('')
+      : '<p style="font-size:0.82rem;color:#94a3b8">No accessibility issues detected.</p>';
+    const bpHtml = (d.bpIssues||[]).length
+      ? (d.bpIssues).map(i => `<div class="item ${i.severity==='medium'?'item-med':'item-high'}">${icoIssue(i.severity)} ${i.text}</div>`).join('')
+      : '<p style="font-size:0.82rem;color:#94a3b8">No best practice issues detected.</p>';
 
-    const a11yHtml = a11yIssues.length
-      ? a11yIssues.map(i => `<div class="item-row ${i.severity==='medium'?'item-issue-med':'item-issue'}">${issueIcon(i.severity)}<span class="item-text">${i.text}</span></div>`).join('')
-      : '<p style="font-size:0.85rem;color:rgba(255,255,255,0.3)">No accessibility issues detected.</p>';
-
-    const bpHtml = bpIssues.length
-      ? bpIssues.map(i => `<div class="item-row ${i.severity==='medium'?'item-issue-med':'item-issue'}">${issueIcon(i.severity)}<span class="item-text">${i.text}</span></div>`).join('')
-      : '<p style="font-size:0.85rem;color:rgba(255,255,255,0.3)">No best practice issues detected.</p>';
+    // Recommendations
+    const recs = d.recommendations || [{ title: 'Review audit results above', detail: d.suggestion }];
+    const recColors = ['rec-1','rec-2','rec-3','rec-4'];
+    const recPriLabels = ['Priority 1 — Critical','Priority 2 — High Impact','Priority 3 — Important','Priority 4 — Improvement'];
+    const recHtml = recs.map((r, i) => `
+      <div class="rec-card ${recColors[i]||recColors[3]}">
+        <div class="rec-num">${recPriLabels[i] || 'Recommendation ' + (i+1)}</div>
+        <div class="rec-title">${r.title}</div>
+        <div class="rec-detail">${r.detail}</div>
+      </div>`).join('');
 
     document.getElementById('reportWrap').innerHTML = `
 
       <!-- Cover -->
-      <div class="cover-card">
-        <div class="cover-top">
-          <div class="cover-info">
-            <div class="cover-eyebrow">Free Website Audit Report</div>
-            <div class="cover-title">Website Performance<br>& SEO Report</div>
-            <div class="cover-url">${d.url}</div>
-            <div class="cover-meta-row">
-              <div class="cover-meta-item"><strong>Report Date</strong><span>${date}</span></div>
-              <div class="cover-meta-item"><strong>Powered By</strong><span>Google PageSpeed</span></div>
-              <div class="cover-meta-item"><strong>Prepared By</strong><span>Revamp Digital LLC</span></div>
+      <div class="cover">
+        <div class="cover-left">
+          <div>
+            <div class="cover-brand">
+              <div class="cover-brand-name">Revamp <span>Digital</span></div>
+              <div class="cover-badge">Audit Report</div>
             </div>
+            <div class="cover-heading">Website Performance<br>& SEO Report</div>
+            <div class="cover-url">${d.url}</div>
           </div>
-          <div class="cover-preview">
-            <div class="cover-preview-loader" id="prevLoader">Loading preview…</div>
-            <img id="reportPreview" alt="Site preview"
-              onload="this.classList.add('loaded');document.getElementById('prevLoader').style.display='none'"
-              onerror="document.getElementById('prevLoader').textContent='Preview unavailable'"
-              src="https://api.microlink.io/?url=${encodeURIComponent(d.url)}&screenshot=true&meta=false&embed=screenshot.url"/>
+          <div class="cover-meta">
+            <div class="cover-meta-item"><small>Report Date</small><span>${date}</span></div>
+            <div class="cover-meta-item"><small>Powered By</small><span>Google PageSpeed</span></div>
+            <div class="cover-meta-item"><small>Prepared By</small><span>Revamp Digital LLC</span></div>
           </div>
+        </div>
+        <div class="cover-preview">
+          <div class="cover-preview-placeholder" id="prevLoad">Loading preview…</div>
+          <img id="repPreview" alt="Site preview"
+            onload="this.classList.add('loaded');document.getElementById('prevLoad').style.display='none'"
+            onerror="document.getElementById('prevLoad').textContent='Preview unavailable'"
+            src="https://api.microlink.io/?url=${encodeURIComponent(d.url)}&screenshot=true&meta=false&embed=screenshot.url"/>
         </div>
       </div>
 
       <!-- Overall grade -->
-      <div class="grade-strip">
-        <div class="grade-num" style="color:${overallColor}">${overall}<span class="grade-denom">/100</span></div>
-        <div class="grade-text">
-          <h3>Overall Score — ${gradeLabel(overall)}</h3>
-          <p>Weighted across all 6 categories. Above 90 is excellent; below 50 needs immediate attention.</p>
+      <div class="grade-row">
+        <div class="grade-circle">
+          ${bigRing(overall)}
+          <div class="grade-circle-num">
+            <b style="color:${overallColor}">${overall}</b>
+            <small>/ 100</small>
+          </div>
         </div>
-        <div class="grade-pills">
-          <div class="grade-pill"><b style="color:${scoreColorHex(s.performance)}">${s.performance}</b>Performance</div>
-          <div class="grade-pill"><b style="color:${scoreColorHex(s.seo)}">${s.seo}</b>SEO</div>
-          <div class="grade-pill"><b style="color:${scoreColorHex(s.mobileFriendly)}">${s.mobileFriendly}</b>Mobile</div>
-          <div class="grade-pill"><b style="color:${scoreColorHex(s.desktop)}">${s.desktop}</b>Desktop</div>
-          <div class="grade-pill"><b style="color:${scoreColorHex(s.accessibility||0)}">${s.accessibility||'—'}</b>Accessibility</div>
-          <div class="grade-pill"><b style="color:${scoreColorHex(s.bestPractices||0)}">${s.bestPractices||'—'}</b>Best Practices</div>
+        <div class="grade-info">
+          <h2>Overall Score — ${gradeLabel(overall)}</h2>
+          <p>Weighted across Performance, SEO, Mobile, Desktop, Accessibility and Best Practices. Scores above 90 are excellent; below 50 need immediate attention.</p>
+          <div class="pill-row">
+            <span class="${pillClass(s.performance)}">${s.performance} Performance</span>
+            <span class="${pillClass(s.seo)}">${s.seo} SEO</span>
+            <span class="${pillClass(s.mobileFriendly)}">${s.mobileFriendly} Mobile</span>
+            <span class="${pillClass(s.desktop)}">${s.desktop} Desktop</span>
+            <span class="${pillClass(s.accessibility||0)}">${s.accessibility||'—'} Accessibility</span>
+            <span class="${pillClass(s.bestPractices||0)}">${s.bestPractices||'—'} Best Practices</span>
+          </div>
         </div>
       </div>
 
-      <!-- Score breakdown -->
-      <div class="section-card">
-        <div class="section-label">Score Breakdown</div>
-        <div class="scores-grid">
-          <div class="score-box">${scoreCircle(s.performance)}<div class="score-name">Performance</div><div class="score-badge ${badgeClass(s.performance)}">${gradeLabel(s.performance)}</div></div>
-          <div class="score-box">${scoreCircle(s.seo)}<div class="score-name">SEO</div><div class="score-badge ${badgeClass(s.seo)}">${gradeLabel(s.seo)}</div></div>
-          <div class="score-box">${scoreCircle(s.mobileFriendly)}<div class="score-name">Mobile Friendly</div><div class="score-badge ${badgeClass(s.mobileFriendly)}">${gradeLabel(s.mobileFriendly)}</div></div>
-          <div class="score-box">${scoreCircle(s.desktop)}<div class="score-name">Desktop Speed</div><div class="score-badge ${badgeClass(s.desktop)}">${gradeLabel(s.desktop)}</div></div>
-          <div class="score-box">${scoreCircle(s.accessibility||0)}<div class="score-name">Accessibility</div><div class="score-badge ${badgeClass(s.accessibility||0)}">${gradeLabel(s.accessibility||0)}</div></div>
-          <div class="score-box">${scoreCircle(s.bestPractices||0)}<div class="score-name">Best Practices</div><div class="score-badge ${badgeClass(s.bestPractices||0)}">${gradeLabel(s.bestPractices||0)}</div></div>
-        </div>
-      </div>
+      <!-- Scores -->
+      <div class="scores-grid">${scoreBoxes}</div>
 
       <!-- Core Web Vitals -->
-      ${metricsHtml ? `
-      <div class="section-card">
-        <div class="section-label">Core Web Vitals & Metrics</div>
-        <div class="metrics-grid">${metricsHtml}</div>
-      </div>` : ''}
+      ${metricBoxes ? `<div class="metrics-grid">${metricBoxes}</div>` : ''}
+
+      <!-- Recommendations -->
+      <div class="section">
+        <div class="section-hdr">
+          <div class="section-icon si-red">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <div class="section-title">Prioritized Recommendations</div>
+        </div>
+        <div class="rec-list">${recHtml}</div>
+      </div>
 
       <!-- Issues -->
-      <div class="section-card">
-        <div class="section-label">Performance & SEO Issues</div>
-        <div class="items-list">${issuesHtml}</div>
+      <div class="section">
+        <div class="section-hdr">
+          <div class="section-icon si-red">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+          </div>
+          <div class="section-title">Performance & SEO Issues</div>
+        </div>
+        <div class="items">${issHtml}</div>
       </div>
 
-      <!-- Wins -->
-      ${winsHtml ? `
-      <div class="section-card">
-        <div class="section-label">What's Working</div>
-        <div class="items-list">${winsHtml}</div>
+      ${winHtml ? `
+      <div class="section">
+        <div class="section-hdr">
+          <div class="section-icon si-green">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="section-title">What's Working</div>
+        </div>
+        <div class="items">${winHtml}</div>
       </div>` : ''}
 
-      <!-- Accessibility Issues -->
-      <div class="section-card">
-        <div class="section-label">Accessibility Issues</div>
-        <div class="items-list">${a11yHtml}</div>
-      </div>
-
-      <!-- Best Practices Issues -->
-      <div class="section-card">
-        <div class="section-label">Best Practices Issues</div>
-        <div class="items-list">${bpHtml}</div>
-      </div>
-
-      <!-- Top Recommendation -->
-      <div class="section-card">
-        <div class="section-label">Top Recommendation</div>
-        <div class="suggestion-box">
-          <div class="suggestion-lbl">Your Biggest Win Right Now</div>
-          <div class="suggestion-txt">${d.suggestion}</div>
+      <!-- Accessibility -->
+      <div class="section">
+        <div class="section-hdr">
+          <div class="section-icon si-blue">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="5" r="1"/><path d="M9 20l3-8 3 8M9 13h6"/></svg>
+          </div>
+          <div class="section-title">Accessibility Issues</div>
         </div>
+        <div class="items">${a11yHtml}</div>
+      </div>
+
+      <!-- Best Practices -->
+      <div class="section">
+        <div class="section-hdr">
+          <div class="section-icon si-purple">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="section-title">Best Practices Issues</div>
+        </div>
+        <div class="items">${bpHtml}</div>
       </div>
 
       <!-- CTA -->
-      <div class="cta-footer">
+      <div class="cta-card">
         <h2>Want Us to Fix All of This — Free?</h2>
-        <p>We'll build you a new homepage demo in 48 hours showing exactly what your revamped site would look like. No cost. No obligation.</p>
+        <p>We'll build you a fully redesigned homepage demo in 48 hours showing exactly what your revamped site could look like. No cost. No obligation. Just results.</p>
         <a class="cta-btn" href="/#revamp-request">
           Get My Free Revamp Preview
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-        <div class="cta-sub">48-hour turnaround · Zero cost to see it</div>
+        <div class="cta-sub">48-hour turnaround &nbsp;·&nbsp; Zero cost to see it &nbsp;·&nbsp; No obligation</div>
       </div>
 
-      <div class="brand-footer">
+      <div class="report-footer">
         Revamp Digital LLC &nbsp;·&nbsp; <a href="mailto:hello@gorevamp.ai">hello@gorevamp.ai</a> &nbsp;·&nbsp; (385) 253-2318 &nbsp;·&nbsp; <a href="https://gorevamp.ai">gorevamp.ai</a>
       </div>
     `;
