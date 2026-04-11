@@ -1497,9 +1497,10 @@ button { font-family: inherit; cursor: pointer; }
   .hero-actions     { flex-direction: column; align-items: center; gap: 10px; }
   .btn-hero-primary,
   .btn-hero-ghost   { width: 100%; max-width: 300px; justify-content: center; padding: 10px 20px; font-size: 0.9rem; }
-  .hero-metrics     { flex-wrap: nowrap; gap: 0; }
-  .hm-item          { padding: 10px 8px; flex: 1 1 0; min-width: 0; text-align: center; }
+  .hero-metrics     { flex-wrap: nowrap; gap: 0; width: 100%; }
+  .hm-item          { padding: 10px 4px; flex: 1 1 0; min-width: 0; max-width: 33.33%; text-align: center; overflow: hidden; }
   .hm-divider       { display: block; width: 1px; flex-shrink: 0; }
+  .hm-label         { font-size: 0.6rem; letter-spacing: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .hm-number        { font-size: 1.7rem; }
   .hero-trust       { flex-direction: column; gap: 4px; font-size: 0.8rem; }
 
@@ -1553,9 +1554,10 @@ button { font-family: inherit; cursor: pointer; }
   .hero             { padding: 76px 0 0; }
   .hero-planet-wrap { width: 260vw; height: 260vw; bottom: -200vw; }
   .hero-title       { font-size: 1.85rem; }
-  .hero-metrics     { border-top: none; padding-top: 16px; flex-wrap: nowrap; }
-  .hm-item          { flex: 1 1 0; min-width: 0; padding: 8px 4px; }
-  .hm-number        { font-size: 1.4rem; }
+  .hero-metrics     { border-top: none; padding-top: 16px; flex-wrap: nowrap; width: 100%; }
+  .hm-item          { flex: 1 1 0; min-width: 0; max-width: 33.33%; padding: 8px 2px; overflow: hidden; }
+  .hm-number        { font-size: 1.35rem; }
+  .hm-label         { font-size: 0.55rem; letter-spacing: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .hm-label         { font-size: 0.65rem; }
 
   .section-heading  { font-size: 1.7rem; }
