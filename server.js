@@ -52,6 +52,8 @@ async function initDb() {
     )
   `);
   await pool.query(`ALTER TABLE audits ADD COLUMN IF NOT EXISTS result_json JSONB`);
+  await pool.query(`ALTER TABLE audits ADD COLUMN IF NOT EXISTS score_accessibility INT`);
+  await pool.query(`ALTER TABLE audits ADD COLUMN IF NOT EXISTS score_best_practices INT`);
 
   // Audit PDF downloads — tracks who requested a report
   await pool.query(`
@@ -182,9 +184,11 @@ function parseAudit(mobile, desktop) {
   const mc = mobile.lighthouseResult?.categories || {};
   const dc = desktop.lighthouseResult?.categories || {};
 
-  const perf        = Math.round((mc.performance?.score  || 0) * 100);
-  const seo         = Math.round((mc.seo?.score          || 0) * 100);
-  const desktopPerf = Math.round((dc.performance?.score  || 0) * 100);
+  const perf          = Math.round((mc.performance?.score          || 0) * 100);
+  const seo           = Math.round((mc.seo?.score                  || 0) * 100);
+  const accessibility = Math.round((mc.accessibility?.score        || 0) * 100);
+  const bestPractices = Math.round((mc['best-practices']?.score    || 0) * 100);
+  const desktopPerf   = Math.round((dc.performance?.score          || 0) * 100);
 
   const issues = [], wins = [], mobileIssues = [], mobileWins = [];
 
@@ -253,11 +257,15 @@ function parseAudit(mobile, desktop) {
     suggestion = "Your biggest win is fixing page speed. A site that loads in under 3 seconds converts 3x better than one that takes 8+ seconds. On mobile, most visitors leave before your page finishes loading — fixing this alone could double your leads.";
   else if (seo < 60)
     suggestion = "Your site has SEO gaps making it nearly invisible to Google. Local businesses that rank on page 1 get 10x more calls than those on page 2. Fixing your titles, meta descriptions, and content structure is the fastest path to free organic leads.";
+  else if (accessibility < 70)
+    suggestion = "Your site has accessibility issues that are also hurting your SEO. Google uses accessibility signals as a ranking factor. Fixing alt text, contrast, and label issues will help both disabled visitors and your search rankings.";
+  else if (bestPractices < 70)
+    suggestion = "Your site has security and code quality issues flagged by Google. Using HTTPS everywhere, removing insecure scripts, and fixing console errors will improve trust scores and protect your visitors.";
   else
     suggestion = "Adding a visible phone number and a 'Call Now' button above the fold could increase your leads by 20–40%. Most mobile visitors want to call — not fill out a form. Make it as easy as possible for them to contact you the moment they land on your page.";
 
   return {
-    scores: { performance: perf, seo, desktop: desktopPerf, mobileFriendly },
+    scores: { performance: perf, seo, accessibility, bestPractices, desktop: desktopPerf, mobileFriendly },
     issues: issues.slice(0, 5),
     wins:   wins.slice(0, 3),
     mobileIssues: mobileIssues.slice(0, 4),
@@ -287,9 +295,9 @@ app.get('/api/audit', async (req, res) => {
     let auditId = null;
     try {
       const ins = await pool.query(
-        `INSERT INTO audits (url, score_perf, score_seo, score_mobile, score_desktop, result_json)
-         VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
-        [url, result.scores.performance, result.scores.seo, result.scores.mobileFriendly, result.scores.desktop, JSON.stringify({ url, ...result })]
+        `INSERT INTO audits (url, score_perf, score_seo, score_mobile, score_desktop, score_accessibility, score_best_practices, result_json)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id`,
+        [url, result.scores.performance, result.scores.seo, result.scores.mobileFriendly, result.scores.desktop, result.scores.accessibility, result.scores.bestPractices, JSON.stringify({ url, ...result })]
       );
       auditId = ins.rows[0].id;
     } catch (e) { console.error('[audit save error]', e.message); }
@@ -333,7 +341,7 @@ app.patch('/api/leads/:id', requireAuth, async (req, res) => {
 app.get('/api/audits', requireAuth, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, audited_at AS "auditedAt", url, score_perf, score_seo, score_mobile, score_desktop
+      `SELECT id, audited_at AS "auditedAt", url, score_perf, score_seo, score_mobile, score_desktop, score_accessibility, score_best_practices
        FROM audits ORDER BY audited_at DESC LIMIT 200`
     );
     res.json(result.rows);

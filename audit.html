@@ -66,7 +66,7 @@
     .results-url span{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 16px;font-size:0.85rem;color:rgba(255,255,255,0.45)}
 
     /* ── Score gauges ── */
-    .scores-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:48px}
+    .scores-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:48px}
     @media(max-width:700px){.scores-grid{grid-template-columns:repeat(2,1fr)}}
     .score-card{background:linear-gradient(135deg,rgba(31,122,140,0.08),rgba(255,255,255,0.01));border:1px solid rgba(61,214,245,0.1);border-radius:20px;padding:32px 16px;text-align:center;position:relative;overflow:hidden}
     .score-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(61,214,245,0.3),transparent)}
@@ -207,6 +207,8 @@
     <div class="audit-step" id="step2"><span class="step-dot"></span> SEO</div>
     <div class="audit-step" id="step3"><span class="step-dot"></span> Mobile</div>
     <div class="audit-step" id="step4"><span class="step-dot"></span> Desktop</div>
+    <div class="audit-step" id="step5"><span class="step-dot"></span> Accessibility</div>
+    <div class="audit-step" id="step6"><span class="step-dot"></span> Best Practices</div>
   </div>
 </div>
 
@@ -241,6 +243,8 @@
         <div class="grade-mini"><div class="grade-mini-val" id="miniSeo" style="color:#f5c842">—</div><div class="grade-mini-lbl">SEO</div></div>
         <div class="grade-mini"><div class="grade-mini-val" id="miniMobile" style="color:#a78bfa">—</div><div class="grade-mini-lbl">Mobile</div></div>
         <div class="grade-mini"><div class="grade-mini-val" id="miniDesktop" style="color:#4ade80">—</div><div class="grade-mini-lbl">Desktop</div></div>
+        <div class="grade-mini"><div class="grade-mini-val" id="miniA11y" style="color:#fb923c">—</div><div class="grade-mini-lbl">Accessibility</div></div>
+        <div class="grade-mini"><div class="grade-mini-val" id="miniBp" style="color:#e879f9">—</div><div class="grade-mini-lbl">Best Practices</div></div>
       </div>
     </div>
   </div>
@@ -290,6 +294,28 @@
       </div>
       <div class="score-label">Desktop Speed</div>
       <div class="score-grade" id="desktopGrade"></div>
+    </div>
+    <div class="score-card">
+      <div class="gauge-wrap">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle class="gauge-bg" cx="60" cy="60" r="54"/>
+          <circle class="gauge-fill" id="a11yArc" cx="60" cy="60" r="54" stroke-dasharray="339" stroke-dashoffset="339"/>
+        </svg>
+        <div class="gauge-number" id="a11yNum" style="color:#4ade80">—</div>
+      </div>
+      <div class="score-label">Accessibility</div>
+      <div class="score-grade" id="a11yGrade"></div>
+    </div>
+    <div class="score-card">
+      <div class="gauge-wrap">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle class="gauge-bg" cx="60" cy="60" r="54"/>
+          <circle class="gauge-fill" id="bpArc" cx="60" cy="60" r="54" stroke-dasharray="339" stroke-dashoffset="339"/>
+        </svg>
+        <div class="gauge-number" id="bpNum" style="color:#4ade80">—</div>
+      </div>
+      <div class="score-label">Best Practices</div>
+      <div class="score-grade" id="bpGrade"></div>
     </div>
   </div>
 
@@ -503,11 +529,11 @@
 
   let stepTimer;
   function startStepAnim() {
-    const steps = ['step1','step2','step3','step4'];
+    const steps = ['step1','step2','step3','step4','step5','step6'];
     let i = 0;
     stepTimer = setInterval(() => {
       if (i < steps.length) { document.getElementById(steps[i]).classList.add('done'); i++; }
-    }, 8000);
+    }, 6000);
   }
 
   function normalizeUrl(raw) {
@@ -537,7 +563,7 @@
     document.getElementById('auditLoading').classList.add('show');
     document.getElementById('auditResults').classList.remove('show');
     document.getElementById('auditError').classList.remove('show');
-    ['step1','step2','step3','step4'].forEach(s => document.getElementById(s).classList.remove('done'));
+    ['step1','step2','step3','step4','step5','step6'].forEach(s => document.getElementById(s).classList.remove('done'));
     document.getElementById('auditBtn').disabled = true;
     document.getElementById('auditBtn').textContent = 'Analyzing…';
     startStepAnim();
@@ -563,9 +589,9 @@
       document.getElementById('previewLoading').textContent = 'Loading preview…';
       previewImg.src = 'https://api.microlink.io/?url=' + encodeURIComponent(data.url) + '&screenshot=true&meta=false&embed=screenshot.url';
 
-      // Overall grade (weighted average)
+      // Overall grade (weighted average across all 6 scores)
       const s = data.scores;
-      const overall = Math.round((s.performance * 0.30) + (s.seo * 0.25) + (s.mobileFriendly * 0.25) + (s.desktop * 0.20));
+      const overall = Math.round((s.performance * 0.25) + (s.seo * 0.20) + (s.mobileFriendly * 0.20) + (s.desktop * 0.15) + (s.accessibility * 0.10) + (s.bestPractices * 0.10));
       const gradeColor = scoreColor(overall);
       const gradeEl  = document.getElementById('gradeNum');
       const barEl    = document.getElementById('gradeBar');
@@ -579,16 +605,20 @@
       const gStep = () => { gCur = Math.min(gCur + 2, overall); gradeEl.textContent = gCur; if (gCur < overall) requestAnimationFrame(gStep); };
       setTimeout(() => { requestAnimationFrame(gStep); barEl.style.width = overall + '%'; }, 200);
       // mini scores
-      document.getElementById('miniPerf').textContent   = s.performance;
-      document.getElementById('miniSeo').textContent    = s.seo;
-      document.getElementById('miniMobile').textContent = s.mobileFriendly;
-      document.getElementById('miniDesktop').textContent= s.desktop;
+      document.getElementById('miniPerf').textContent    = s.performance;
+      document.getElementById('miniSeo').textContent     = s.seo;
+      document.getElementById('miniMobile').textContent  = s.mobileFriendly;
+      document.getElementById('miniDesktop').textContent = s.desktop;
+      document.getElementById('miniA11y').textContent    = s.accessibility;
+      document.getElementById('miniBp').textContent      = s.bestPractices;
 
       // Animate gauges
       setTimeout(() => animateGauge('perfArc',    'perfNum',    'perfGrade',    data.scores.performance),    100);
       setTimeout(() => animateGauge('seoArc',     'seoNum',     'seoGrade',     data.scores.seo),            300);
       setTimeout(() => animateGauge('mobileArc',  'mobileNum',  'mobileGrade',  data.scores.mobileFriendly), 500);
       setTimeout(() => animateGauge('desktopArc', 'desktopNum', 'desktopGrade', data.scores.desktop),        700);
+      setTimeout(() => animateGauge('a11yArc',    'a11yNum',    'a11yGrade',    data.scores.accessibility),  900);
+      setTimeout(() => animateGauge('bpArc',      'bpNum',      'bpGrade',      data.scores.bestPractices),  1100);
 
       renderIssues(data.issues);
       renderMobileIssues(data.mobileIssues, data.mobileWins);

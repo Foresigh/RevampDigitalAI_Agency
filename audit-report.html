@@ -46,7 +46,7 @@
     .section{padding:36px 48px;border-bottom:1px solid #eef0f5}
     .section:last-child{border-bottom:none}
     .section-title{font-size:0.68rem;text-transform:uppercase;letter-spacing:2px;color:#9aa3b5;font-weight:700;margin-bottom:20px}
-    .scores-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .scores-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
     .score-box{background:#f8fafc;border:1px solid #e8ecf4;border-radius:14px;padding:20px 12px;text-align:center}
     .score-circle{width:80px;height:80px;margin:0 auto 12px;position:relative}
     .score-circle svg{transform:rotate(-90deg)}
@@ -170,7 +170,7 @@
 
   function renderReport(d) {
     const s = d.scores;
-    const overall = Math.round((s.performance * 0.30) + (s.seo * 0.25) + (s.mobileFriendly * 0.25) + (s.desktop * 0.20));
+    const overall = Math.round((s.performance * 0.25) + (s.seo * 0.20) + (s.mobileFriendly * 0.20) + (s.desktop * 0.15) + ((s.accessibility||0) * 0.10) + ((s.bestPractices||0) * 0.10));
     const date = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
     const allIssues = [...(d.issues || []), ...(d.mobileIssues || [])];
@@ -220,6 +220,8 @@
           <div class="grade-pill"><span style="color:${scoreColorHex(s.seo)}">${s.seo}</span> SEO</div>
           <div class="grade-pill"><span style="color:${scoreColorHex(s.mobileFriendly)}">${s.mobileFriendly}</span> Mobile</div>
           <div class="grade-pill"><span style="color:${scoreColorHex(s.desktop)}">${s.desktop}</span> Desktop</div>
+          <div class="grade-pill"><span style="color:${scoreColorHex(s.accessibility||0)}">${s.accessibility||'—'}</span> Accessibility</div>
+          <div class="grade-pill"><span style="color:${scoreColorHex(s.bestPractices||0)}">${s.bestPractices||'—'}</span> Best Practices</div>
         </div>
       </div>
 
@@ -246,6 +248,16 @@
             ${scoreCircle(s.desktop)}
             <div class="score-name">Desktop Speed</div>
             <div class="score-badge ${badgeClass(s.desktop)}">${gradeLabel(s.desktop)}</div>
+          </div>
+          <div class="score-box">
+            ${scoreCircle(s.accessibility||0)}
+            <div class="score-name">Accessibility</div>
+            <div class="score-badge ${badgeClass(s.accessibility||0)}">${gradeLabel(s.accessibility||0)}</div>
+          </div>
+          <div class="score-box">
+            ${scoreCircle(s.bestPractices||0)}
+            <div class="score-name">Best Practices</div>
+            <div class="score-badge ${badgeClass(s.bestPractices||0)}">${gradeLabel(s.bestPractices||0)}</div>
           </div>
         </div>
       </div>

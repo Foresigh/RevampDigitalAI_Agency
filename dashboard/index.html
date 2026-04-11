@@ -458,6 +458,8 @@
         <td style="text-align:center">${scoreChip(a.score_seo)}</td>
         <td style="text-align:center">${scoreChip(a.score_mobile)}</td>
         <td style="text-align:center">${scoreChip(a.score_desktop)}</td>
+        <td style="text-align:center">${scoreChip(a.score_accessibility)}</td>
+        <td style="text-align:center">${scoreChip(a.score_best_practices)}</td>
         <td><div class="lead-date">${formatDate(a.auditedAt)}</div></td>
       </tr>`;
     }).join('');
@@ -471,6 +473,8 @@
             <th style="text-align:center">SEO</th>
             <th style="text-align:center">Mobile</th>
             <th style="text-align:center">Desktop</th>
+            <th style="text-align:center">Accessibility</th>
+            <th style="text-align:center">Best Practices</th>
             <th>Date</th>
           </tr>
         </thead>
