@@ -107,10 +107,40 @@
     .score-red{background:rgba(248,113,113,0.12);color:#f87171;border:1px solid rgba(248,113,113,0.25)}
     .score-na{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.08)}
 
+    /* ── Settings tab ── */
+    .settings-section{margin-bottom:32px}
+    .settings-card{background:linear-gradient(135deg,rgba(31,122,140,0.08),rgba(255,255,255,0.01));border:1px solid rgba(61,214,245,0.12);border-radius:16px;padding:28px 28px 24px;position:relative;overflow:hidden}
+    .settings-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(61,214,245,0.35),transparent)}
+    .settings-card-title{font-size:0.82rem;font-weight:700;color:#3dd6f5;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+    .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .settings-full{grid-column:1/-1}
+    .settings-field{display:flex;flex-direction:column;gap:6px}
+    .settings-label{font-size:0.76rem;color:rgba(255,255,255,0.45);font-weight:600;letter-spacing:0.3px}
+    .settings-label span{color:rgba(255,255,255,0.25);font-weight:400;margin-left:4px}
+    .settings-input{background:rgba(255,255,255,0.04);border:1px solid rgba(61,214,245,0.12);border-radius:10px;padding:10px 14px;color:#e8f0fe;font-size:0.84rem;font-family:inherit;outline:none;transition:border 0.2s;width:100%}
+    .settings-input:focus{border-color:rgba(61,214,245,0.4)}
+    .settings-input::placeholder{color:rgba(255,255,255,0.2)}
+    .settings-hint{font-size:0.72rem;color:rgba(255,255,255,0.28);line-height:1.5;margin-top:2px}
+    .settings-save-btn{background:linear-gradient(135deg,#1F7A8C,#15606e);border:none;border-radius:10px;padding:11px 28px;color:#fff;font-size:0.88rem;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity 0.2s;margin-top:20px}
+    .settings-save-btn:hover{opacity:0.88}
+    .settings-guide{background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.18);border-radius:12px;padding:18px 20px;margin-top:16px}
+    .settings-guide h4{font-size:0.8rem;font-weight:700;color:#f5c842;margin-bottom:10px}
+    .settings-guide ol{padding-left:18px;display:flex;flex-direction:column;gap:6px}
+    .settings-guide li{font-size:0.78rem;color:rgba(255,255,255,0.55);line-height:1.5}
+    .settings-guide code{background:rgba(0,0,0,0.3);padding:1px 6px;border-radius:4px;font-size:0.75rem;color:#f5c842}
+    .status-pill{display:inline-flex;align-items:center;gap:5px;font-size:0.72rem;font-weight:700;padding:3px 10px;border-radius:20px}
+    .status-pill.active{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);color:#4ade80}
+    .status-pill.inactive{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:#f87171}
+    .status-pill::before{content:'●';font-size:0.6rem}
+
+    /* ── Payments tab ── */
+    .revenue-big{font-size:2.2rem;font-weight:800;color:#4ade80;line-height:1}
+
     @media(max-width:768px){
       .main{padding:16px}
       .header{padding:0 16px}
       .table-wrap{overflow-x:auto}
+      .settings-grid{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -133,6 +163,8 @@
     <button class="tab-btn active" data-tab="leads">Leads</button>
     <button class="tab-btn" data-tab="audits">Website Audits</button>
     <button class="tab-btn" data-tab="report-leads">Report Downloads</button>
+    <button class="tab-btn" data-tab="payments">Payments</button>
+    <button class="tab-btn" data-tab="settings">⚙ Settings</button>
   </div>
 
   <!-- ══ LEADS TAB ══ -->
@@ -270,6 +302,106 @@
     </div>
 
   </div><!-- /tab-report-leads -->
+
+  <!-- ══ PAYMENTS TAB ══ -->
+  <div class="tab-panel" id="tab-payments">
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value green revenue-big" id="statRevTotal">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">This Month</div>
+        <div class="stat-value green" id="statRevMonth">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-value teal" id="statOrdersTotal">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Paid</div>
+        <div class="stat-value green" id="statOrdersPaid">—</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <input class="search-input" id="ordersSearch" type="text" placeholder="Search by email, plan..."/>
+      <button class="refresh-btn" id="refreshOrdersBtn">↻ Refresh</button>
+    </div>
+
+    <div class="table-wrap">
+      <div id="ordersTableContent">
+        <div class="loading"><div class="spinner"></div>Loading payments...</div>
+      </div>
+    </div>
+
+  </div><!-- /tab-payments -->
+
+  <!-- ══ SETTINGS TAB ══ -->
+  <div class="tab-panel" id="tab-settings">
+
+    <!-- Status + Stripe Config -->
+    <div class="settings-section">
+      <div class="settings-card">
+        <div class="settings-card-title">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Stripe Payment Gateway
+          <span id="stripeStatusPill" class="status-pill inactive" style="margin-left:8px">Not Configured</span>
+        </div>
+
+        <div class="settings-grid">
+          <div class="settings-field settings-full">
+            <label class="settings-label">Stripe Secret Key <span>(for webhook verification)</span></label>
+            <input class="settings-input" id="set-stripe-secret" type="password" placeholder="sk_live_••••  or  sk_test_••••"/>
+            <div class="settings-hint">From Stripe Dashboard → Developers → API Keys. Keep this secret — never share it.</div>
+          </div>
+          <div class="settings-field settings-full">
+            <label class="settings-label">Stripe Webhook Secret <span>(optional — for order tracking)</span></label>
+            <input class="settings-input" id="set-stripe-webhook" type="password" placeholder="whsec_••••••••"/>
+            <div class="settings-hint">From Stripe Dashboard → Developers → Webhooks → your endpoint → Signing secret.</div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(61,214,245,0.08)">
+          <div class="settings-card-title" style="margin-bottom:16px">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            Payment Link URLs per Plan
+          </div>
+          <p style="font-size:0.78rem;color:rgba(255,255,255,0.38);margin-bottom:16px;line-height:1.6">Create a Payment Link in your Stripe Dashboard for each plan and paste the URL below. Once saved, a "Pay with Card" button will appear on your pricing page.</p>
+          <div class="settings-grid">
+            <div class="settings-field settings-full">
+              <label class="settings-label">Website Revamp — $800 one-time</label>
+              <input class="settings-input" id="set-plan-revamp" type="url" placeholder="https://buy.stripe.com/..."/>
+            </div>
+            <div class="settings-field settings-full">
+              <label class="settings-label">Monthly Growth Plan — $750/mo</label>
+              <input class="settings-input" id="set-plan-growth" type="url" placeholder="https://buy.stripe.com/..."/>
+            </div>
+            <div class="settings-field settings-full">
+              <label class="settings-label">Premium Plan — $1,997/mo</label>
+              <input class="settings-input" id="set-plan-premium" type="url" placeholder="https://buy.stripe.com/..."/>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <button class="settings-save-btn" id="saveSettingsBtn" onclick="saveSettings()">Save All Settings</button>
+        </div>
+
+        <!-- Setup Guide -->
+        <div class="settings-guide">
+          <h4>📋 Setup Guide — 3 steps</h4>
+          <ol>
+            <li><strong>Create Payment Links</strong> — In Stripe Dashboard go to <code>Payment Links</code> → create one for each plan. Set the success URL to <code>https://gorevamp.ai/checkout/success</code>.</li>
+            <li><strong>Paste URLs above</strong> — Copy each Payment Link URL and paste in the fields above, then click Save.</li>
+            <li><strong>Optional — Webhooks for order tracking</strong> — In Stripe go to <code>Developers → Webhooks → Add endpoint</code>, set URL to <code>https://gorevamp.ai/api/stripe-webhook</code>, select event <code>checkout.session.completed</code>, copy the signing secret and paste above.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-settings -->
 
 </main>
 
@@ -527,19 +659,6 @@
   document.getElementById('auditSearch').addEventListener('input', () => renderAudits(allAudits));
   document.getElementById('refreshAuditsBtn').addEventListener('click', () => { auditsLoaded = false; loadAudits(); });
 
-  // ── Tab switching (updated to support 3 tabs) ──
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      const tab = btn.dataset.tab;
-      document.getElementById('tab-' + tab).classList.add('active');
-      if (tab === 'audits' && !auditsLoaded) loadAudits();
-      if (tab === 'report-leads' && !rlLoaded) loadReportLeads();
-    });
-  });
-
   // ── Report Download Leads ──
   let allRl = [], rlLoaded = false;
 
@@ -625,6 +744,162 @@
 
   document.getElementById('rlSearch').addEventListener('input', () => renderRl(allRl));
   document.getElementById('refreshRlBtn').addEventListener('click', () => { rlLoaded = false; loadReportLeads(); });
+
+  // ── Payments ──
+  let allOrders = [], ordersLoaded = false;
+
+  function fmtMoney(cents, currency) {
+    return '$' + ((cents || 0) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function updateOrderStats(orders) {
+    const paid = orders.filter(o => o.status === 'paid');
+    const total = paid.reduce((s, o) => s + (o.amountCents || 0), 0);
+    const now = new Date();
+    const monthPaid = paid.filter(o => {
+      const d = new Date(o.createdAt);
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    });
+    const monthTotal = monthPaid.reduce((s, o) => s + (o.amountCents || 0), 0);
+    document.getElementById('statRevTotal').textContent = fmtMoney(total);
+    document.getElementById('statRevMonth').textContent = fmtMoney(monthTotal);
+    document.getElementById('statOrdersTotal').textContent = orders.length;
+    document.getElementById('statOrdersPaid').textContent = paid.length;
+  }
+
+  function renderOrders(orders) {
+    const q = document.getElementById('ordersSearch').value.toLowerCase();
+    const filtered = q ? orders.filter(o =>
+      [o.email, o.plan, o.status].join(' ').toLowerCase().includes(q)
+    ) : orders;
+
+    if (!filtered.length) {
+      document.getElementById('ordersTableContent').innerHTML =
+        `<div class="empty"><h3>${orders.length ? 'No results' : 'No payments yet'}</h3><p>Once customers pay via Stripe, orders will appear here (requires webhook setup).</p></div>`;
+      return;
+    }
+
+    const statusColor = s => s === 'paid' ? '#4ade80' : s === 'canceled' ? '#f87171' : '#f5c842';
+    const rows = filtered.map(o => `<tr>
+      <td><div style="font-weight:600;color:#e8f0fe">${o.email || '—'}</div></td>
+      <td><div style="font-size:0.83rem;color:rgba(255,255,255,0.7)">${o.plan || '—'}</div></td>
+      <td><div style="font-weight:700;color:#4ade80">${fmtMoney(o.amountCents, o.currency)}</div></td>
+      <td><span style="color:${statusColor(o.status)};font-weight:700;font-size:0.8rem;text-transform:uppercase">${o.status}</span></td>
+      <td><div class="lead-date">${formatDate(o.createdAt)}</div></td>
+      <td>${o.email ? `<a href="mailto:${o.email}" style="background:rgba(61,214,245,0.1);border:1px solid rgba(61,214,245,0.2);border-radius:7px;padding:5px 12px;color:#3dd6f5;font-size:0.75rem;font-weight:600;text-decoration:none;display:inline-block">Follow Up →</a>` : ''}</td>
+    </tr>`).join('');
+
+    document.getElementById('ordersTableContent').innerHTML = `
+      <table>
+        <thead><tr>
+          <th>Customer</th><th>Plan</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  async function loadOrders() {
+    ordersLoaded = true;
+    document.getElementById('ordersTableContent').innerHTML =
+      '<div class="loading"><div class="spinner"></div>Loading payments...</div>';
+    try {
+      const res = await fetch('/api/orders');
+      if (!res.ok) throw new Error('Failed');
+      allOrders = await res.json();
+      updateOrderStats(allOrders);
+      renderOrders(allOrders);
+    } catch (e) {
+      document.getElementById('ordersTableContent').innerHTML =
+        `<div class="empty"><h3>Error loading orders</h3><p style="color:#f87171">${e.message}</p></div>`;
+    }
+  }
+
+  document.getElementById('ordersSearch').addEventListener('input', () => renderOrders(allOrders));
+  document.getElementById('refreshOrdersBtn').addEventListener('click', () => { ordersLoaded = false; loadOrders(); });
+
+  // ── Settings ──
+  let settingsLoaded = false;
+
+  function updateStripeStatus(settings) {
+    const pill = document.getElementById('stripeStatusPill');
+    const hasKey = settings.stripe_secret_key && settings.stripe_secret_key.length > 10;
+    const hasUrl = settings.plan_website_revamp_url || settings.plan_growth_monthly_url || settings.plan_premium_monthly_url;
+    if (hasKey || hasUrl) {
+      pill.className = 'status-pill active';
+      pill.textContent = 'Configured';
+    } else {
+      pill.className = 'status-pill inactive';
+      pill.textContent = 'Not Configured';
+    }
+  }
+
+  async function loadSettings() {
+    settingsLoaded = true;
+    try {
+      const res = await fetch('/api/settings');
+      if (!res.ok) return;
+      const s = await res.json();
+      // Populate fields (never reveal secret values - show placeholder if set)
+      if (s.stripe_secret_key) document.getElementById('set-stripe-secret').placeholder = '••••••••••••••••••••• (saved)';
+      if (s.stripe_webhook_secret) document.getElementById('set-stripe-webhook').placeholder = '••••••••••••••••••••• (saved)';
+      if (s.plan_website_revamp_url) document.getElementById('set-plan-revamp').value = s.plan_website_revamp_url;
+      if (s.plan_growth_monthly_url) document.getElementById('set-plan-growth').value = s.plan_growth_monthly_url;
+      if (s.plan_premium_monthly_url) document.getElementById('set-plan-premium').value = s.plan_premium_monthly_url;
+      updateStripeStatus(s);
+    } catch (e) { console.error('settings load', e); }
+  }
+
+  async function saveSettings() {
+    const btn = document.getElementById('saveSettingsBtn');
+    btn.textContent = 'Saving…';
+    btn.disabled = true;
+
+    const body = {};
+    const secretVal = document.getElementById('set-stripe-secret').value.trim();
+    const webhookVal = document.getElementById('set-stripe-webhook').value.trim();
+    if (secretVal) body.stripe_secret_key = secretVal;
+    if (webhookVal) body.stripe_webhook_secret = webhookVal;
+    body.plan_website_revamp_url = document.getElementById('set-plan-revamp').value.trim();
+    body.plan_growth_monthly_url = document.getElementById('set-plan-growth').value.trim();
+    body.plan_premium_monthly_url = document.getElementById('set-plan-premium').value.trim();
+    body.payments_enabled = 'true';
+
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error('Save failed');
+      showToast('Settings saved ✓');
+      // Clear secret fields after save (security)
+      document.getElementById('set-stripe-secret').value = '';
+      document.getElementById('set-stripe-webhook').value = '';
+      if (secretVal) document.getElementById('set-stripe-secret').placeholder = '••••••••••••••••••••• (saved)';
+      if (webhookVal) document.getElementById('set-stripe-webhook').placeholder = '••••••••••••••••••••• (saved)';
+      updateStripeStatus(body);
+    } catch (e) {
+      showToast('Error saving settings');
+    } finally {
+      btn.textContent = 'Save All Settings';
+      btn.disabled = false;
+    }
+  }
+
+  // ── Tab switching ──
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab;
+      document.getElementById('tab-' + tab).classList.add('active');
+      if (tab === 'audits' && !auditsLoaded) loadAudits();
+      if (tab === 'report-leads' && !rlLoaded) loadReportLeads();
+      if (tab === 'payments' && !ordersLoaded) loadOrders();
+      if (tab === 'settings' && !settingsLoaded) loadSettings();
+    });
+  });
 
   // ── Init ──
   loadLeads();

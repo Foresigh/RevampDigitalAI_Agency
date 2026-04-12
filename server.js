@@ -6,6 +6,7 @@ const path     = require('path');
 const { Pool }   = require('pg');
 const fetch      = require('node-fetch');
 const compression= require('compression');
+const Stripe     = require('stripe');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +19,14 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
+
+// ── Settings helper ──
+async function getSetting(key) {
+  try {
+    const r = await pool.query(`SELECT value FROM settings WHERE key = $1`, [key]);
+    return r.rows[0]?.value || null;
+  } catch { return null; }
+}
 
 async function initDb() {
   await pool.query(`
@@ -74,10 +83,68 @@ async function initDb() {
   await pool.query(`ALTER TABLE audit_downloads ADD COLUMN IF NOT EXISTS region TEXT`);
   await pool.query(`ALTER TABLE audit_downloads ADD COLUMN IF NOT EXISTS country TEXT`);
   await pool.query(`ALTER TABLE audit_downloads ADD COLUMN IF NOT EXISTS user_agent TEXT`);
+
+  // Settings key-value store
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key        TEXT PRIMARY KEY,
+      value      TEXT NOT NULL DEFAULT '',
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
+
+  // Payment orders — populated by Stripe webhook
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS orders (
+      id                  SERIAL PRIMARY KEY,
+      created_at          TIMESTAMPTZ DEFAULT NOW(),
+      stripe_session_id   TEXT UNIQUE,
+      customer_email      TEXT,
+      plan_name           TEXT,
+      amount_cents        INTEGER DEFAULT 0,
+      currency            TEXT DEFAULT 'usd',
+      status              TEXT DEFAULT 'pending'
+    )
+  `);
+
   console.log('[db] tables ready');
 }
 
 app.use(compression());
+
+// ── Stripe webhook — raw body required, must come BEFORE express.json() ──
+app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || await getSetting('stripe_webhook_secret');
+  if (!webhookSecret) return res.status(400).json({ error: 'Webhook secret not configured' });
+
+  let event;
+  try {
+    const stripeKey = process.env.STRIPE_SECRET_KEY || await getSetting('stripe_secret_key');
+    const stripe = Stripe(stripeKey);
+    event = stripe.webhooks.constructEvent(req.body, req.headers['stripe-signature'], webhookSecret);
+  } catch (err) {
+    console.error('[stripe-webhook] signature error:', err.message);
+    return res.status(400).json({ error: `Webhook error: ${err.message}` });
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const planName = session.metadata?.plan || '';
+    const email = session.customer_details?.email || session.customer_email || '';
+    try {
+      await pool.query(
+        `INSERT INTO orders (stripe_session_id, customer_email, plan_name, amount_cents, currency, status)
+         VALUES ($1,$2,$3,$4,$5,'paid')
+         ON CONFLICT (stripe_session_id) DO UPDATE SET status='paid', customer_email=EXCLUDED.customer_email`,
+        [session.id, email, planName, session.amount_total || 0, session.currency || 'usd']
+      );
+      console.log(`[order] paid — ${email} — ${planName} — $${((session.amount_total||0)/100).toFixed(2)}`);
+    } catch (e) { console.error('[order save error]', e.message); }
+  }
+
+  res.json({ received: true });
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -498,6 +565,78 @@ app.get('/api/audit-data/:id', async (req, res) => {
 // ── Audit report page (print/PDF) ──
 app.get('/audit-report/:id', (req, res) => {
   res.sendFile(path.join(__dirname, 'audit-report.html'));
+});
+
+// ── API: payment config (public — only URLs, no secrets) ──
+app.get('/api/payment-config', async (req, res) => {
+  try {
+    const [r1, r2, r3, enabled] = await Promise.all([
+      getSetting('plan_website_revamp_url'),
+      getSetting('plan_growth_monthly_url'),
+      getSetting('plan_premium_monthly_url'),
+      getSetting('payments_enabled'),
+    ]);
+    res.json({
+      enabled: enabled !== 'false',
+      plans: {
+        website_revamp:  r1 || '',
+        growth_monthly:  r2 || '',
+        premium_monthly: r3 || '',
+      }
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: get settings (admin) ──
+app.get('/api/settings', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(`SELECT key, value FROM settings ORDER BY key`);
+    const obj = {};
+    r.rows.forEach(row => { obj[row.key] = row.value; });
+    res.json(obj);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: save settings (admin) ──
+app.post('/api/settings', requireAuth, async (req, res) => {
+  const allowed = [
+    'stripe_secret_key', 'stripe_webhook_secret',
+    'plan_website_revamp_url', 'plan_growth_monthly_url', 'plan_premium_monthly_url',
+    'payments_enabled'
+  ];
+  try {
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) {
+        await pool.query(
+          `INSERT INTO settings (key, value, updated_at) VALUES ($1,$2,NOW())
+           ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=NOW()`,
+          [key, req.body[key]]
+        );
+      }
+    }
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: list orders (admin) ──
+app.get('/api/orders', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT id, created_at AS "createdAt", stripe_session_id AS "sessionId",
+              customer_email AS email, plan_name AS plan,
+              amount_cents AS "amountCents", currency, status
+       FROM orders ORDER BY created_at DESC LIMIT 500`
+    );
+    res.json(r.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Checkout pages ──
+app.get('/checkout/success', (req, res) => {
+  res.sendFile(path.join(__dirname, 'checkout-success.html'));
+});
+app.get('/checkout/cancel', (req, res) => {
+  res.redirect('/services#pricing');
 });
 
 // ── Business cards ──

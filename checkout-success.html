@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Payment Successful | Revamp Digital LLC</title>
+  <link rel="icon" type="image/png" href="images/logo.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#05080f;color:#e8f0fe;font-family:'Poppins',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
+    .wrap{max-width:520px;width:100%}
+
+    /* Icon */
+    .success-icon{
+      width:88px;height:88px;margin:0 auto 28px;
+      background:linear-gradient(135deg,rgba(74,222,128,0.15),rgba(74,222,128,0.05));
+      border:1px solid rgba(74,222,128,0.3);
+      border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      position:relative;
+    }
+    .success-icon::before{
+      content:'';position:absolute;inset:-8px;
+      border-radius:50%;
+      border:1px solid rgba(74,222,128,0.1);
+    }
+    .success-icon svg{width:38px;height:38px;color:#4ade80}
+
+    /* Brand */
+    .brand{
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      margin-bottom:36px;
+      font-size:1rem;font-weight:700;color:#e8f0fe;
+    }
+    .brand img{width:28px;height:28px;object-fit:contain}
+    .brand span{color:#3dd6f5}
+
+    h1{font-size:2rem;font-weight:800;margin-bottom:12px;line-height:1.15}
+    .sub{font-size:0.95rem;color:rgba(255,255,255,0.5);line-height:1.7;margin-bottom:36px}
+
+    /* Next steps */
+    .steps{
+      background:linear-gradient(135deg,rgba(31,122,140,0.1),rgba(255,255,255,0.02));
+      border:1px solid rgba(61,214,245,0.12);
+      border-radius:16px;
+      padding:24px 28px;
+      text-align:left;
+      margin-bottom:32px;
+    }
+    .steps-title{font-size:0.78rem;font-weight:700;color:#3dd6f5;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+    .step{display:flex;align-items:flex-start;gap:14px;margin-bottom:12px}
+    .step:last-child{margin-bottom:0}
+    .step-num{
+      width:24px;height:24px;border-radius:50%;
+      background:linear-gradient(135deg,#3dd6f5,#0fa3b1);
+      color:#05080f;font-size:0.7rem;font-weight:800;
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;margin-top:1px;
+    }
+    .step-text{font-size:0.85rem;color:rgba(255,255,255,0.65);line-height:1.5}
+    .step-text strong{color:#e8f0fe}
+
+    /* Buttons */
+    .btns{display:flex;flex-direction:column;gap:12px}
+    .btn-primary{
+      display:block;
+      background:linear-gradient(135deg,#3dd6f5,#0fa3b1);
+      color:#05080f;font-family:'Poppins',sans-serif;
+      font-size:0.9rem;font-weight:700;
+      padding:14px 24px;border-radius:12px;
+      text-decoration:none;transition:opacity 0.2s,transform 0.15s;
+    }
+    .btn-primary:hover{opacity:0.9;transform:translateY(-1px)}
+    .btn-ghost{
+      display:block;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.1);
+      color:rgba(255,255,255,0.5);font-family:'Poppins',sans-serif;
+      font-size:0.85rem;font-weight:600;
+      padding:12px 24px;border-radius:12px;
+      text-decoration:none;transition:all 0.2s;
+    }
+    .btn-ghost:hover{background:rgba(255,255,255,0.07);color:#e8f0fe}
+
+    /* Confetti shimmer at top */
+    @keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+    .shine{
+      display:inline-block;
+      background:linear-gradient(90deg,#4ade80,#3dd6f5,#4ade80,#a78bfa,#4ade80);
+      background-size:200% auto;
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      animation:shimmer 3s linear infinite;
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand">
+    <img src="images/logo.png" alt="Revamp Digital"/>
+    Revamp <span>Digital</span>
+  </div>
+
+  <div class="success-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 6L9 17l-5-5"/>
+    </svg>
+  </div>
+
+  <h1>Payment <span class="shine">Successful!</span></h1>
+  <p class="sub">Your payment was processed securely through Stripe. You'll receive a confirmation email shortly. Here's what happens next:</p>
+
+  <div class="steps">
+    <div class="steps-title">What happens next</div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><strong>Check your inbox</strong> — A receipt from Stripe and a welcome email from us will arrive within a few minutes.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><strong>We'll reach out within 24 hours</strong> — Your dedicated team member will contact you to kick off your project and gather everything we need.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><strong>Your revamp begins</strong> — We target delivery of your first draft within 5–10 business days. You'll have direct access to your team throughout.</div>
+    </div>
+  </div>
+
+  <div class="btns">
+    <a href="/" class="btn-primary">Back to Home</a>
+    <a href="mailto:hello@gorevamp.ai" class="btn-ghost">Email Us a Question</a>
+  </div>
+
+</div>
+</body>
+</html>
