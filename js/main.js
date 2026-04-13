@@ -272,93 +272,141 @@ function showToast(message, type = 'success') {
 
 /* ── WhatsApp floating chat button ── */
 (function () {
-  const WA_NUMBER = '13852532318'; // E.164 without +
+  const WA_NUMBER  = '13852532318';
   const WA_MESSAGE = encodeURIComponent("Hi! I found you on gorevamp.ai and I'd love to learn more.");
-  const WA_URL = `https://wa.me/${WA_NUMBER}?text=${WA_MESSAGE}`;
+  const WA_URL     = `https://wa.me/${WA_NUMBER}?text=${WA_MESSAGE}`;
 
-  // Inject styles
   const style = document.createElement('style');
   style.textContent = `
-    .wa-btn {
+    /* Wrap both fixed buttons so they stack cleanly */
+    .wa-stack {
       position: fixed;
-      bottom: 28px;
-      right: 28px;
+      bottom: 24px;
+      right: 24px;
       z-index: 9998;
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      align-items: flex-end;
       gap: 10px;
+    }
+
+    /* WhatsApp pill */
+    .wa-btn {
+      display: flex;
+      align-items: center;
+      gap: 0;
       background: #25d366;
       border-radius: 50px;
-      padding: 12px 20px 12px 14px;
-      box-shadow: 0 4px 24px rgba(37,211,102,0.45), 0 2px 8px rgba(0,0,0,0.2);
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(37,211,102,0.4), 0 2px 8px rgba(0,0,0,0.18);
       text-decoration: none;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, padding 0.3s ease;
       overflow: hidden;
-      max-width: 52px;
+      transition: width 0.28s ease, box-shadow 0.2s ease, transform 0.2s ease;
+      position: relative;
     }
     .wa-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 32px rgba(37,211,102,0.55), 0 4px 12px rgba(0,0,0,0.25);
-      max-width: 220px;
-      padding: 12px 20px 12px 14px;
+      width: 190px;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(37,211,102,0.5), 0 4px 10px rgba(0,0,0,0.2);
     }
     .wa-btn svg {
       width: 26px;
       height: 26px;
       flex-shrink: 0;
+      margin-left: 9px;
+      transition: margin 0.28s ease;
+    }
+    .wa-btn:hover svg {
+      margin-left: 12px;
     }
     .wa-btn-text {
       font-family: 'Poppins', sans-serif;
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       font-weight: 700;
       color: #fff;
       white-space: nowrap;
       opacity: 0;
-      transition: opacity 0.2s ease 0.05s;
+      max-width: 0;
+      overflow: hidden;
+      padding-left: 0;
+      transition: opacity 0.15s ease, max-width 0.28s ease, padding 0.28s ease;
     }
     .wa-btn:hover .wa-btn-text {
       opacity: 1;
+      max-width: 140px;
+      padding-left: 8px;
+      padding-right: 14px;
     }
+    /* Pulse dot */
     .wa-pulse {
       position: absolute;
-      top: 6px;
-      right: 6px;
-      width: 10px;
-      height: 10px;
+      top: 5px;
+      right: 5px;
+      width: 9px;
+      height: 9px;
       background: #fff;
       border-radius: 50%;
-      animation: wa-pulse 2s ease-in-out infinite;
+      animation: waPulse 2s ease-in-out infinite;
     }
-    .wa-btn:hover .wa-pulse { display: none; }
-    @keyframes wa-pulse {
-      0%,100% { transform: scale(1);   opacity: 0.9; }
-      50%      { transform: scale(1.5); opacity: 0.4; }
+    .wa-btn:hover .wa-pulse { opacity: 0; }
+    @keyframes waPulse {
+      0%,100% { transform: scale(1);   opacity: 0.85; }
+      50%      { transform: scale(1.6); opacity: 0.3; }
     }
-    @media (max-width: 480px) {
-      .wa-btn { bottom: 20px; right: 16px; padding: 11px 11px; }
-      .wa-btn:hover { max-width: 52px; padding: 11px 11px; }
-      .wa-btn:hover .wa-btn-text { opacity: 0; }
+
+    /* Move scroll-to-top inside the stack */
+    .wa-stack .scroll-top {
+      position: static !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: none; /* managed by JS below */
     }
   `;
   document.head.appendChild(style);
 
-  // Build button
+  // Create wrapper stack
+  const stack = document.createElement('div');
+  stack.className = 'wa-stack';
+
+  // WhatsApp button
   const btn = document.createElement('a');
   btn.className = 'wa-btn';
-  btn.href = WA_URL;
-  btn.target = '_blank';
-  btn.rel = 'noopener noreferrer';
+  btn.href      = WA_URL;
+  btn.target    = '_blank';
+  btn.rel       = 'noopener noreferrer';
   btn.setAttribute('aria-label', 'Chat with us on WhatsApp');
   btn.innerHTML = `
     <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="16" cy="16" r="16" fill="#25d366"/>
-      <path d="M16 7C11.03 7 7 11.03 7 16c0 1.62.43 3.14 1.18 4.46L7 25l4.71-1.24A9 9 0 0016 25c4.97 0 9-4.03 9-9s-4.03-9-9-9z" fill="#fff"/>
-      <path d="M21.5 18.9c-.27-.13-1.6-.79-1.85-.88-.25-.09-.43-.13-.61.13-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.17-1.34-.8-.71-1.34-1.59-1.5-1.86-.16-.27-.02-.42.12-.55.12-.12.27-.32.4-.48.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.48-.06-.13-.61-1.47-.84-2.01-.22-.52-.44-.45-.61-.46H13c-.18 0-.47.07-.72.34-.25.27-.95.93-.95 2.27s.97 2.63 1.11 2.81c.13.18 1.91 2.92 4.63 3.98.65.28 1.15.45 1.55.57.65.21 1.24.18 1.71.11.52-.08 1.6-.65 1.83-1.28.22-.63.22-1.17.15-1.28-.06-.11-.24-.18-.51-.31z" fill="#25d366"/>
+      <path d="M16 3C8.82 3 3 8.82 3 16c0 2.3.6 4.46 1.65 6.33L3 29l6.87-1.8A13 13 0 0016 29c7.18 0 13-5.82 13-13S23.18 3 16 3z" fill="#fff"/>
+      <path d="M21.9 19.3c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.48-1.76-1.66-2.06-.17-.3-.02-.46.13-.61.14-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.05 1.03-1.05 2.5s1.08 2.9 1.22 3.1c.15.2 2.12 3.23 5.13 4.4.72.31 1.28.5 1.72.64.72.23 1.38.2 1.9.12.58-.09 1.77-.72 2.02-1.42.25-.7.25-1.29.17-1.42-.07-.12-.27-.2-.57-.35z" fill="#25d366"/>
     </svg>
     <span class="wa-btn-text">Chat on WhatsApp</span>
     <span class="wa-pulse"></span>
   `;
+  stack.appendChild(btn);
 
-  document.body.appendChild(btn);
+  // Move existing scroll-to-top button into the stack
+  document.addEventListener('DOMContentLoaded', () => {}, { once: true });
+  const moveScrollTop = () => {
+    const scrollBtn = document.getElementById('scrollTop');
+    if (scrollBtn) {
+      // Remove its fixed positioning — stack handles layout
+      scrollBtn.style.position = 'static';
+      scrollBtn.style.bottom   = '';
+      scrollBtn.style.right    = '';
+      scrollBtn.style.zIndex   = '';
+      // Insert scroll button BELOW the WhatsApp button in the stack (order: WA on top, scroll below)
+      stack.appendChild(scrollBtn);
+    }
+    document.body.appendChild(stack);
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', moveScrollTop);
+  } else {
+    moveScrollTop();
+  }
 })();
