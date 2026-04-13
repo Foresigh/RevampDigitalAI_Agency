@@ -269,3 +269,96 @@ function showToast(message, type = 'success') {
   strip.addEventListener('mouseenter', () => { inner.style.animationPlayState = 'paused'; });
   strip.addEventListener('mouseleave', () => { inner.style.animationPlayState = 'running'; });
 })();
+
+/* ── WhatsApp floating chat button ── */
+(function () {
+  const WA_NUMBER = '13852532318'; // E.164 without +
+  const WA_MESSAGE = encodeURIComponent("Hi! I found you on gorevamp.ai and I'd love to learn more.");
+  const WA_URL = `https://wa.me/${WA_NUMBER}?text=${WA_MESSAGE}`;
+
+  // Inject styles
+  const style = document.createElement('style');
+  style.textContent = `
+    .wa-btn {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 9998;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #25d366;
+      border-radius: 50px;
+      padding: 12px 20px 12px 14px;
+      box-shadow: 0 4px 24px rgba(37,211,102,0.45), 0 2px 8px rgba(0,0,0,0.2);
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, padding 0.3s ease;
+      overflow: hidden;
+      max-width: 52px;
+    }
+    .wa-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(37,211,102,0.55), 0 4px 12px rgba(0,0,0,0.25);
+      max-width: 220px;
+      padding: 12px 20px 12px 14px;
+    }
+    .wa-btn svg {
+      width: 26px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+    .wa-btn-text {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s ease 0.05s;
+    }
+    .wa-btn:hover .wa-btn-text {
+      opacity: 1;
+    }
+    .wa-pulse {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 10px;
+      height: 10px;
+      background: #fff;
+      border-radius: 50%;
+      animation: wa-pulse 2s ease-in-out infinite;
+    }
+    .wa-btn:hover .wa-pulse { display: none; }
+    @keyframes wa-pulse {
+      0%,100% { transform: scale(1);   opacity: 0.9; }
+      50%      { transform: scale(1.5); opacity: 0.4; }
+    }
+    @media (max-width: 480px) {
+      .wa-btn { bottom: 20px; right: 16px; padding: 11px 11px; }
+      .wa-btn:hover { max-width: 52px; padding: 11px 11px; }
+      .wa-btn:hover .wa-btn-text { opacity: 0; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Build button
+  const btn = document.createElement('a');
+  btn.className = 'wa-btn';
+  btn.href = WA_URL;
+  btn.target = '_blank';
+  btn.rel = 'noopener noreferrer';
+  btn.setAttribute('aria-label', 'Chat with us on WhatsApp');
+  btn.innerHTML = `
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="16" fill="#25d366"/>
+      <path d="M16 7C11.03 7 7 11.03 7 16c0 1.62.43 3.14 1.18 4.46L7 25l4.71-1.24A9 9 0 0016 25c4.97 0 9-4.03 9-9s-4.03-9-9-9z" fill="#fff"/>
+      <path d="M21.5 18.9c-.27-.13-1.6-.79-1.85-.88-.25-.09-.43-.13-.61.13-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.17-1.34-.8-.71-1.34-1.59-1.5-1.86-.16-.27-.02-.42.12-.55.12-.12.27-.32.4-.48.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.48-.06-.13-.61-1.47-.84-2.01-.22-.52-.44-.45-.61-.46H13c-.18 0-.47.07-.72.34-.25.27-.95.93-.95 2.27s.97 2.63 1.11 2.81c.13.18 1.91 2.92 4.63 3.98.65.28 1.15.45 1.55.57.65.21 1.24.18 1.71.11.52-.08 1.6-.65 1.83-1.28.22-.63.22-1.17.15-1.28-.06-.11-.24-.18-.51-.31z" fill="#25d366"/>
+    </svg>
+    <span class="wa-btn-text">Chat on WhatsApp</span>
+    <span class="wa-pulse"></span>
+  `;
+
+  document.body.appendChild(btn);
+})();
