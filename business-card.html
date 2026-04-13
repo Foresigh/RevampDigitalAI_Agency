@@ -112,21 +112,13 @@
       justify-content:space-between;
     }
     .front-brand{
-      display:flex;align-items:center;gap:10px;
+      display:flex;align-items:center;
     }
     .brand-logo-wrap{
-      width:34px;height:34px;
-      border-radius:8px;
-      background:linear-gradient(135deg,rgba(61,214,245,0.15),rgba(61,214,245,0.05));
-      border:1px solid rgba(61,214,245,0.25);
-      display:flex;align-items:center;justify-content:center;
-      flex-shrink:0;
-      overflow:hidden;
+      height:38px;
+      display:flex;align-items:center;
     }
-    .brand-logo-wrap img{width:26px;height:26px;object-fit:contain}
-    .brand-name{font-size:0.78rem;font-weight:700;line-height:1.2}
-    .brand-name span{color:#3dd6f5}
-    .brand-tagline{font-size:0.52rem;color:rgba(255,255,255,0.35);margin-top:1px;font-weight:400}
+    .brand-logo-wrap img{height:38px;width:auto;object-fit:contain}
 
     .front-person{}
     .person-name{font-size:1.22rem;font-weight:800;color:#fff;line-height:1.1;margin-bottom:4px}
@@ -196,17 +188,10 @@
       gap:10px;
     }
     .back-logo-wrap{
-      width:64px;height:64px;
-      border-radius:16px;
-      background:rgba(255,255,255,0.15);
-      backdrop-filter:blur(10px);
-      border:1px solid rgba(255,255,255,0.3);
       display:flex;align-items:center;justify-content:center;
-      overflow:hidden;
+      margin-bottom:4px;
     }
-    .back-logo-wrap img{width:48px;height:48px;object-fit:contain}
-    .back-brand-name{font-size:1.1rem;font-weight:800;color:#fff;letter-spacing:0.5px}
-    .back-brand-name span{opacity:0.75}
+    .back-logo-wrap img{height:72px;width:auto;object-fit:contain;filter:drop-shadow(0 0 18px rgba(255,255,255,0.15))}
     .back-tagline{font-size:0.7rem;color:rgba(255,255,255,0.75);font-weight:500;letter-spacing:0.3px}
     .back-divider{
       width:50px;height:2px;
@@ -281,11 +266,7 @@
           <!-- Brand -->
           <div class="front-brand">
             <div class="brand-logo-wrap">
-              <img src="images/logo.png" alt="Revamp Digital logo"/>
-            </div>
-            <div>
-              <div class="brand-name">Revamp <span>Digital</span></div>
-              <div class="brand-tagline">AI-Powered Web Agency</div>
+              <img src="images/logo-full.png" alt="Revamp Digital LLC"/>
             </div>
           </div>
 
@@ -339,9 +320,8 @@
     <div class="biz-card card-back">
       <div class="back-inner">
         <div class="back-logo-wrap">
-          <img src="images/logo.png" alt="Revamp Digital logo"/>
+          <img src="images/logo-full.png" alt="Revamp Digital LLC"/>
         </div>
-        <div class="back-brand-name">Revamp <span>Digital</span></div>
         <div class="back-tagline">We rebuild websites that win clients</div>
         <div class="back-divider"></div>
         <div class="back-url">gorevamp.ai</div>
