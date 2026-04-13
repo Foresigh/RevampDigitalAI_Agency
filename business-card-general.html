@@ -166,45 +166,15 @@
 
     /* ── BACK ── */
     .card-back{
-      background:linear-gradient(145deg,#3dd6f5 0%,#0fa3b1 40%,#0a7a8a 100%);
+      background:#05080f;
       box-shadow:0 20px 60px rgba(0,0,0,0.7),0 0 80px rgba(61,214,245,0.15);
     }
-    .card-back::before{
-      content:'';position:absolute;inset:0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
-      background-size:40px 40px;
-    }
-    .card-back::after{
-      content:'';position:absolute;
-      top:-80px;left:-80px;
-      width:280px;height:280px;
-      background:radial-gradient(circle,rgba(255,255,255,0.12) 0%,transparent 60%);
-    }
-    .back-inner{
-      position:relative;z-index:1;
-      height:100%;
-      display:flex;flex-direction:column;
-      align-items:center;justify-content:center;
-      gap:10px;
-    }
-    .back-logo-wrap{
-      display:flex;align-items:center;justify-content:center;
-      margin-bottom:4px;
-    }
-    .back-logo-wrap img{height:80px;width:auto;object-fit:contain}
-    .back-tagline{font-size:0.7rem;color:rgba(255,255,255,0.75);font-weight:500;letter-spacing:0.3px}
-    .back-divider{
-      width:50px;height:2px;
-      background:rgba(255,255,255,0.25);
-      border-radius:2px;
-      margin:4px 0;
-    }
-    .back-url{
-      font-size:0.8rem;font-weight:700;
-      color:#fff;letter-spacing:0.5px;
-      opacity:0.9;
+    .back-logo-full{
+      position:absolute;inset:0;
+      width:100%;height:100%;
+      object-fit:cover;
+      object-position:center;
+      border-radius:16px;
     }
 
     /* ── Notes ── */
@@ -318,14 +288,7 @@
   <div class="card-group">
     <div class="card-label">Back</div>
     <div class="biz-card card-back">
-      <div class="back-inner">
-        <div class="back-logo-wrap">
-          <img src="images/logo-full.png" alt="Revamp Digital LLC"/>
-        </div>
-        <div class="back-tagline">We rebuild websites that win clients</div>
-        <div class="back-divider"></div>
-        <div class="back-url">gorevamp.ai</div>
-      </div>
+      <img src="images/logo-full.png" alt="Revamp Digital LLC" class="back-logo-full"/>
     </div>
   </div>
 
