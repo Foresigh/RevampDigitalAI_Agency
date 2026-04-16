@@ -476,6 +476,35 @@ app.get('/api/leads', requireAuth, async (req, res) => {
   }
 });
 
+// ── API: manually add a lead (admin only) ──
+app.post('/api/leads/manual', requireAuth, async (req, res) => {
+  const b = req.body;
+  const owner_name = (b.owner_name || '').trim();
+  const email      = (b.email || '').trim();
+  if (!owner_name || !email) return res.status(400).json({ error: 'Name and email are required' });
+  try {
+    const result = await pool.query(
+      `INSERT INTO leads (owner_name, business_name, business_type, email, phone, current_website, goals, status)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id`,
+      [
+        owner_name,
+        b.business_name || '',
+        b.business_type || '',
+        email,
+        b.phone         || '',
+        b.current_website || '',
+        b.goals         || '',
+        b.status        || 'new'
+      ]
+    );
+    console.log(`[lead manual] id=${result.rows[0].id} ${owner_name} <${email}>`);
+    res.json({ ok: true, id: result.rows[0].id });
+  } catch (err) {
+    console.error('[manual lead error]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── API: update lead status/notes ──
 app.patch('/api/leads/:id', requireAuth, async (req, res) => {
   const { status, notes } = req.body;
