@@ -84,6 +84,26 @@ async function initDb() {
   await pool.query(`ALTER TABLE audit_downloads ADD COLUMN IF NOT EXISTS country TEXT`);
   await pool.query(`ALTER TABLE audit_downloads ADD COLUMN IF NOT EXISTS user_agent TEXT`);
 
+  // Portfolio projects
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS portfolio (
+      id           SERIAL PRIMARY KEY,
+      created_at   TIMESTAMPTZ DEFAULT NOW(),
+      client_name  TEXT NOT NULL,
+      industry     TEXT,
+      website_url  TEXT,
+      before_url   TEXT,
+      project_type TEXT DEFAULT 'built',
+      description  TEXT,
+      services     TEXT,
+      featured     BOOLEAN DEFAULT false,
+      sort_order   INTEGER DEFAULT 0,
+      active       BOOLEAN DEFAULT true
+    )
+  `);
+  await pool.query(`ALTER TABLE portfolio ADD COLUMN IF NOT EXISTS project_type TEXT DEFAULT 'built'`);
+  await pool.query(`ALTER TABLE portfolio ADD COLUMN IF NOT EXISTS before_url TEXT`);
+
   // Settings key-value store
   await pool.query(`
     CREATE TABLE IF NOT EXISTS settings (
@@ -596,6 +616,63 @@ app.get('/audit-report/:id', (req, res) => {
   res.sendFile(path.join(__dirname, 'audit-report.html'));
 });
 
+// ── API: portfolio (public) ──
+app.get('/api/portfolio', async (req, res) => {
+  const showAll = req.query.all === '1' && req.session?.admin;
+  try {
+    const r = await pool.query(
+      `SELECT id, client_name, industry, website_url, before_url, project_type, description, services, featured, sort_order, active
+       FROM portfolio ${showAll ? '' : 'WHERE active = true '}ORDER BY featured DESC, sort_order ASC, created_at DESC`
+    );
+    res.json(r.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: portfolio CRUD (admin) ──
+app.post('/api/portfolio', requireAuth, async (req, res) => {
+  const { client_name, industry, website_url, before_url, project_type, description, services, featured, sort_order } = req.body;
+  if (!client_name) return res.status(400).json({ error: 'Client name required' });
+  try {
+    const r = await pool.query(
+      `INSERT INTO portfolio (client_name, industry, website_url, before_url, project_type, description, services, featured, sort_order)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`,
+      [client_name, industry||'', website_url||'', before_url||'', project_type||'built', description||'', services||'', !!featured, sort_order||0]
+    );
+    res.json({ ok: true, id: r.rows[0].id });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.patch('/api/portfolio/:id', requireAuth, async (req, res) => {
+  const { client_name, industry, website_url, before_url, project_type, description, services, featured, sort_order, active } = req.body;
+  try {
+    await pool.query(
+      `UPDATE portfolio SET
+        client_name  = COALESCE($1, client_name),
+        industry     = COALESCE($2, industry),
+        website_url  = COALESCE($3, website_url),
+        before_url   = COALESCE($4, before_url),
+        project_type = COALESCE($5, project_type),
+        description  = COALESCE($6, description),
+        services     = COALESCE($7, services),
+        featured     = COALESCE($8, featured),
+        sort_order   = COALESCE($9, sort_order),
+        active       = COALESCE($10, active)
+       WHERE id = $11`,
+      [client_name||null, industry||null, website_url||null, before_url||null,
+       project_type||null, description||null, services||null, featured??null,
+       sort_order??null, active??null, req.params.id]
+    );
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/portfolio/:id', requireAuth, async (req, res) => {
+  try {
+    await pool.query(`DELETE FROM portfolio WHERE id = $1`, [req.params.id]);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── API: payment config (public — only URLs, no secrets) ──
 app.get('/api/payment-config', async (req, res) => {
   try {
@@ -658,6 +735,11 @@ app.get('/api/orders', requireAuth, async (req, res) => {
     );
     res.json(r.rows);
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Portfolio page ──
+app.get('/portfolio', (req, res) => {
+  res.sendFile(path.join(__dirname, 'portfolio.html'));
 });
 
 // ── Checkout pages ──

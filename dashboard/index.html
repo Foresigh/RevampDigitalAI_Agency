@@ -136,6 +136,25 @@
     /* ── Payments tab ── */
     .revenue-big{font-size:2.2rem;font-weight:800;color:#4ade80;line-height:1}
 
+    /* ── Portfolio tab ── */
+    .portfolio-dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:8px}
+    .pcard{background:linear-gradient(135deg,rgba(31,122,140,0.08),rgba(255,255,255,0.01));border:1px solid rgba(61,214,245,0.12);border-radius:14px;overflow:hidden;position:relative}
+    .pcard-preview{width:100%;height:130px;background:#0b1220;position:relative;overflow:hidden}
+    .pcard-preview img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+    .pcard-preview .pcard-no-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center;opacity:0.12}
+    .pcard-body{padding:14px 16px}
+    .pcard-industry{font-size:0.65rem;font-weight:700;color:#3dd6f5;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+    .pcard-name{font-size:0.95rem;font-weight:700;color:#e8f0fe;margin-bottom:6px}
+    .pcard-url{font-size:0.72rem;color:rgba(61,214,245,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:10px}
+    .pcard-actions{display:flex;gap:8px}
+    .pcard-btn{flex:1;border:none;border-radius:8px;padding:7px;font-size:0.72rem;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity 0.2s}
+    .pcard-btn:hover{opacity:0.82}
+    .pcard-edit{background:rgba(61,214,245,0.12);color:#3dd6f5;border:1px solid rgba(61,214,245,0.2)}
+    .pcard-delete{background:rgba(248,113,113,0.1);color:#f87171;border:1px solid rgba(248,113,113,0.2)}
+    .pcard-featured-badge{position:absolute;top:8px;left:8px;background:linear-gradient(135deg,#f5c842,#e5a800);color:#05080f;font-size:0.6rem;font-weight:800;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:1px}
+    .add-project-btn{background:linear-gradient(135deg,#1F7A8C,#15606e);border:none;border-radius:10px;padding:10px 18px;color:#fff;font-size:0.82rem;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:6px;transition:opacity 0.2s}
+    .add-project-btn:hover{opacity:0.88}
+
     /* ── Add Lead button ── */
     .add-lead-btn{
       background:linear-gradient(135deg,#1F7A8C,#15606e);
@@ -234,6 +253,7 @@
     <button class="tab-btn" data-tab="audits">Website Audits</button>
     <button class="tab-btn" data-tab="report-leads">Report Downloads</button>
     <button class="tab-btn" data-tab="payments">Payments</button>
+    <button class="tab-btn" data-tab="portfolio">Portfolio</button>
     <button class="tab-btn" data-tab="settings">⚙ Settings</button>
   </div>
 
@@ -412,6 +432,43 @@
 
   </div><!-- /tab-payments -->
 
+  <!-- ══ PORTFOLIO TAB ══ -->
+  <div class="tab-panel" id="tab-portfolio">
+
+    <div class="controls" style="margin-bottom:20px">
+      <div style="flex:1">
+        <div style="font-size:0.82rem;color:rgba(255,255,255,0.4);margin-bottom:4px">Manage your portfolio projects. Changes appear live on the public Portfolio page.</div>
+      </div>
+      <button class="add-project-btn" onclick="openAddProject()">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Project
+      </button>
+    </div>
+
+    <!-- Revamped section -->
+    <div style="margin-bottom:32px">
+      <div style="font-size:0.72rem;font-weight:700;color:#3dd6f5;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+        Revamped Sites <span id="revamped-count" style="color:rgba(255,255,255,0.3);font-weight:400"></span>
+      </div>
+      <div class="portfolio-dash-grid" id="revamped-grid">
+        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading...</div>
+      </div>
+    </div>
+
+    <!-- Built section -->
+    <div>
+      <div style="font-size:0.72rem;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Built from Scratch <span id="built-count" style="color:rgba(255,255,255,0.3);font-weight:400"></span>
+      </div>
+      <div class="portfolio-dash-grid" id="built-grid">
+        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading...</div>
+      </div>
+    </div>
+
+  </div><!-- /tab-portfolio -->
+
   <!-- ══ SETTINGS TAB ══ -->
   <div class="tab-panel" id="tab-settings">
 
@@ -533,6 +590,77 @@
         <div class="modal-actions">
           <button type="submit" class="modal-submit" id="addLeadSubmitBtn">Add Lead</button>
           <button type="button" class="modal-cancel" onclick="closeAddLead()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD / EDIT PROJECT MODAL ══ -->
+<div class="modal-backdrop" id="projectModal" onclick="handleProjectBackdropClick(event)">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <div class="modal-title" id="projectModalTitle">Add Project</div>
+      <button class="modal-close" onclick="closeProjectModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="projectForm" onsubmit="submitProject(event)">
+        <input type="hidden" name="project_id" id="projectId"/>
+        <div class="modal-grid">
+
+          <div>
+            <label>Client Name *</label>
+            <input type="text" name="client_name" id="pf-client" placeholder="Sunrise Plumbing Co." required/>
+          </div>
+          <div>
+            <label>Industry</label>
+            <input type="text" name="industry" id="pf-industry" placeholder="Plumbing, Restaurant, Salon…"/>
+          </div>
+
+          <div class="modal-full">
+            <label>Project Type *</label>
+            <select name="project_type" id="pf-type" onchange="toggleBeforeUrl()">
+              <option value="built">Built from Scratch</option>
+              <option value="revamped">Revamped (redesign)</option>
+            </select>
+          </div>
+
+          <div class="modal-full" id="pf-before-wrap" style="display:none">
+            <label>Before URL <span style="color:rgba(255,255,255,0.25);font-weight:400">(old website before revamp)</span></label>
+            <input type="url" name="before_url" id="pf-before" placeholder="https://old-site.com"/>
+            <div style="font-size:0.72rem;color:rgba(255,255,255,0.28);margin-top:4px">Used to generate the "before" screenshot on the portfolio page.</div>
+          </div>
+
+          <div class="modal-full">
+            <label>Live Website URL *</label>
+            <input type="url" name="website_url" id="pf-url" placeholder="https://newsite.com" required/>
+          </div>
+
+          <div class="modal-full">
+            <label>Description</label>
+            <textarea name="description" id="pf-desc" placeholder="Brief overview of the project…" style="min-height:60px"></textarea>
+          </div>
+
+          <div class="modal-full">
+            <label>Services <span style="color:rgba(255,255,255,0.25);font-weight:400">(comma-separated)</span></label>
+            <input type="text" name="services" id="pf-services" placeholder="Web Design, SEO, Google Ads"/>
+          </div>
+
+          <div>
+            <label>Sort Order <span style="color:rgba(255,255,255,0.25);font-weight:400">(lower = first)</span></label>
+            <input type="number" name="sort_order" id="pf-sort" value="0" min="0"/>
+          </div>
+          <div style="display:flex;align-items:flex-end;padding-bottom:2px;gap:10px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;margin-bottom:0">
+              <input type="checkbox" name="featured" id="pf-featured" style="width:16px;height:16px;accent-color:#f5c842;flex-shrink:0"/>
+              <span style="font-size:0.76rem;color:rgba(255,255,255,0.55)">Mark as Featured</span>
+            </label>
+          </div>
+
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="modal-submit" id="projectSubmitBtn">Add Project</button>
+          <button type="button" class="modal-cancel" onclick="closeProjectModal()">Cancel</button>
         </div>
       </form>
     </div>
@@ -1032,6 +1160,7 @@
       if (tab === 'report-leads' && !rlLoaded) loadReportLeads();
       if (tab === 'payments' && !ordersLoaded) loadOrders();
       if (tab === 'settings' && !settingsLoaded) loadSettings();
+      if (tab === 'portfolio' && !portfolioLoaded) loadPortfolioProjects();
     });
   });
 
@@ -1048,7 +1177,7 @@
   function handleBackdropClick(e) {
     if (e.target === document.getElementById('addLeadModal')) closeAddLead();
   }
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAddLead(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeAddLead(); closeProjectModal(); } });
 
   async function submitAddLead(e) {
     e.preventDefault();
@@ -1074,6 +1203,187 @@
     } finally {
       btn.disabled = false;
       btn.textContent = 'Add Lead';
+    }
+  }
+
+  // ── Portfolio ──
+  let allProjects = [], portfolioLoaded = false;
+
+  function mlImg(url) {
+    if (!url) return '';
+    const enc = encodeURIComponent(url);
+    return `https://api.microlink.io/?url=${enc}&screenshot=true&meta=false&embed=screenshot.url`;
+  }
+
+  function renderPortfolioCard(p) {
+    const imgUrl = mlImg(p.website_url);
+    const beforeImgUrl = p.before_url ? mlImg(p.before_url) : '';
+    const isRevamped = p.project_type === 'revamped';
+    const preview = isRevamped && beforeImgUrl
+      ? `<div class="pcard-preview" style="height:160px">
+           <div style="display:flex;height:100%;position:relative">
+             <div style="flex:1;position:relative;overflow:hidden">
+               <div style="position:absolute;top:4px;left:4px;z-index:2;background:rgba(248,113,113,0.85);color:#fff;font-size:0.55rem;font-weight:700;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:1px">Before</div>
+               <img src="${beforeImgUrl}" alt="before" style="width:100%;height:100%;object-fit:cover;object-position:top" onerror="this.style.display='none'"/>
+             </div>
+             <div style="width:1px;background:rgba(61,214,245,0.3)"></div>
+             <div style="flex:1;position:relative;overflow:hidden">
+               <div style="position:absolute;top:4px;left:4px;z-index:2;background:rgba(74,222,128,0.85);color:#000;font-size:0.55rem;font-weight:700;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:1px">After</div>
+               <img src="${imgUrl}" alt="after" style="width:100%;height:100%;object-fit:cover;object-position:top" onerror="this.style.display='none'"/>
+             </div>
+           </div>
+         </div>`
+      : `<div class="pcard-preview">
+           ${imgUrl ? `<img src="${imgUrl}" alt="${p.client_name}" onerror="this.style.display='none'"/>` : `<div class="pcard-no-img"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>`}
+         </div>`;
+
+    return `<div class="pcard" data-id="${p.id}">
+      ${p.featured ? '<div class="pcard-featured-badge">★ Featured</div>' : ''}
+      ${preview}
+      <div class="pcard-body">
+        <div class="pcard-industry">${p.industry || 'General'}</div>
+        <div class="pcard-name">${p.client_name}</div>
+        ${p.website_url ? `<div class="pcard-url">${p.website_url.replace(/^https?:\/\//,'')}</div>` : ''}
+        <div class="pcard-actions">
+          <button class="pcard-btn pcard-edit" onclick="openEditProject(${p.id})">✏ Edit</button>
+          <button class="pcard-btn pcard-delete" onclick="deleteProject(${p.id})">✕ Delete</button>
+          ${p.website_url ? `<a href="${p.website_url}" target="_blank" rel="noopener" style="flex:1;text-align:center;border:1px solid rgba(61,214,245,0.2);border-radius:8px;padding:7px;font-size:0.72rem;font-weight:700;color:#3dd6f5;text-decoration:none;background:rgba(61,214,245,0.06)">↗</a>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function renderPortfolioGrids(projects) {
+    const revamped = projects.filter(p => p.project_type === 'revamped');
+    const built = projects.filter(p => p.project_type !== 'revamped');
+
+    const rGrid = document.getElementById('revamped-grid');
+    const bGrid = document.getElementById('built-grid');
+    document.getElementById('revamped-count').textContent = `(${revamped.length})`;
+    document.getElementById('built-count').textContent = `(${built.length})`;
+
+    rGrid.innerHTML = revamped.length
+      ? revamped.map(renderPortfolioCard).join('')
+      : '<div class="empty" style="grid-column:1/-1;padding:40px 16px"><h3>No revamped projects yet</h3><p>Add your first redesign project.</p></div>';
+
+    bGrid.innerHTML = built.length
+      ? built.map(renderPortfolioCard).join('')
+      : '<div class="empty" style="grid-column:1/-1;padding:40px 16px"><h3>No built projects yet</h3><p>Add your first built-from-scratch project.</p></div>';
+  }
+
+  async function loadPortfolioProjects() {
+    portfolioLoaded = true;
+    document.getElementById('revamped-grid').innerHTML = '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading...</div>';
+    document.getElementById('built-grid').innerHTML = '';
+    try {
+      const res = await fetch('/api/portfolio?all=1');
+      if (!res.ok) throw new Error('Failed');
+      allProjects = await res.json();
+      renderPortfolioGrids(allProjects);
+    } catch (e) {
+      document.getElementById('revamped-grid').innerHTML = `<div class="empty" style="grid-column:1/-1"><h3>Error loading projects</h3><p style="color:#f87171">${e.message}</p></div>`;
+    }
+  }
+
+  // ── Project modal ──
+  let editingProjectId = null;
+
+  function toggleBeforeUrl() {
+    const type = document.getElementById('pf-type').value;
+    document.getElementById('pf-before-wrap').style.display = type === 'revamped' ? 'block' : 'none';
+  }
+
+  function openAddProject() {
+    editingProjectId = null;
+    document.getElementById('projectModalTitle').textContent = 'Add Project';
+    document.getElementById('projectSubmitBtn').textContent = 'Add Project';
+    document.getElementById('projectForm').reset();
+    document.getElementById('projectId').value = '';
+    document.getElementById('pf-before-wrap').style.display = 'none';
+    document.getElementById('projectModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function openEditProject(id) {
+    const p = allProjects.find(x => x.id === id);
+    if (!p) return;
+    editingProjectId = id;
+    document.getElementById('projectModalTitle').textContent = 'Edit Project';
+    document.getElementById('projectSubmitBtn').textContent = 'Save Changes';
+    document.getElementById('projectId').value = id;
+    document.getElementById('pf-client').value = p.client_name || '';
+    document.getElementById('pf-industry').value = p.industry || '';
+    document.getElementById('pf-type').value = p.project_type || 'built';
+    document.getElementById('pf-before').value = p.before_url || '';
+    document.getElementById('pf-url').value = p.website_url || '';
+    document.getElementById('pf-desc').value = p.description || '';
+    document.getElementById('pf-services').value = p.services || '';
+    document.getElementById('pf-sort').value = p.sort_order || 0;
+    document.getElementById('pf-featured').checked = !!p.featured;
+    toggleBeforeUrl();
+    document.getElementById('projectModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeProjectModal() {
+    document.getElementById('projectModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function handleProjectBackdropClick(e) {
+    if (e.target === document.getElementById('projectModal')) closeProjectModal();
+  }
+
+  async function submitProject(e) {
+    e.preventDefault();
+    const btn = document.getElementById('projectSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    const form = e.target;
+    const data = Object.fromEntries(new FormData(form));
+    data.featured = document.getElementById('pf-featured').checked;
+    data.sort_order = parseInt(data.sort_order) || 0;
+    delete data.project_id;
+
+    try {
+      let res;
+      if (editingProjectId) {
+        res = await fetch(`/api/portfolio/${editingProjectId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+      } else {
+        res = await fetch('/api/portfolio', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+      }
+      if (!res.ok) throw new Error('Save failed');
+      showToast(editingProjectId ? 'Project updated ✓' : 'Project added ✓');
+      closeProjectModal();
+      portfolioLoaded = false;
+      loadPortfolioProjects();
+    } catch (err) {
+      showToast('Error: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = editingProjectId ? 'Save Changes' : 'Add Project';
+    }
+  }
+
+  async function deleteProject(id) {
+    if (!confirm('Delete this project from the portfolio?')) return;
+    try {
+      const res = await fetch(`/api/portfolio/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Delete failed');
+      showToast('Project deleted');
+      portfolioLoaded = false;
+      loadPortfolioProjects();
+    } catch (e) {
+      showToast('Error: ' + e.message);
     }
   }
 

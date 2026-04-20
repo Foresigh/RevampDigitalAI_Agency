@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Portfolio | Revamp Digital LLC</title>
+  <meta name="description" content="See the websites we've built and revamped for local businesses across the US. Real results, real clients, real transformations."/>
+  <meta property="og:title"       content="Portfolio | Revamp Digital LLC"/>
+  <meta property="og:description" content="Real websites built for real local businesses. See our work."/>
+  <meta property="og:type"        content="website"/>
+  <meta property="og:url"         content="https://gorevamp.ai/portfolio"/>
+  <meta property="og:image"       content="https://gorevamp.ai/images/og-image.svg"/>
+  <meta property="og:site_name"   content="Revamp Digital LLC"/>
+  <meta name="twitter:card"       content="summary_large_image"/>
+  <link rel="icon" type="image/png" href="images/logo.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"/>
+  <link rel="stylesheet" href="css/styles.css?v=9"/>
+  <style>
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── Section headings ── */
+    .portfolio-section{margin-bottom:72px}
+    .section-heading{
+      display:flex;align-items:center;gap:14px;
+      margin-bottom:32px;
+    }
+    .section-heading-icon{
+      width:40px;height:40px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .icon-revamped{background:linear-gradient(135deg,rgba(61,214,245,0.15),rgba(61,214,245,0.05));border:1px solid rgba(61,214,245,0.2)}
+    .icon-built{background:linear-gradient(135deg,rgba(167,139,250,0.15),rgba(167,139,250,0.05));border:1px solid rgba(167,139,250,0.2)}
+    .section-heading-text h2{font-size:1.3rem;font-weight:800;margin-bottom:2px}
+    .section-heading-text p{font-size:0.8rem;color:rgba(255,255,255,0.4)}
+    .revamped-accent{color:#3dd6f5}
+    .built-accent{color:#a78bfa}
+
+    /* ── Grid ── */
+    .portfolio-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+      gap:28px;
+    }
+
+    /* ── Cards ── */
+    .portfolio-card{
+      background:linear-gradient(135deg,rgba(31,122,140,0.08),rgba(255,255,255,0.02));
+      border:1px solid rgba(61,214,245,0.12);
+      border-radius:20px;overflow:hidden;
+      transition:transform 0.25s ease,border-color 0.25s ease,box-shadow 0.25s ease;
+      position:relative;
+    }
+    .portfolio-card:hover{
+      transform:translateY(-6px);
+      border-color:rgba(61,214,245,0.3);
+      box-shadow:0 20px 60px rgba(0,0,0,0.4),0 0 40px rgba(61,214,245,0.06);
+    }
+    .portfolio-card.featured{border-color:rgba(245,200,66,0.25);box-shadow:0 0 0 1px rgba(245,200,66,0.06) inset}
+    .portfolio-card.built-card{border-color:rgba(167,139,250,0.12)}
+    .portfolio-card.built-card:hover{border-color:rgba(167,139,250,0.3);box-shadow:0 20px 60px rgba(0,0,0,0.4),0 0 40px rgba(167,139,250,0.06)}
+
+    /* ── Before/After preview ── */
+    .card-preview-ba{
+      width:100%;height:200px;
+      position:relative;overflow:hidden;
+      border-bottom:1px solid rgba(61,214,245,0.08);
+      display:flex;
+    }
+    .ba-half{flex:1;position:relative;overflow:hidden}
+    .ba-half img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;transition:transform 0.4s}
+    .portfolio-card:hover .ba-half img{transform:scale(1.04)}
+    .ba-label{
+      position:absolute;top:8px;left:8px;z-index:2;
+      font-size:0.58rem;font-weight:800;padding:2px 8px;border-radius:6px;
+      text-transform:uppercase;letter-spacing:1px;
+    }
+    .ba-label-before{background:rgba(248,113,113,0.9);color:#fff}
+    .ba-label-after{background:rgba(74,222,128,0.9);color:#000}
+    .ba-divider{width:2px;background:rgba(61,214,245,0.4);flex-shrink:0;position:relative;z-index:3}
+    .ba-divider::before{
+      content:'↔';position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);
+      background:#3dd6f5;color:#05080f;
+      width:22px;height:22px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:0.6rem;font-weight:800;
+      box-shadow:0 2px 8px rgba(0,0,0,0.5);
+    }
+
+    /* ── Regular preview ── */
+    .card-preview{
+      width:100%;height:200px;
+      background:#0b1220;
+      position:relative;overflow:hidden;
+      border-bottom:1px solid rgba(61,214,245,0.08);
+    }
+    .card-preview img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;transition:transform 0.4s}
+    .portfolio-card:hover .card-preview img{transform:scale(1.04)}
+    .preview-skeleton{width:100%;height:100%;background:linear-gradient(135deg,#0d1a2d,#0b1220);display:flex;align-items:center;justify-content:center}
+    .preview-skeleton svg{width:40px;height:40px;opacity:0.12}
+
+    /* Visit overlay */
+    .preview-overlay{position:absolute;inset:0;background:rgba(5,8,15,0.6);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.25s}
+    .portfolio-card:hover .preview-overlay{opacity:1}
+    .preview-visit{
+      background:linear-gradient(135deg,#3dd6f5,#0fa3b1);
+      color:#05080f;font-weight:700;font-size:0.82rem;
+      padding:9px 22px;border-radius:10px;text-decoration:none;
+      display:flex;align-items:center;gap:7px;transition:transform 0.15s;
+    }
+    .preview-visit:hover{transform:scale(1.04)}
+
+    /* Featured badge */
+    .featured-badge{
+      position:absolute;top:10px;right:10px;z-index:4;
+      background:linear-gradient(135deg,#f5c842,#e5a800);
+      color:#05080f;font-size:0.6rem;font-weight:800;
+      padding:2px 9px;border-radius:20px;
+      text-transform:uppercase;letter-spacing:1px;
+    }
+
+    /* Card body */
+    .card-body{padding:20px 22px 22px}
+    .card-industry{font-size:0.68rem;font-weight:700;color:#3dd6f5;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px}
+    .built-card .card-industry{color:#a78bfa}
+    .card-client{font-size:1.05rem;font-weight:800;color:#e8f0fe;margin-bottom:8px;line-height:1.2}
+    .card-desc{font-size:0.82rem;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:14px}
+    .card-tags{display:flex;flex-wrap:wrap;gap:6px}
+    .card-tag{background:rgba(61,214,245,0.07);border:1px solid rgba(61,214,245,0.15);border-radius:20px;padding:3px 10px;font-size:0.68rem;font-weight:600;color:rgba(61,214,245,0.8)}
+    .built-card .card-tag{background:rgba(167,139,250,0.07);border-color:rgba(167,139,250,0.15);color:rgba(167,139,250,0.9)}
+
+    /* Empty */
+    .portfolio-empty{text-align:center;padding:60px 24px;color:rgba(255,255,255,0.3);grid-column:1/-1}
+    .portfolio-empty svg{width:40px;height:40px;opacity:0.15;margin:0 auto 14px;display:block}
+    .portfolio-empty h3{font-size:1rem;color:rgba(255,255,255,0.38);margin-bottom:6px}
+
+    /* Stats */
+    .portfolio-stats{display:flex;gap:32px;margin-top:20px;flex-wrap:wrap}
+    .pstat{display:flex;flex-direction:column;gap:2px}
+    .pstat-num{font-size:1.8rem;font-weight:800;color:#3dd6f5;line-height:1}
+    .pstat-label{font-size:0.72rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px}
+
+    @media(max-width:640px){
+      .portfolio-grid{grid-template-columns:1fr}
+      .card-preview-ba{height:160px}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">
+        <div class="nav-logo-icon"><img src="images/logo.png" alt="Revamp Digital LLC Logo"/></div>
+        <div class="nav-logo-text">Revamp Digital LLC<small>AI-Powered Growth</small></div>
+      </a>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/services">Services</a>
+        <a href="/portfolio" class="active">Portfolio</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="/#revamp-request" class="nav-cta">Get Free Revamp</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+    <nav class="nav-mobile" id="navMobile">
+      <a href="/">🏠 Home</a>
+      <a href="/services">🚀 Services</a>
+      <a href="/portfolio">🎨 Portfolio</a>
+      <a href="/about">👋 About Us</a>
+      <a href="/contact">📩 Contact</a>
+      <a href="/#revamp-request" class="mob-cta">✨ Get My Free Revamp</a>
+    </nav>
+  </nav>
+
+  <!-- HERO -->
+  <section class="page-hero">
+    <div class="container">
+      <div class="page-hero-inner">
+        <nav class="breadcrumb">
+          <a href="/">Home</a>
+          <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          <span>Portfolio</span>
+        </nav>
+        <h1>Our Work</h1>
+        <p class="page-hero-sub">Real websites built and revamped for real local businesses. Every project starts with a free preview — these clients said yes.</p>
+        <div class="portfolio-stats" id="portfolioStats" style="display:none">
+          <div class="pstat"><span class="pstat-num" id="statRevamped">0</span><span class="pstat-label">Revamped</span></div>
+          <div class="pstat"><span class="pstat-num" id="statBuilt">0</span><span class="pstat-label">Built</span></div>
+          <div class="pstat"><span class="pstat-num" id="statIndustries">0</span><span class="pstat-label">Industries</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PORTFOLIO -->
+  <section class="section" style="padding-top:0">
+    <div class="container">
+
+      <!-- ── Revamped Section ── -->
+      <div class="portfolio-section" id="revampedSection" style="display:none">
+        <div class="section-heading">
+          <div class="section-heading-icon icon-revamped">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#3dd6f5" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          </div>
+          <div class="section-heading-text">
+            <h2><span class="revamped-accent">Revamped</span> — Before &amp; After</h2>
+            <p>Old websites transformed into modern, high-converting experiences</p>
+          </div>
+        </div>
+        <div class="portfolio-grid" id="revampedGrid">
+          <div class="portfolio-empty" style="grid-column:1/-1">
+            <div style="width:36px;height:36px;margin:0 auto 12px;border:3px solid rgba(61,214,245,0.15);border-top-color:#3dd6f5;border-radius:50%;animation:spin 0.7s linear infinite"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Built Section ── -->
+      <div class="portfolio-section" id="builtSection" style="display:none">
+        <div class="section-heading">
+          <div class="section-heading-icon icon-built">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#a78bfa" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div class="section-heading-text">
+            <h2><span class="built-accent">Built</span> from Scratch</h2>
+            <p>Custom websites designed and developed from the ground up</p>
+          </div>
+        </div>
+        <div class="portfolio-grid" id="builtGrid">
+          <div class="portfolio-empty" style="grid-column:1/-1">
+            <div style="width:36px;height:36px;margin:0 auto 12px;border:3px solid rgba(167,139,250,0.15);border-top-color:#a78bfa;border-radius:50%;animation:spin 0.7s linear infinite"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading state (both hidden initially) -->
+      <div id="loadingState" style="text-align:center;padding:80px 0;color:rgba(255,255,255,0.3)">
+        <div style="width:40px;height:40px;margin:0 auto 16px;border:3px solid rgba(61,214,245,0.15);border-top-color:#3dd6f5;border-radius:50%;animation:spin 0.7s linear infinite"></div>
+        Loading portfolio…
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section-sm">
+    <div class="container">
+      <div class="cta-banner">
+        <h2>Want a Site Like These?</h2>
+        <p>We'll build you a free custom preview — no cost, no commitment. See exactly what your new site looks like before you decide.</p>
+        <div class="cta-btns">
+          <a href="/#revamp-request" class="btn-hero-primary">✨ Get My Free Revamp</a>
+          <a href="/contact" class="btn btn-ghost btn-lg">Talk to Us First</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo-wrap">
+            <div class="f-logo-icon"><img src="images/logo.png" alt="Revamp Digital LLC Logo"/></div>
+            <span class="f-logo-name">Revamp Digital AI</span>
+          </div>
+          <p>AI-powered digital growth for local service businesses.</p>
+          <div class="social-links"></div>
+        </div>
+        <div class="footer-col"><h4>Services</h4><ul><li><a href="/services">Website Design</a></li><li><a href="/services">Social Media</a></li><li><a href="/services">Video Editing</a></li><li><a href="/services">Local SEO</a></li></ul></div>
+        <div class="footer-col"><h4>Company</h4><ul><li><a href="/about">About Us</a></li><li><a href="/portfolio">Portfolio</a></li><li><a href="/services">Pricing</a></li><li><a href="/contact">Contact</a></li></ul></div>
+        <div class="footer-col"><h4>Get in Touch</h4>
+          <div class="footer-contact-item"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6" fill="none" stroke="currentColor" stroke-width="2"/></svg><a href="mailto:hello@gorevamp.ai">hello@gorevamp.ai</a></div>
+          <div class="footer-contact-item"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>Mon–Fri: 9AM–6PM EST</span></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Revamp Digital AI. All rights reserved.</p>
+        <div class="footer-bottom-links"><a href="#">Privacy</a><a href="/terms">Terms</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <button class="scroll-top" id="scrollTop" aria-label="Scroll to top">
+    <svg viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg>
+  </button>
+
+  <script src="js/main.js" defer></script>
+  <script>
+    function mlUrl(url) {
+      if (!url) return null;
+      const clean = url.replace(/^https?:\/\//,'').replace(/\/$/,'');
+      return `https://api.microlink.io/?url=${encodeURIComponent('https://'+clean)}&screenshot=true&meta=false&embed=screenshot.url`;
+    }
+
+    function imgTag(url, alt, extraStyle) {
+      const src = mlUrl(url);
+      if (!src) return `<div class="preview-skeleton"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>`;
+      return `<img src="${src}" alt="${alt}" loading="lazy" style="${extraStyle||''}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'preview-skeleton',innerHTML:'<svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1\\'><rect x=\\'3\\' y=\\'3\\' width=\\'18\\' height=\\'18\\' rx=\\'2\\'/><path d=\\'M3 9h18M9 21V9\\'/></svg>'}))"/>`;
+    }
+
+    function renderRevampedCard(p) {
+      const tags = (p.services||'').split(',').map(s=>s.trim()).filter(Boolean);
+      const hasBA = p.before_url && p.website_url;
+
+      const preview = hasBA
+        ? `<div class="card-preview-ba">
+             <div class="ba-half">
+               <div class="ba-label ba-label-before">Before</div>
+               ${imgTag(p.before_url, 'Before — '+p.client_name, 'width:100%;height:100%;object-fit:cover;object-position:top;display:block')}
+             </div>
+             <div class="ba-divider"></div>
+             <div class="ba-half">
+               <div class="ba-label ba-label-after">After</div>
+               ${imgTag(p.website_url, 'After — '+p.client_name, 'width:100%;height:100%;object-fit:cover;object-position:top;display:block')}
+               ${p.website_url ? `<div class="preview-overlay"><a href="${p.website_url}" target="_blank" rel="noopener" class="preview-visit"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Visit Site</a></div>` : ''}
+             </div>
+           </div>`
+        : `<div class="card-preview">
+             ${imgTag(p.website_url, p.client_name, '')}
+             ${p.website_url ? `<div class="preview-overlay"><a href="${p.website_url}" target="_blank" rel="noopener" class="preview-visit"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Visit Site</a></div>` : ''}
+           </div>`;
+
+      return `<div class="portfolio-card${p.featured?' featured':''}">
+        ${p.featured ? '<div class="featured-badge">⭐ Featured</div>' : ''}
+        ${preview}
+        <div class="card-body">
+          ${p.industry ? `<div class="card-industry">${p.industry}</div>` : ''}
+          <div class="card-client">${p.client_name}</div>
+          ${p.description ? `<div class="card-desc">${p.description}</div>` : ''}
+          ${tags.length ? `<div class="card-tags">${tags.map(t=>`<span class="card-tag">${t}</span>`).join('')}</div>` : ''}
+        </div>
+      </div>`;
+    }
+
+    function renderBuiltCard(p) {
+      const tags = (p.services||'').split(',').map(s=>s.trim()).filter(Boolean);
+      return `<div class="portfolio-card built-card${p.featured?' featured':''}">
+        ${p.featured ? '<div class="featured-badge">⭐ Featured</div>' : ''}
+        <div class="card-preview">
+          ${imgTag(p.website_url, p.client_name, '')}
+          ${p.website_url ? `<div class="preview-overlay"><a href="${p.website_url}" target="_blank" rel="noopener" class="preview-visit"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Visit Site</a></div>` : ''}
+        </div>
+        <div class="card-body">
+          ${p.industry ? `<div class="card-industry">${p.industry}</div>` : ''}
+          <div class="card-client">${p.client_name}</div>
+          ${p.description ? `<div class="card-desc">${p.description}</div>` : ''}
+          ${tags.length ? `<div class="card-tags">${tags.map(t=>`<span class="card-tag">${t}</span>`).join('')}</div>` : ''}
+        </div>
+      </div>`;
+    }
+
+    async function loadPortfolio() {
+      const loading = document.getElementById('loadingState');
+      try {
+        const res = await fetch('/api/portfolio');
+        const projects = await res.json();
+        loading.style.display = 'none';
+
+        const revamped = projects.filter(p => p.project_type === 'revamped');
+        const built = projects.filter(p => p.project_type !== 'revamped');
+
+        // Stats
+        if (projects.length) {
+          document.getElementById('portfolioStats').style.display = 'flex';
+          document.getElementById('statRevamped').textContent = revamped.length;
+          document.getElementById('statBuilt').textContent = built.length;
+          document.getElementById('statIndustries').textContent =
+            new Set(projects.map(p => p.industry).filter(Boolean)).size || 1;
+        }
+
+        // Revamped section
+        if (revamped.length) {
+          document.getElementById('revampedSection').style.display = 'block';
+          document.getElementById('revampedGrid').innerHTML = revamped.map(renderRevampedCard).join('');
+        }
+
+        // Built section
+        if (built.length) {
+          document.getElementById('builtSection').style.display = 'block';
+          document.getElementById('builtGrid').innerHTML = built.map(renderBuiltCard).join('');
+        }
+
+        // Empty state
+        if (!projects.length) {
+          loading.innerHTML = `<div style="text-align:center;padding:80px 0;color:rgba(255,255,255,0.3)">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1" style="margin:0 auto 16px;display:block;opacity:0.15"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            <h3 style="font-size:1.1rem;color:rgba(255,255,255,0.4);margin-bottom:8px">No projects yet</h3>
+            <p>Check back soon — we're always building.</p>
+          </div>`;
+          loading.style.display = 'block';
+        }
+
+      } catch(e) {
+        loading.innerHTML = `<div style="text-align:center;padding:60px 0;color:rgba(255,255,255,0.3)">
+          <h3 style="font-size:1rem;color:rgba(255,255,255,0.38);margin-bottom:6px">Could not load projects</h3>
+          <p style="font-size:0.8rem">Please try again later.</p>
+        </div>`;
+        loading.style.display = 'block';
+      }
+    }
+
+    loadPortfolio();
+  </script>
+</body>
+</html>
