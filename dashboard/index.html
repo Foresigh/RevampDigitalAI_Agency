@@ -788,8 +788,13 @@
           </div>
 
           <div class="modal-full">
+            <label>Payment Schedule <span style="color:rgba(255,255,255,0.25);font-weight:400">(one line per payment — e.g. "50% deposit due before start")</span></label>
+            <textarea name="payment_schedule" id="ct-schedule" placeholder="50% deposit ($4,400) — due before work begins&#10;50% ($4,400) — due on project completion" style="min-height:72px"></textarea>
+          </div>
+
+          <div class="modal-full">
             <label>Additional Notes <span style="color:rgba(255,255,255,0.25);font-weight:400">(optional)</span></label>
-            <textarea name="notes" id="ct-notes" placeholder="Payment due before project start. Includes up to 3 revision rounds…" style="min-height:60px"></textarea>
+            <textarea name="notes" id="ct-notes" placeholder="Includes up to 3 revision rounds. Delivery in 10–14 business days…" style="min-height:56px"></textarea>
           </div>
 
           <div class="modal-full" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(61,214,245,0.04);border:1px solid rgba(61,214,245,0.12);border-radius:10px">
@@ -1522,14 +1527,56 @@
       });
       const result = await res.json();
       if (!res.ok) throw new Error(result.error);
-      showToast(data.send_now ? 'Contract created & email sent ✓' : 'Contract created ✓');
+
       closeContractModal();
       contractsLoaded = false; loadContracts();
+
+      // Show signing link always — with email status
+      if (data.send_now && result.emailSent) {
+        showLinkModal(result.link, '✓ Email sent to client! Signing link also copied below in case you need it.');
+      } else if (data.send_now && !result.emailSent) {
+        const reason = result.emailError ? `Email failed: ${result.emailError}` : 'Email not sent — SMTP not configured in Settings.';
+        showLinkModal(result.link, `⚠ ${reason} Share this link manually with the client:`);
+      } else {
+        showLinkModal(result.link, 'Contract created. Share this signing link with your client:');
+      }
     } catch(err) {
       showToast('Error: ' + err.message);
     } finally {
       btn.disabled = false; btn.textContent = 'Create Contract';
     }
+  }
+
+  function showLinkModal(link, msg) {
+    // Build a quick modal overlay with the signing link
+    const existing = document.getElementById('linkModal');
+    if (existing) existing.remove();
+    const el = document.createElement('div');
+    el.id = 'linkModal';
+    el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px';
+    el.innerHTML = `
+      <div style="background:#0d1a2d;border:1px solid rgba(61,214,245,0.2);border-radius:16px;padding:28px;max-width:520px;width:100%;position:relative">
+        <button onclick="document.getElementById('linkModal').remove()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;width:30px;height:30px;color:rgba(255,255,255,0.5);font-size:1rem;cursor:pointer">✕</button>
+        <div style="font-size:0.9rem;font-weight:700;color:#e8f0fe;margin-bottom:10px">Signing Link</div>
+        <div style="font-size:0.8rem;color:rgba(255,255,255,0.5);margin-bottom:16px;line-height:1.6">${msg}</div>
+        <div style="display:flex;gap:8px">
+          <input id="linkInput" readonly value="${link}" style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(61,214,245,0.2);border-radius:8px;padding:10px 12px;color:#3dd6f5;font-size:0.8rem;font-family:monospace;outline:none"/>
+          <button onclick="copyLinkFromModal()" style="background:linear-gradient(135deg,#1F7A8C,#15606e);border:none;border-radius:8px;padding:10px 16px;color:#fff;font-size:0.8rem;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap">Copy</button>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:8px">
+          <a href="${link}" target="_blank" style="flex:1;text-align:center;background:rgba(61,214,245,0.08);border:1px solid rgba(61,214,245,0.2);border-radius:8px;padding:9px;color:#3dd6f5;font-size:0.8rem;font-weight:600;text-decoration:none">Open Signing Page ↗</a>
+          <button onclick="document.getElementById('linkModal').remove()" style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:9px;color:rgba(255,255,255,0.5);font-size:0.8rem;font-weight:600;font-family:inherit;cursor:pointer">Done</button>
+        </div>
+      </div>`;
+    document.body.appendChild(el);
+    el.addEventListener('click', ev => { if (ev.target === el) el.remove(); });
+  }
+
+  function copyLinkFromModal() {
+    const input = document.getElementById('linkInput');
+    navigator.clipboard.writeText(input.value).then(() => showToast('Link copied ✓')).catch(() => {
+      input.select(); document.execCommand('copy'); showToast('Link copied ✓');
+    });
   }
 
   // ── Portfolio ──

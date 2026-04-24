@@ -51,98 +51,159 @@ async function sendMail({ to, subject, html, attachments }) {
 // ── PDF contract builder ──
 function buildContractPdf(contract) {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: 'LETTER', margin: 60 });
+    const doc = new PDFDocument({ size: 'LETTER', margin: 0, bufferPages: true });
     const chunks = [];
     doc.on('data', c => chunks.push(c));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
-    const teal = '#1F7A8C';
-    const dark = '#0d1a2d';
-    const gray = '#555555';
+    const W      = doc.page.width;
+    const H      = doc.page.height;
+    const L      = 60;   // left margin
+    const R      = W - 60; // right margin
+    const CW     = W - 120; // content width
+    const teal   = '#1F7A8C';
+    const tealLt = '#3dd6f5';
+    const dark   = '#0b1220';
+    const black  = '#111111';
+    const gray   = '#555555';
+    const lgray  = '#888888';
 
-    // Header bar
-    doc.rect(0, 0, doc.page.width, 80).fill(dark);
-    doc.fontSize(20).fillColor('#ffffff').font('Helvetica-Bold')
-      .text('REVAMP DIGITAL LLC', 60, 26);
-    doc.fontSize(9).fillColor('#3dd6f5').font('Helvetica')
-      .text('SERVICE AGREEMENT', 60, 52);
-    doc.fillColor('#ffffff').text(`Contract #${contract.id}  ·  ${new Date(contract.created_at).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`, { align: 'right', x: 60, y: 52, width: doc.page.width - 120 });
+    // ── Header bar ──
+    doc.rect(0, 0, W, 88).fill(dark);
+    doc.fontSize(22).fillColor('#ffffff').font('Helvetica-Bold')
+      .text('REVAMP DIGITAL LLC', L, 22, { lineBreak: false });
+    doc.fontSize(9).fillColor(tealLt).font('Helvetica')
+      .text('SERVICE AGREEMENT', L, 52, { lineBreak: false });
+    const dateStr = new Date(contract.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    doc.fontSize(8.5).fillColor('rgba(255,255,255,0.55)').font('Helvetica')
+      .text(`Contract #${contract.id}   ·   ${dateStr}`, L, 52, { align: 'right', width: CW, lineBreak: false });
 
-    doc.moveDown(3);
+    // ── Helpers ──
+    let y = 108;
 
-    // Section helper
     const section = (title) => {
-      doc.moveDown(0.8)
-        .fontSize(8).fillColor(teal).font('Helvetica-Bold')
-        .text(title.toUpperCase(), { characterSpacing: 1.5 });
-      doc.moveTo(60, doc.y + 3).lineTo(doc.page.width - 60, doc.y + 3)
-        .strokeColor(teal).lineWidth(0.5).stroke();
-      doc.moveDown(0.5);
+      y += 18;
+      doc.fontSize(7.5).fillColor(teal).font('Helvetica-Bold')
+        .text(title, L, y, { characterSpacing: 1.8, lineBreak: false });
+      y += 13;
+      doc.moveTo(L, y).lineTo(R, y).strokeColor(teal).lineWidth(0.4).stroke();
+      y += 8;
     };
 
-    const field = (label, value) => {
-      doc.fontSize(9).fillColor(gray).font('Helvetica-Bold').text(label + '  ', { continued: true });
-      doc.font('Helvetica').fillColor('#111111').text(value || '—');
+    const row = (label, value, bold) => {
+      doc.fontSize(9).fillColor(lgray).font('Helvetica-Bold')
+        .text(label, L, y, { lineBreak: false, width: 110 });
+      doc.font(bold ? 'Helvetica-Bold' : 'Helvetica').fillColor(black)
+        .text(value || '—', L + 115, y, { width: CW - 115 });
+      y = doc.y + 2;
     };
 
-    // Client info
-    section('Client Information');
-    field('Name:', contract.client_name);
-    field('Email:', contract.client_email);
+    const para = (text, color) => {
+      doc.fontSize(9).fillColor(color || black).font('Helvetica')
+        .text(text, L, y, { width: CW, lineGap: 1 });
+      y = doc.y + 4;
+    };
 
-    // Deal details
-    section('Services & Agreement');
-    const serviceLines = (contract.services || '').split('\n').filter(Boolean);
+    // ── Client Information ──
+    section('CLIENT INFORMATION');
+    row('Name:', contract.client_name);
+    row('Email:', contract.client_email);
+    if (contract.start_date) {
+      row('Start Date:', new Date(contract.start_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }));
+    }
+
+    // ── Services ──
+    section('SERVICES INCLUDED');
+    const serviceLines = (contract.services || '').split('\n').map(s => s.trim()).filter(Boolean);
     serviceLines.forEach((s, i) => {
-      doc.fontSize(9).fillColor('#111111').font('Helvetica').text(`${i + 1}.  ${s.trim()}`);
+      doc.fontSize(9).fillColor(black).font('Helvetica')
+        .text(`${i + 1}.  ${s}`, L + 4, y, { width: CW - 4 });
+      y = doc.y + 2;
     });
-    doc.moveDown(0.4);
-    field('Agreed Amount:', `$${parseFloat(contract.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`);
-    if (contract.start_date) field('Start Date:', new Date(contract.start_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }));
-    if (contract.notes) { doc.moveDown(0.3); field('Notes:', contract.notes); }
 
-    // Terms
-    section('Terms & Conditions');
+    // ── Payment ──
+    y += 6;
+    section('PAYMENT');
+    // Total amount highlight box
+    const boxY = y;
+    doc.rect(L, boxY, CW, 34).fillColor('#f6fffc').stroke();
+    doc.fontSize(8.5).fillColor(lgray).font('Helvetica')
+      .text('TOTAL AGREED AMOUNT', L + 12, boxY + 8, { lineBreak: false });
+    doc.fontSize(15).fillColor('#15803d').font('Helvetica-Bold')
+      .text(`$${parseFloat(contract.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`, L + 12, boxY + 18, { lineBreak: false });
+    y = boxY + 44;
+
+    if (contract.payment_schedule && contract.payment_schedule.trim()) {
+      y += 4;
+      doc.fontSize(8.5).fillColor(teal).font('Helvetica-Bold')
+        .text('PAYMENT SCHEDULE', L, y, { lineBreak: false });
+      y += 14;
+      const schedLines = contract.payment_schedule.split('\n').map(s => s.trim()).filter(Boolean);
+      schedLines.forEach((s, i) => {
+        doc.fontSize(8.5).fillColor(black).font('Helvetica')
+          .text(`${i + 1}.  ${s}`, L + 4, y, { width: CW - 4 });
+        y = doc.y + 2;
+      });
+    }
+
+    if (contract.notes && contract.notes.trim()) {
+      y += 4;
+      doc.fontSize(8.5).fillColor(lgray).font('Helvetica-Bold').text('NOTES', L, y, { lineBreak: false });
+      y += 13;
+      doc.fontSize(8.5).fillColor(gray).font('Helvetica').text(contract.notes, L + 4, y, { width: CW - 4 });
+      y = doc.y + 4;
+    }
+
+    // ── Terms ──
+    section('TERMS & CONDITIONS');
     const terms = [
-      'Payment is due as agreed upon signing. Revamp Digital LLC reserves the right to pause work if payment is delayed beyond 7 days.',
+      'Payment is due as per the agreed schedule above. Revamp Digital LLC reserves the right to pause work if payment is delayed beyond 7 days.',
       'The client grants Revamp Digital LLC permission to use completed work in its portfolio unless otherwise agreed in writing.',
       'Either party may terminate this agreement with 14 days written notice. Work completed to that point is billable.',
       'Revamp Digital LLC is not liable for any indirect or consequential damages arising from the use of delivered services.',
       'This agreement is governed by the laws of the State of Utah, United States.',
     ];
     terms.forEach((t, i) => {
-      doc.fontSize(8.5).fillColor(gray).font('Helvetica').text(`${i + 1}.  ${t}`, { lineGap: 2 });
-      doc.moveDown(0.3);
+      doc.fontSize(8.5).fillColor(gray).font('Helvetica')
+        .text(`${i + 1}.   ${t}`, L, y, { width: CW, lineGap: 1.5 });
+      y = doc.y + 4;
     });
 
-    // Signature block
-    section('Signature');
+    // ── Signature ──
+    section('SIGNATURE');
     if (contract.signer_name) {
-      doc.fontSize(9).fillColor('#111111').font('Helvetica-Bold')
-        .text(`Electronically signed by: ${contract.signer_name}`);
-      doc.font('Helvetica').fillColor(gray).fontSize(8.5)
-        .text(`Date: ${new Date(contract.signed_at).toLocaleString('en-US')}`)
-        .text(`IP Address: ${contract.signer_ip || 'recorded'}`);
-      doc.moveDown(0.5);
-      doc.rect(60, doc.y, doc.page.width - 120, 38)
-        .fillAndStroke('#f0fdf4', '#22c55e');
-      doc.fontSize(10).fillColor('#15803d').font('Helvetica-Bold')
-        .text('✓  SIGNED & AGREED', 70, doc.y - 28);
-      doc.fontSize(8).fillColor('#15803d').font('Helvetica')
-        .text('This electronic signature is legally binding under the U.S. ESIGN Act.', 70);
+      // Signed state — green box
+      const sigBoxY = y;
+      doc.rect(L, sigBoxY, CW, 52).fillColor('#f0fdf4').stroke('#22c55e');
+      doc.fontSize(11).fillColor('#15803d').font('Helvetica-Bold')
+        .text('ELECTRONICALLY SIGNED', L + 14, sigBoxY + 8, { lineBreak: false });
+      doc.fontSize(8.5).fillColor('#166534').font('Helvetica')
+        .text(`Signed by: ${contract.signer_name}`, L + 14, sigBoxY + 24, { lineBreak: false });
+      doc.fontSize(8).fillColor('#166534')
+        .text(`Date: ${new Date(contract.signed_at).toLocaleString('en-US')}   ·   IP: ${contract.signer_ip || 'on record'}`,
+          L + 14, sigBoxY + 36, { lineBreak: false });
+      y = sigBoxY + 62;
+      doc.fontSize(7.5).fillColor(lgray).font('Helvetica')
+        .text('This electronic signature is legally binding under the U.S. ESIGN Act (15 U.S.C. § 7001).', L, y, { width: CW });
     } else {
-      doc.rect(60, doc.y, (doc.page.width - 120) / 2 - 10, 48).stroke();
-      doc.fontSize(8).fillColor(gray).text('Client Signature', 65, doc.y - 12);
-      doc.moveDown(2);
-      doc.moveTo(60, doc.y).lineTo(200, doc.y).stroke();
-      doc.fontSize(8).fillColor(gray).text('Date', 65, doc.y + 3);
+      // Unsigned — blank signature lines
+      const lineY1 = y + 36;
+      const lineY2 = y + 60;
+      doc.fontSize(8.5).fillColor(lgray).font('Helvetica').text('Client Signature', L, y);
+      doc.moveTo(L, lineY1).lineTo(L + 220, lineY1).strokeColor('#aaaaaa').lineWidth(0.8).stroke();
+      doc.fontSize(8).fillColor(lgray).text('Date', L + 240, y);
+      doc.moveTo(L + 240, lineY1).lineTo(R, lineY1).strokeColor('#aaaaaa').lineWidth(0.8).stroke();
+      y = lineY1 + 8;
+      doc.fontSize(7.5).fillColor(lgray).font('Helvetica')
+        .text('By signing, I agree to all terms above. This constitutes a legally binding agreement.', L, y, { width: CW });
     }
 
-    // Footer
-    doc.fontSize(7.5).fillColor('#aaaaaa').font('Helvetica')
-      .text('Revamp Digital LLC  ·  hello@gorevamp.ai  ·  gorevamp.ai  ·  Utah, United States',
-        60, doc.page.height - 45, { align: 'center', width: doc.page.width - 120 });
+    // ── Footer ──
+    doc.rect(0, H - 36, W, 36).fill(dark);
+    doc.fontSize(7.5).fillColor('rgba(255,255,255,0.4)').font('Helvetica')
+      .text('Revamp Digital LLC  ·  hello@gorevamp.ai  ·  (385) 253-2318  ·  gorevamp.ai  ·  Utah, United States',
+        L, H - 22, { align: 'center', width: CW, lineBreak: false });
 
     doc.end();
   });
@@ -250,23 +311,25 @@ async function initDb() {
   // Service contracts
   await pool.query(`
     CREATE TABLE IF NOT EXISTS contracts (
-      id           SERIAL PRIMARY KEY,
-      created_at   TIMESTAMPTZ DEFAULT NOW(),
-      token        TEXT UNIQUE NOT NULL,
-      client_name  TEXT NOT NULL,
-      client_email TEXT NOT NULL,
-      services     TEXT,
-      amount        NUMERIC(10,2) DEFAULT 0,
-      start_date   DATE,
-      notes        TEXT,
-      status       TEXT DEFAULT 'draft',
-      sent_at      TIMESTAMPTZ,
-      signed_at    TIMESTAMPTZ,
-      signer_name  TEXT,
-      signer_ip    TEXT,
-      expires_at   TIMESTAMPTZ
+      id               SERIAL PRIMARY KEY,
+      created_at       TIMESTAMPTZ DEFAULT NOW(),
+      token            TEXT UNIQUE NOT NULL,
+      client_name      TEXT NOT NULL,
+      client_email     TEXT NOT NULL,
+      services         TEXT,
+      amount           NUMERIC(10,2) DEFAULT 0,
+      payment_schedule TEXT,
+      start_date       DATE,
+      notes            TEXT,
+      status           TEXT DEFAULT 'draft',
+      sent_at          TIMESTAMPTZ,
+      signed_at        TIMESTAMPTZ,
+      signer_name      TEXT,
+      signer_ip        TEXT,
+      expires_at       TIMESTAMPTZ
     )
   `);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS payment_schedule TEXT`);
 
   console.log('[db] tables ready');
 }
@@ -928,47 +991,56 @@ app.get('/api/contracts', requireAuth, async (req, res) => {
 
 // ── API: create contract (admin) ──
 app.post('/api/contracts', requireAuth, async (req, res) => {
-  const { client_name, client_email, services, amount, start_date, notes, send_now } = req.body;
+  const { client_name, client_email, services, amount, payment_schedule, start_date, notes, send_now } = req.body;
   if (!client_name || !client_email) return res.status(400).json({ error: 'Client name and email required' });
   const token = crypto.randomBytes(24).toString('hex');
-  const expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+  const expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  const baseUrl = process.env.BASE_URL || 'https://gorevamp.ai';
+  const link = `${baseUrl}/contract/${token}`;
   try {
     const r = await pool.query(
-      `INSERT INTO contracts (token, client_name, client_email, services, amount, start_date, notes, status, expires_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,'draft',$8) RETURNING *`,
+      `INSERT INTO contracts (token, client_name, client_email, services, amount, payment_schedule, start_date, notes, status, expires_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'draft',$9) RETURNING *`,
       [token, client_name, client_email, services||'', parseFloat(amount)||0,
-       start_date||null, notes||'', expires_at]
+       payment_schedule||'', start_date||null, notes||'', expires_at]
     );
     const contract = r.rows[0];
+    let emailSent = false;
+    let emailError = null;
     if (send_now) {
-      const link = `${process.env.BASE_URL || 'https://gorevamp.ai'}/contract/${token}`;
-      const sent = await sendMail({
-        to: client_email,
-        subject: `Your Service Agreement from Revamp Digital LLC`,
-        html: `
-          <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#05080f;color:#e8f0fe;border-radius:16px;overflow:hidden">
-            <div style="background:#0d1a2d;padding:28px 32px;border-bottom:1px solid rgba(61,214,245,0.15)">
-              <h2 style="margin:0;color:#3dd6f5;font-size:1.2rem">Revamp Digital LLC</h2>
-              <p style="margin:4px 0 0;color:rgba(255,255,255,0.5);font-size:0.82rem">Service Agreement</p>
+      try {
+        emailSent = await sendMail({
+          to: client_email,
+          subject: `Your Service Agreement from Revamp Digital LLC`,
+          html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden">
+            <div style="background:#0b1220;padding:28px 32px">
+              <h2 style="margin:0;color:#3dd6f5;font-size:1.1rem;font-family:Arial,sans-serif">Revamp Digital LLC</h2>
+              <p style="margin:4px 0 0;color:rgba(255,255,255,0.5);font-size:0.8rem">Service Agreement — Ready to Sign</p>
             </div>
-            <div style="padding:28px 32px">
-              <p style="margin:0 0 16px">Hi <strong>${client_name}</strong>,</p>
-              <p style="margin:0 0 16px;color:rgba(255,255,255,0.7)">We've prepared a service agreement for you to review and sign. The agreement covers the services and pricing we discussed.</p>
-              <p style="margin:0 0 8px;color:rgba(255,255,255,0.5);font-size:0.85rem"><strong style="color:#e8f0fe">Agreed Amount:</strong> $${parseFloat(amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}</p>
-              ${start_date ? `<p style="margin:0 0 16px;color:rgba(255,255,255,0.5);font-size:0.85rem"><strong style="color:#e8f0fe">Start Date:</strong> ${new Date(start_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</p>` : ''}
+            <div style="padding:28px 32px;background:#ffffff">
+              <p style="margin:0 0 16px;font-size:0.95rem;color:#111">Hi <strong>${client_name}</strong>,</p>
+              <p style="margin:0 0 20px;color:#444;font-size:0.9rem;line-height:1.6">We've prepared your service agreement. Please review the details and sign when you're ready.</p>
+              <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+                <tr><td style="padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;font-size:0.85rem;color:#666;font-weight:bold">Amount</td><td style="padding:8px 12px;border:1px solid #e5e7eb;font-size:0.95rem;color:#15803d;font-weight:bold">$${parseFloat(amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td></tr>
+                ${payment_schedule ? `<tr><td style="padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;font-size:0.85rem;color:#666;font-weight:bold">Payment Schedule</td><td style="padding:8px 12px;border:1px solid #e5e7eb;font-size:0.85rem;color:#444;white-space:pre-line">${payment_schedule}</td></tr>` : ''}
+                ${start_date ? `<tr><td style="padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;font-size:0.85rem;color:#666;font-weight:bold">Start Date</td><td style="padding:8px 12px;border:1px solid #e5e7eb;font-size:0.85rem;color:#444">${new Date(start_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</td></tr>` : ''}
+              </table>
               <div style="text-align:center;margin:28px 0">
-                <a href="${link}" style="background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:10px;text-decoration:none;display:inline-block">Review &amp; Sign Agreement →</a>
+                <a href="${link}" style="background:#1F7A8C;color:#ffffff;font-weight:700;font-size:1rem;padding:14px 36px;border-radius:10px;text-decoration:none;display:inline-block">Review &amp; Sign Agreement →</a>
               </div>
-              <p style="margin:16px 0 0;color:rgba(255,255,255,0.35);font-size:0.78rem">This link expires in 30 days. If you have questions, reply to this email or call (385) 253-2318.</p>
+              <p style="margin:20px 0 0;color:#999;font-size:0.78rem;text-align:center">This link expires in 30 days. Questions? Reply to this email or call (385) 253-2318.</p>
             </div>
           </div>`,
-      });
-      if (sent) {
-        await pool.query(`UPDATE contracts SET status='sent', sent_at=NOW() WHERE id=$1`, [contract.id]);
-        contract.status = 'sent';
+        });
+        if (emailSent) {
+          await pool.query(`UPDATE contracts SET status='sent', sent_at=NOW() WHERE id=$1`, [contract.id]);
+        }
+      } catch(mailErr) {
+        emailError = mailErr.message;
+        console.error('[mail send error]', mailErr.message);
       }
     }
-    res.json({ ok: true, id: contract.id, token });
+    res.json({ ok: true, id: contract.id, token, link, emailSent, emailError });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -1001,7 +1073,7 @@ app.patch('/api/contracts/:id/void', requireAuth, async (req, res) => {
 app.get('/api/contract/:token', async (req, res) => {
   try {
     const r = await pool.query(
-      `SELECT id, client_name, client_email, services, amount, start_date, notes,
+      `SELECT id, client_name, client_email, services, amount, payment_schedule, start_date, notes,
               status, created_at, expires_at, signed_at, signer_name
        FROM contracts WHERE token=$1`, [req.params.token]
     );

@@ -157,6 +157,12 @@
       <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="rgba(74,222,128,0.3)" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
     </div>
 
+    <!-- Payment schedule -->
+    <div id="scheduleSection" style="display:none">
+      <div class="section-label">Payment Schedule</div>
+      <div class="services-list" id="scheduleList"></div>
+    </div>
+
     <!-- Notes -->
     <div id="notesSection" style="display:none">
       <div class="section-label">Additional Notes</div>
@@ -275,6 +281,15 @@
     document.getElementById('servicesList').innerHTML = lines.length
       ? lines.map(s => `<div class="service-item"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>${s}</div>`).join('')
       : '<div class="service-item"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Services as discussed and agreed upon</div>';
+
+    // Payment schedule
+    if (c.payment_schedule && c.payment_schedule.trim()) {
+      const lines = c.payment_schedule.split('\n').map(s => s.trim()).filter(Boolean);
+      document.getElementById('scheduleList').innerHTML = lines.map(s =>
+        `<div class="service-item"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>${s}</div>`
+      ).join('');
+      document.getElementById('scheduleSection').style.display = 'block';
+    }
 
     if (c.notes) {
       document.getElementById('notes').textContent = c.notes;
