@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Service Agreement | Revamp Digital LLC</title>
+  <link rel="icon" type="image/png" href="/images/logo.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#05080f;color:#e8f0fe;font-family:'Poppins',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px 60px}
+
+    /* Top bar */
+    .topbar{width:100%;max-width:720px;display:flex;align-items:center;justify-content:space-between;margin-bottom:40px}
+    .topbar-logo{font-size:1rem;font-weight:700;color:#e8f0fe;text-decoration:none}
+    .topbar-logo span{color:#3dd6f5}
+    .secure-badge{display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.35);font-weight:600}
+    .secure-badge svg{color:#4ade80}
+
+    /* Contract card */
+    .contract-card{width:100%;max-width:720px;background:linear-gradient(135deg,rgba(31,122,140,0.08),rgba(255,255,255,0.01));border:1px solid rgba(61,214,245,0.15);border-radius:20px;overflow:hidden;position:relative}
+    .contract-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(61,214,245,0.5),transparent)}
+
+    /* Contract header */
+    .contract-header{background:linear-gradient(135deg,#0b1220,#0d1a2d);padding:32px 40px;border-bottom:1px solid rgba(61,214,245,0.1)}
+    .contract-header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
+    .contract-company{font-size:1.2rem;font-weight:800;color:#e8f0fe}
+    .contract-company span{color:#3dd6f5}
+    .contract-id{font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:4px}
+    .contract-status-badge{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:5px 14px;font-size:0.75rem;font-weight:700;white-space:nowrap}
+    .badge-draft{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5)}
+    .badge-sent{background:rgba(61,214,245,0.1);border:1px solid rgba(61,214,245,0.25);color:#3dd6f5}
+    .badge-signed{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);color:#4ade80}
+    .badge-void{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:#f87171}
+    .badge-expired{background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.2);color:#f5c842}
+    .contract-subtitle{font-size:0.8rem;color:rgba(255,255,255,0.4)}
+
+    /* Sections */
+    .contract-body{padding:36px 40px;display:flex;flex-direction:column;gap:28px}
+    .section-label{font-size:0.68rem;font-weight:700;color:#3dd6f5;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+    .info-row{display:flex;align-items:baseline;gap:8px;margin-bottom:8px;font-size:0.88rem}
+    .info-key{color:rgba(255,255,255,0.4);min-width:100px;font-size:0.8rem;flex-shrink:0}
+    .info-val{color:#e8f0fe;font-weight:500}
+
+    /* Services list */
+    .services-list{display:flex;flex-direction:column;gap:8px}
+    .service-item{display:flex;align-items:flex-start;gap:10px;font-size:0.88rem;color:rgba(255,255,255,0.8);padding:10px 14px;background:rgba(61,214,245,0.04);border:1px solid rgba(61,214,245,0.08);border-radius:10px}
+    .service-item svg{flex-shrink:0;color:#3dd6f5;margin-top:2px}
+
+    /* Amount highlight */
+    .amount-block{background:linear-gradient(135deg,rgba(74,222,128,0.08),rgba(74,222,128,0.03));border:1px solid rgba(74,222,128,0.2);border-radius:14px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .amount-label{font-size:0.78rem;color:rgba(255,255,255,0.45)}
+    .amount-value{font-size:2rem;font-weight:800;color:#4ade80;line-height:1}
+
+    /* Terms */
+    .terms-box{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:18px 20px}
+    .terms-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+    .terms-list li{font-size:0.8rem;color:rgba(255,255,255,0.45);line-height:1.6;padding-left:16px;position:relative}
+    .terms-list li::before{content:'·';position:absolute;left:0;color:#3dd6f5;font-weight:700}
+
+    /* Signature block */
+    .sign-block{background:linear-gradient(135deg,rgba(31,122,140,0.12),rgba(31,122,140,0.04));border:1px solid rgba(61,214,245,0.2);border-radius:16px;padding:28px 32px}
+    .sign-title{font-size:1rem;font-weight:700;margin-bottom:6px}
+    .sign-sub{font-size:0.8rem;color:rgba(255,255,255,0.4);margin-bottom:20px;line-height:1.6}
+    .sign-field{margin-bottom:16px}
+    .sign-field label{display:block;font-size:0.75rem;color:rgba(255,255,255,0.45);font-weight:600;margin-bottom:6px}
+    .sign-input{width:100%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(61,214,245,0.2);border-radius:10px;padding:12px 16px;color:#e8f0fe;font-size:0.95rem;font-family:'Poppins',sans-serif;outline:none;transition:border 0.2s}
+    .sign-input:focus{border-color:rgba(61,214,245,0.5)}
+    .sign-input::placeholder{color:rgba(255,255,255,0.2)}
+    .sign-checkbox{display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:20px}
+    .sign-checkbox input{width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:#3dd6f5;cursor:pointer}
+    .sign-checkbox span{font-size:0.8rem;color:rgba(255,255,255,0.55);line-height:1.6}
+    .sign-btn{width:100%;background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-family:'Poppins',sans-serif;font-size:1rem;font-weight:800;padding:15px;border:none;border-radius:12px;cursor:pointer;transition:opacity 0.2s,transform 0.15s;display:flex;align-items:center;justify-content:center;gap:8px}
+    .sign-btn:hover:not(:disabled){opacity:0.92;transform:translateY(-1px)}
+    .sign-btn:disabled{opacity:0.45;cursor:not-allowed}
+    .legal-note{font-size:0.7rem;color:rgba(255,255,255,0.25);text-align:center;margin-top:12px;line-height:1.6}
+
+    /* Already-signed state */
+    .signed-banner{background:linear-gradient(135deg,rgba(74,222,128,0.1),rgba(74,222,128,0.04));border:1px solid rgba(74,222,128,0.3);border-radius:16px;padding:28px 32px;text-align:center}
+    .signed-check{width:60px;height:60px;border-radius:50%;background:rgba(74,222,128,0.15);border:2px solid rgba(74,222,128,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+    .signed-check svg{color:#4ade80}
+    .signed-banner h3{font-size:1.2rem;font-weight:800;color:#4ade80;margin-bottom:6px}
+    .signed-banner p{font-size:0.85rem;color:rgba(255,255,255,0.5);line-height:1.6}
+
+    /* Error / loading */
+    .state-center{text-align:center;padding:60px 20px}
+    .state-center h2{font-size:1.1rem;font-weight:700;margin-bottom:8px}
+    .state-center p{font-size:0.85rem;color:rgba(255,255,255,0.4);line-height:1.6}
+    .spinner{width:40px;height:40px;border:3px solid rgba(61,214,245,0.15);border-top-color:#3dd6f5;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 20px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* Success overlay */
+    .success-overlay{display:none;position:fixed;inset:0;background:rgba(5,8,15,0.92);z-index:100;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+    .success-overlay.show{display:flex}
+    .success-icon{width:80px;height:80px;border-radius:50%;background:rgba(74,222,128,0.15);border:2px solid rgba(74,222,128,0.35);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;animation:pop 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+    @keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+    .success-overlay h2{font-size:1.6rem;font-weight:800;color:#4ade80;margin-bottom:10px}
+    .success-overlay p{font-size:0.9rem;color:rgba(255,255,255,0.55);max-width:420px;line-height:1.7}
+
+    @media(max-width:600px){
+      .contract-header{padding:24px 20px}
+      .contract-body{padding:24px 20px}
+      .sign-block{padding:20px}
+      .amount-block{flex-direction:column;align-items:flex-start;gap:8px}
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <a class="topbar-logo" href="/">Revamp <span>Digital</span></a>
+  <div class="secure-badge">
+    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Secure &amp; Encrypted
+  </div>
+</div>
+
+<!-- Contract card -->
+<div class="contract-card" id="contractCard" style="display:none">
+
+  <div class="contract-header">
+    <div class="contract-header-top">
+      <div>
+        <div class="contract-company">Revamp <span>Digital</span> LLC</div>
+        <div class="contract-id" id="contractId">Service Agreement</div>
+      </div>
+      <div class="contract-status-badge badge-sent" id="statusBadge">Awaiting Signature</div>
+    </div>
+    <div class="contract-subtitle">Please review the terms below and sign to confirm your agreement.</div>
+  </div>
+
+  <div class="contract-body">
+
+    <!-- Client info -->
+    <div>
+      <div class="section-label">Client Information</div>
+      <div class="info-row"><span class="info-key">Name</span><span class="info-val" id="clientName">—</span></div>
+      <div class="info-row"><span class="info-key">Email</span><span class="info-val" id="clientEmail">—</span></div>
+      <div class="info-row" id="startDateRow" style="display:none"><span class="info-key">Start Date</span><span class="info-val" id="startDate">—</span></div>
+    </div>
+
+    <!-- Services -->
+    <div>
+      <div class="section-label">Services Included</div>
+      <div class="services-list" id="servicesList"></div>
+    </div>
+
+    <!-- Amount -->
+    <div class="amount-block">
+      <div>
+        <div class="amount-label">Total Agreed Amount</div>
+        <div class="amount-value" id="amount">$0.00</div>
+      </div>
+      <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="rgba(74,222,128,0.3)" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    </div>
+
+    <!-- Notes -->
+    <div id="notesSection" style="display:none">
+      <div class="section-label">Additional Notes</div>
+      <div style="font-size:0.88rem;color:rgba(255,255,255,0.6);line-height:1.7;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 16px" id="notes"></div>
+    </div>
+
+    <!-- Terms -->
+    <div>
+      <div class="section-label">Terms &amp; Conditions</div>
+      <div class="terms-box">
+        <ul class="terms-list">
+          <li>Payment is due as agreed upon signing. Revamp Digital LLC reserves the right to pause work if payment is delayed beyond 7 days.</li>
+          <li>The client grants Revamp Digital LLC permission to use completed work in its portfolio unless otherwise agreed in writing.</li>
+          <li>Either party may terminate this agreement with 14 days written notice. Work completed to that point is billable.</li>
+          <li>Revamp Digital LLC is not liable for any indirect or consequential damages arising from the use of delivered services.</li>
+          <li>This agreement is governed by the laws of the State of Utah, United States.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Signature block -->
+    <div id="signBlock" class="sign-block">
+      <div class="sign-title">Sign this Agreement</div>
+      <div class="sign-sub">By typing your full name below and clicking "Sign Agreement," you are electronically signing this document. This is legally binding under the U.S. ESIGN Act.</div>
+
+      <div class="sign-field">
+        <label>Your Full Legal Name *</label>
+        <input class="sign-input" type="text" id="signerName" placeholder="Type your full name to sign" autocomplete="name"/>
+      </div>
+
+      <label class="sign-checkbox">
+        <input type="checkbox" id="agreeCheck"/>
+        <span>I have read and agree to all terms and conditions in this service agreement. I understand this is a legally binding electronic signature.</span>
+      </label>
+
+      <button class="sign-btn" id="signBtn" disabled onclick="submitSignature()">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Sign Agreement
+      </button>
+      <div class="legal-note">Your signature, name, timestamp, and IP address will be recorded as proof of agreement.</div>
+    </div>
+
+    <!-- Already signed -->
+    <div id="signedBanner" class="signed-banner" style="display:none">
+      <div class="signed-check">
+        <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h3>Agreement Signed</h3>
+      <p id="signedByText">This agreement has been signed. A copy was emailed to you.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="contract-card" id="loadingCard">
+  <div class="state-center">
+    <div class="spinner"></div>
+    <p style="color:rgba(255,255,255,0.35)">Loading your agreement…</p>
+  </div>
+</div>
+
+<!-- Error -->
+<div class="contract-card" id="errorCard" style="display:none">
+  <div class="state-center">
+    <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="rgba(248,113,113,0.5)" stroke-width="1.5" style="margin:0 auto 20px;display:block"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <h2 id="errorTitle">Contract Not Found</h2>
+    <p id="errorMsg">This link may be invalid or expired. Please contact us at <a href="mailto:hello@gorevamp.ai" style="color:#3dd6f5">hello@gorevamp.ai</a>.</p>
+  </div>
+</div>
+
+<!-- Success overlay -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-icon">
+    <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#4ade80" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <h2>Agreement Signed!</h2>
+  <p>Thank you! Your signed agreement has been recorded and a copy has been sent to your email. We'll be in touch soon to get started.</p>
+</div>
+
+<script>
+  const token = window.location.pathname.split('/contract/')[1];
+  let contractData = null;
+
+  async function load() {
+    try {
+      const res = await fetch(`/api/contract/${token}`);
+      const data = await res.json();
+      if (!res.ok) {
+        showError(data.error || 'Contract not found', res.status === 410 ? 'This link has expired.' : '');
+        return;
+      }
+      contractData = data;
+      render(data);
+    } catch(e) {
+      showError('Failed to load contract', 'Please try again or contact us.');
+    }
+  }
+
+  function render(c) {
+    document.getElementById('loadingCard').style.display = 'none';
+    document.getElementById('contractCard').style.display = 'block';
+
+    document.getElementById('contractId').textContent = `Agreement #${c.id} · ${new Date(c.created_at).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`;
+    document.getElementById('clientName').textContent = c.client_name;
+    document.getElementById('clientEmail').textContent = c.client_email;
+    document.getElementById('amount').textContent = '$' + parseFloat(c.amount||0).toLocaleString('en-US',{minimumFractionDigits:2});
+
+    if (c.start_date) {
+      document.getElementById('startDate').textContent = new Date(c.start_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+      document.getElementById('startDateRow').style.display = 'flex';
+    }
+
+    // Services
+    const lines = (c.services||'').split('\n').map(s=>s.trim()).filter(Boolean);
+    document.getElementById('servicesList').innerHTML = lines.length
+      ? lines.map(s => `<div class="service-item"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>${s}</div>`).join('')
+      : '<div class="service-item"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Services as discussed and agreed upon</div>';
+
+    if (c.notes) {
+      document.getElementById('notes').textContent = c.notes;
+      document.getElementById('notesSection').style.display = 'block';
+    }
+
+    // Status
+    const badge = document.getElementById('statusBadge');
+    if (c.status === 'signed') {
+      badge.className = 'contract-status-badge badge-signed';
+      badge.textContent = '✓ Signed';
+      document.getElementById('signBlock').style.display = 'none';
+      document.getElementById('signedBanner').style.display = 'block';
+      document.getElementById('signedByText').textContent =
+        `Signed by ${c.signer_name} on ${new Date(c.signed_at).toLocaleString('en-US')}. A copy was emailed to ${c.client_email}.`;
+    } else if (c.status === 'void') {
+      badge.className = 'contract-status-badge badge-void';
+      badge.textContent = 'Voided';
+      document.getElementById('signBlock').style.display = 'none';
+    }
+  }
+
+  function showError(title, msg) {
+    document.getElementById('loadingCard').style.display = 'none';
+    document.getElementById('errorCard').style.display = 'block';
+    document.getElementById('errorTitle').textContent = title;
+    if (msg) document.getElementById('errorMsg').textContent = msg;
+  }
+
+  // Enable sign button only when name filled + checkbox checked
+  function checkSignReady() {
+    const name = document.getElementById('signerName').value.trim();
+    const checked = document.getElementById('agreeCheck').checked;
+    document.getElementById('signBtn').disabled = !(name.length >= 2 && checked);
+  }
+  document.getElementById('signerName').addEventListener('input', checkSignReady);
+  document.getElementById('agreeCheck').addEventListener('change', checkSignReady);
+
+  async function submitSignature() {
+    const btn = document.getElementById('signBtn');
+    const name = document.getElementById('signerName').value.trim();
+    btn.disabled = true;
+    btn.innerHTML = '<div style="width:18px;height:18px;border:2px solid rgba(0,0,0,0.3);border-top-color:#05080f;border-radius:50%;animation:spin 0.6s linear infinite"></div> Signing…';
+
+    try {
+      const res = await fetch(`/api/contract/${token}/sign`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ signer_name: name }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to sign');
+      document.getElementById('successOverlay').classList.add('show');
+    } catch(e) {
+      alert(e.message || 'Something went wrong. Please try again.');
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Sign Agreement';
+      checkSignReady();
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>

@@ -7,6 +7,9 @@ const { Pool }   = require('pg');
 const fetch      = require('node-fetch');
 const compression= require('compression');
 const Stripe     = require('stripe');
+const nodemailer = require('nodemailer');
+const PDFDocument= require('pdfkit');
+const crypto     = require('crypto');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +29,123 @@ async function getSetting(key) {
     const r = await pool.query(`SELECT value FROM settings WHERE key = $1`, [key]);
     return r.rows[0]?.value || null;
   } catch { return null; }
+}
+
+// ── Email helper ──
+async function sendMail({ to, subject, html, attachments }) {
+  const host = process.env.SMTP_HOST || await getSetting('smtp_host');
+  const port = parseInt(process.env.SMTP_PORT || await getSetting('smtp_port') || '587');
+  const user = process.env.SMTP_USER || await getSetting('smtp_user');
+  const pass = process.env.SMTP_PASS || await getSetting('smtp_pass');
+  const from = process.env.SMTP_FROM || await getSetting('smtp_from') || `"Revamp Digital" <${user}>`;
+
+  if (!host || !user || !pass) {
+    console.warn('[mail] SMTP not configured — skipping email');
+    return false;
+  }
+  const transporter = nodemailer.createTransport({ host, port, secure: port === 465, auth: { user, pass } });
+  await transporter.sendMail({ from, to, subject, html, attachments });
+  return true;
+}
+
+// ── PDF contract builder ──
+function buildContractPdf(contract) {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ size: 'LETTER', margin: 60 });
+    const chunks = [];
+    doc.on('data', c => chunks.push(c));
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
+    doc.on('error', reject);
+
+    const teal = '#1F7A8C';
+    const dark = '#0d1a2d';
+    const gray = '#555555';
+
+    // Header bar
+    doc.rect(0, 0, doc.page.width, 80).fill(dark);
+    doc.fontSize(20).fillColor('#ffffff').font('Helvetica-Bold')
+      .text('REVAMP DIGITAL LLC', 60, 26);
+    doc.fontSize(9).fillColor('#3dd6f5').font('Helvetica')
+      .text('SERVICE AGREEMENT', 60, 52);
+    doc.fillColor('#ffffff').text(`Contract #${contract.id}  ·  ${new Date(contract.created_at).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`, { align: 'right', x: 60, y: 52, width: doc.page.width - 120 });
+
+    doc.moveDown(3);
+
+    // Section helper
+    const section = (title) => {
+      doc.moveDown(0.8)
+        .fontSize(8).fillColor(teal).font('Helvetica-Bold')
+        .text(title.toUpperCase(), { characterSpacing: 1.5 });
+      doc.moveTo(60, doc.y + 3).lineTo(doc.page.width - 60, doc.y + 3)
+        .strokeColor(teal).lineWidth(0.5).stroke();
+      doc.moveDown(0.5);
+    };
+
+    const field = (label, value) => {
+      doc.fontSize(9).fillColor(gray).font('Helvetica-Bold').text(label + '  ', { continued: true });
+      doc.font('Helvetica').fillColor('#111111').text(value || '—');
+    };
+
+    // Client info
+    section('Client Information');
+    field('Name:', contract.client_name);
+    field('Email:', contract.client_email);
+
+    // Deal details
+    section('Services & Agreement');
+    const serviceLines = (contract.services || '').split('\n').filter(Boolean);
+    serviceLines.forEach((s, i) => {
+      doc.fontSize(9).fillColor('#111111').font('Helvetica').text(`${i + 1}.  ${s.trim()}`);
+    });
+    doc.moveDown(0.4);
+    field('Agreed Amount:', `$${parseFloat(contract.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`);
+    if (contract.start_date) field('Start Date:', new Date(contract.start_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }));
+    if (contract.notes) { doc.moveDown(0.3); field('Notes:', contract.notes); }
+
+    // Terms
+    section('Terms & Conditions');
+    const terms = [
+      'Payment is due as agreed upon signing. Revamp Digital LLC reserves the right to pause work if payment is delayed beyond 7 days.',
+      'The client grants Revamp Digital LLC permission to use completed work in its portfolio unless otherwise agreed in writing.',
+      'Either party may terminate this agreement with 14 days written notice. Work completed to that point is billable.',
+      'Revamp Digital LLC is not liable for any indirect or consequential damages arising from the use of delivered services.',
+      'This agreement is governed by the laws of the State of Utah, United States.',
+    ];
+    terms.forEach((t, i) => {
+      doc.fontSize(8.5).fillColor(gray).font('Helvetica').text(`${i + 1}.  ${t}`, { lineGap: 2 });
+      doc.moveDown(0.3);
+    });
+
+    // Signature block
+    section('Signature');
+    if (contract.signer_name) {
+      doc.fontSize(9).fillColor('#111111').font('Helvetica-Bold')
+        .text(`Electronically signed by: ${contract.signer_name}`);
+      doc.font('Helvetica').fillColor(gray).fontSize(8.5)
+        .text(`Date: ${new Date(contract.signed_at).toLocaleString('en-US')}`)
+        .text(`IP Address: ${contract.signer_ip || 'recorded'}`);
+      doc.moveDown(0.5);
+      doc.rect(60, doc.y, doc.page.width - 120, 38)
+        .fillAndStroke('#f0fdf4', '#22c55e');
+      doc.fontSize(10).fillColor('#15803d').font('Helvetica-Bold')
+        .text('✓  SIGNED & AGREED', 70, doc.y - 28);
+      doc.fontSize(8).fillColor('#15803d').font('Helvetica')
+        .text('This electronic signature is legally binding under the U.S. ESIGN Act.', 70);
+    } else {
+      doc.rect(60, doc.y, (doc.page.width - 120) / 2 - 10, 48).stroke();
+      doc.fontSize(8).fillColor(gray).text('Client Signature', 65, doc.y - 12);
+      doc.moveDown(2);
+      doc.moveTo(60, doc.y).lineTo(200, doc.y).stroke();
+      doc.fontSize(8).fillColor(gray).text('Date', 65, doc.y + 3);
+    }
+
+    // Footer
+    doc.fontSize(7.5).fillColor('#aaaaaa').font('Helvetica')
+      .text('Revamp Digital LLC  ·  hello@gorevamp.ai  ·  gorevamp.ai  ·  Utah, United States',
+        60, doc.page.height - 45, { align: 'center', width: doc.page.width - 120 });
+
+    doc.end();
+  });
 }
 
 async function initDb() {
@@ -124,6 +244,27 @@ async function initDb() {
       amount_cents        INTEGER DEFAULT 0,
       currency            TEXT DEFAULT 'usd',
       status              TEXT DEFAULT 'pending'
+    )
+  `);
+
+  // Service contracts
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS contracts (
+      id           SERIAL PRIMARY KEY,
+      created_at   TIMESTAMPTZ DEFAULT NOW(),
+      token        TEXT UNIQUE NOT NULL,
+      client_name  TEXT NOT NULL,
+      client_email TEXT NOT NULL,
+      services     TEXT,
+      amount        NUMERIC(10,2) DEFAULT 0,
+      start_date   DATE,
+      notes        TEXT,
+      status       TEXT DEFAULT 'draft',
+      sent_at      TIMESTAMPTZ,
+      signed_at    TIMESTAMPTZ,
+      signer_name  TEXT,
+      signer_ip    TEXT,
+      expires_at   TIMESTAMPTZ
     )
   `);
 
@@ -766,6 +907,177 @@ app.get('/audit/:site(*)', (req, res) => {
 // ── Admin dashboard ──
 app.get('/admin', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard', 'index.html'));
+});
+
+// ── Contract signing page (public) ──
+app.get('/contract/:token', async (req, res) => {
+  res.sendFile(path.join(__dirname, 'contract.html'));
+});
+
+// ── API: list contracts (admin) ──
+app.get('/api/contracts', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT id, token, client_name, client_email, services, amount, start_date,
+              notes, status, created_at, sent_at, signed_at, signer_name, expires_at
+       FROM contracts ORDER BY created_at DESC`
+    );
+    res.json(r.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: create contract (admin) ──
+app.post('/api/contracts', requireAuth, async (req, res) => {
+  const { client_name, client_email, services, amount, start_date, notes, send_now } = req.body;
+  if (!client_name || !client_email) return res.status(400).json({ error: 'Client name and email required' });
+  const token = crypto.randomBytes(24).toString('hex');
+  const expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+  try {
+    const r = await pool.query(
+      `INSERT INTO contracts (token, client_name, client_email, services, amount, start_date, notes, status, expires_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,'draft',$8) RETURNING *`,
+      [token, client_name, client_email, services||'', parseFloat(amount)||0,
+       start_date||null, notes||'', expires_at]
+    );
+    const contract = r.rows[0];
+    if (send_now) {
+      const link = `${process.env.BASE_URL || 'https://gorevamp.ai'}/contract/${token}`;
+      const sent = await sendMail({
+        to: client_email,
+        subject: `Your Service Agreement from Revamp Digital LLC`,
+        html: `
+          <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#05080f;color:#e8f0fe;border-radius:16px;overflow:hidden">
+            <div style="background:#0d1a2d;padding:28px 32px;border-bottom:1px solid rgba(61,214,245,0.15)">
+              <h2 style="margin:0;color:#3dd6f5;font-size:1.2rem">Revamp Digital LLC</h2>
+              <p style="margin:4px 0 0;color:rgba(255,255,255,0.5);font-size:0.82rem">Service Agreement</p>
+            </div>
+            <div style="padding:28px 32px">
+              <p style="margin:0 0 16px">Hi <strong>${client_name}</strong>,</p>
+              <p style="margin:0 0 16px;color:rgba(255,255,255,0.7)">We've prepared a service agreement for you to review and sign. The agreement covers the services and pricing we discussed.</p>
+              <p style="margin:0 0 8px;color:rgba(255,255,255,0.5);font-size:0.85rem"><strong style="color:#e8f0fe">Agreed Amount:</strong> $${parseFloat(amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}</p>
+              ${start_date ? `<p style="margin:0 0 16px;color:rgba(255,255,255,0.5);font-size:0.85rem"><strong style="color:#e8f0fe">Start Date:</strong> ${new Date(start_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</p>` : ''}
+              <div style="text-align:center;margin:28px 0">
+                <a href="${link}" style="background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:10px;text-decoration:none;display:inline-block">Review &amp; Sign Agreement →</a>
+              </div>
+              <p style="margin:16px 0 0;color:rgba(255,255,255,0.35);font-size:0.78rem">This link expires in 30 days. If you have questions, reply to this email or call (385) 253-2318.</p>
+            </div>
+          </div>`,
+      });
+      if (sent) {
+        await pool.query(`UPDATE contracts SET status='sent', sent_at=NOW() WHERE id=$1`, [contract.id]);
+        contract.status = 'sent';
+      }
+    }
+    res.json({ ok: true, id: contract.id, token });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: resend contract email (admin) ──
+app.post('/api/contracts/:id/resend', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(`SELECT * FROM contracts WHERE id=$1`, [req.params.id]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+    const contract = r.rows[0];
+    const link = `${process.env.BASE_URL || 'https://gorevamp.ai'}/contract/${contract.token}`;
+    await sendMail({
+      to: contract.client_email,
+      subject: `Reminder: Your Service Agreement from Revamp Digital LLC`,
+      html: `<div style="font-family:sans-serif;max-width:560px;margin:0 auto"><p>Hi ${contract.client_name},</p><p>Just a reminder — your service agreement is still waiting for your signature.</p><div style="text-align:center;margin:24px 0"><a href="${link}" style="background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-weight:700;padding:12px 28px;border-radius:10px;text-decoration:none;display:inline-block">Review &amp; Sign Agreement →</a></div><p style="color:#888;font-size:0.8rem">This link expires on ${new Date(contract.expires_at).toLocaleDateString()}.</p></div>`,
+    });
+    await pool.query(`UPDATE contracts SET status='sent', sent_at=NOW() WHERE id=$1 AND status!='signed'`, [contract.id]);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: void contract (admin) ──
+app.patch('/api/contracts/:id/void', requireAuth, async (req, res) => {
+  try {
+    await pool.query(`UPDATE contracts SET status='void' WHERE id=$1`, [req.params.id]);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: get contract data for signing page (public) ──
+app.get('/api/contract/:token', async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT id, client_name, client_email, services, amount, start_date, notes,
+              status, created_at, expires_at, signed_at, signer_name
+       FROM contracts WHERE token=$1`, [req.params.token]
+    );
+    if (!r.rows.length) return res.status(404).json({ error: 'Contract not found' });
+    const c = r.rows[0];
+    if (c.expires_at && new Date(c.expires_at) < new Date() && c.status !== 'signed')
+      return res.status(410).json({ error: 'Contract has expired' });
+    res.json(c);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: sign contract (public) ──
+app.post('/api/contract/:token/sign', async (req, res) => {
+  const { signer_name } = req.body;
+  if (!signer_name || signer_name.trim().length < 2)
+    return res.status(400).json({ error: 'Please enter your full name to sign' });
+  const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || '';
+  try {
+    const r = await pool.query(`SELECT * FROM contracts WHERE token=$1`, [req.params.token]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Contract not found' });
+    const contract = r.rows[0];
+    if (contract.status === 'signed') return res.status(409).json({ error: 'Already signed' });
+    if (contract.status === 'void') return res.status(410).json({ error: 'This contract has been voided' });
+    if (contract.expires_at && new Date(contract.expires_at) < new Date())
+      return res.status(410).json({ error: 'Contract has expired' });
+
+    await pool.query(
+      `UPDATE contracts SET status='signed', signed_at=NOW(), signer_name=$1, signer_ip=$2 WHERE id=$3`,
+      [signer_name.trim(), ip, contract.id]
+    );
+    contract.status = 'signed';
+    contract.signed_at = new Date();
+    contract.signer_name = signer_name.trim();
+    contract.signer_ip = ip;
+
+    // Generate PDF
+    let pdfBuffer;
+    try { pdfBuffer = await buildContractPdf(contract); } catch(e) { console.error('[pdf]', e.message); }
+
+    const attach = pdfBuffer ? [{
+      filename: `revamp-digital-agreement-${contract.id}.pdf`,
+      content: pdfBuffer,
+      contentType: 'application/pdf',
+    }] : [];
+
+    const dateStr = new Date(contract.signed_at).toLocaleString('en-US');
+    // Email client
+    await sendMail({
+      to: contract.client_email,
+      subject: 'Your signed agreement with Revamp Digital LLC',
+      html: `<div style="font-family:sans-serif;max-width:560px;margin:0 auto"><p>Hi ${contract.client_name},</p><p>Thank you for signing your service agreement! A copy is attached to this email.</p><p style="color:#555">Signed on: ${dateStr}</p><p>We'll be in touch shortly to get started. If you have any questions, contact us at <a href="mailto:hello@gorevamp.ai">hello@gorevamp.ai</a>.</p><p>— The Revamp Digital Team</p></div>`,
+      attachments: attach,
+    });
+    // Email admin
+    const adminEmail = process.env.ADMIN_EMAIL || await getSetting('admin_email') || 'feyisa.berisa@gorevamp.ai';
+    await sendMail({
+      to: adminEmail,
+      subject: `Contract signed — ${contract.client_name}`,
+      html: `<div style="font-family:sans-serif;max-width:560px;margin:0 auto"><p><strong>${contract.client_name}</strong> (${contract.client_email}) just signed their service agreement.</p><p>Amount: <strong>$${parseFloat(contract.amount).toLocaleString('en-US',{minimumFractionDigits:2})}</strong></p><p>Signed at: ${dateStr} · IP: ${ip}</p></div>`,
+      attachments: attach,
+    });
+
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: download signed PDF (admin) ──
+app.get('/api/contracts/:id/pdf', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(`SELECT * FROM contracts WHERE id=$1`, [req.params.id]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+    const pdfBuffer = await buildContractPdf(r.rows[0]);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="contract-${r.rows[0].id}.pdf"`);
+    res.send(pdfBuffer);
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ── Serve static site with caching ──

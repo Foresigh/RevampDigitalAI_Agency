@@ -155,6 +155,21 @@
     .add-project-btn{background:linear-gradient(135deg,#1F7A8C,#15606e);border:none;border-radius:10px;padding:10px 18px;color:#fff;font-size:0.82rem;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:6px;transition:opacity 0.2s}
     .add-project-btn:hover{opacity:0.88}
 
+    /* ── Contracts tab ── */
+    .contract-status{display:inline-flex;align-items:center;gap:5px;font-size:0.7rem;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
+    .cs-draft{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.45)}
+    .cs-sent{background:rgba(61,214,245,0.1);border:1px solid rgba(61,214,245,0.25);color:#3dd6f5}
+    .cs-signed{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);color:#4ade80}
+    .cs-void{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:#f87171}
+    .contract-actions{display:flex;gap:6px;flex-wrap:wrap}
+    .cact-btn{border:none;border-radius:7px;padding:5px 10px;font-size:0.72rem;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity 0.2s;white-space:nowrap}
+    .cact-btn:hover{opacity:0.8}
+    .cact-send{background:rgba(61,214,245,0.12);color:#3dd6f5;border:1px solid rgba(61,214,245,0.2)}
+    .cact-pdf{background:rgba(167,139,250,0.12);color:#a78bfa;border:1px solid rgba(167,139,250,0.2)}
+    .cact-void{background:rgba(248,113,113,0.08);color:#f87171;border:1px solid rgba(248,113,113,0.15)}
+    .new-contract-btn{background:linear-gradient(135deg,#1F7A8C,#15606e);border:none;border-radius:10px;padding:10px 18px;color:#fff;font-size:0.82rem;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:6px;transition:opacity 0.2s;white-space:nowrap}
+    .new-contract-btn:hover{opacity:0.88}
+
     /* ── Add Lead button ── */
     .add-lead-btn{
       background:linear-gradient(135deg,#1F7A8C,#15606e);
@@ -254,6 +269,7 @@
     <button class="tab-btn" data-tab="report-leads">Report Downloads</button>
     <button class="tab-btn" data-tab="payments">Payments</button>
     <button class="tab-btn" data-tab="portfolio">Portfolio</button>
+    <button class="tab-btn" data-tab="contracts">Contracts</button>
     <button class="tab-btn" data-tab="settings">⚙ Settings</button>
   </div>
 
@@ -469,6 +485,33 @@
 
   </div><!-- /tab-portfolio -->
 
+  <!-- ══ CONTRACTS TAB ══ -->
+  <div class="tab-panel" id="tab-contracts">
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Total Contracts</div><div class="stat-value teal" id="statCtTotal">—</div></div>
+      <div class="stat-card"><div class="stat-label">Sent / Pending</div><div class="stat-value yellow" id="statCtSent">—</div></div>
+      <div class="stat-card"><div class="stat-label">Signed</div><div class="stat-value green" id="statCtSigned">—</div></div>
+      <div class="stat-card"><div class="stat-label">Total Value (Signed)</div><div class="stat-value green" id="statCtValue">—</div></div>
+    </div>
+
+    <div class="controls">
+      <input class="search-input" id="contractSearch" type="text" placeholder="Search by name, email…"/>
+      <button class="refresh-btn" id="refreshContractsBtn">↻ Refresh</button>
+      <button class="new-contract-btn" onclick="openNewContract()">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Contract
+      </button>
+    </div>
+
+    <div class="table-wrap">
+      <div id="contractsTableContent">
+        <div class="loading"><div class="spinner"></div>Loading contracts...</div>
+      </div>
+    </div>
+
+  </div><!-- /tab-contracts -->
+
   <!-- ══ SETTINGS TAB ══ -->
   <div class="tab-panel" id="tab-settings">
 
@@ -513,6 +556,49 @@
               <label class="settings-label">Premium Plan — $1,997/mo</label>
               <input class="settings-input" id="set-plan-premium" type="url" placeholder="https://buy.stripe.com/..."/>
             </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(61,214,245,0.08)">
+          <div class="settings-card-title" style="margin-bottom:16px">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Email (SMTP) — for Contract Signing Emails
+            <span id="smtpStatusPill" class="status-pill inactive" style="margin-left:8px">Not Configured</span>
+          </div>
+          <p style="font-size:0.78rem;color:rgba(255,255,255,0.38);margin-bottom:16px;line-height:1.6">Required for sending contract signing links and signed PDF copies to clients. Use Gmail App Password or any SMTP provider.</p>
+          <div class="settings-grid">
+            <div class="settings-field">
+              <label class="settings-label">SMTP Host</label>
+              <input class="settings-input" id="set-smtp-host" type="text" placeholder="smtp.gmail.com"/>
+            </div>
+            <div class="settings-field">
+              <label class="settings-label">SMTP Port</label>
+              <input class="settings-input" id="set-smtp-port" type="number" placeholder="587"/>
+            </div>
+            <div class="settings-field">
+              <label class="settings-label">SMTP Username</label>
+              <input class="settings-input" id="set-smtp-user" type="text" placeholder="you@gmail.com"/>
+            </div>
+            <div class="settings-field">
+              <label class="settings-label">SMTP Password / App Password</label>
+              <input class="settings-input" id="set-smtp-pass" type="password" placeholder="••••••••••••••••"/>
+            </div>
+            <div class="settings-field settings-full">
+              <label class="settings-label">From Address <span>(shown to clients)</span></label>
+              <input class="settings-input" id="set-smtp-from" type="text" placeholder='"Revamp Digital" &lt;hello@gorevamp.ai&gt;'/>
+            </div>
+            <div class="settings-field settings-full">
+              <label class="settings-label">Admin Notification Email <span>(receives copy of signed contracts)</span></label>
+              <input class="settings-input" id="set-admin-email" type="email" placeholder="feyisa.berisa@gorevamp.ai"/>
+            </div>
+          </div>
+          <div class="settings-guide" style="margin-top:16px">
+            <h4>📧 Gmail Setup (easiest)</h4>
+            <ol>
+              <li>Go to <code>myaccount.google.com</code> → Security → 2-Step Verification → App passwords</li>
+              <li>Create an App Password for "Mail" — copy the 16-character code</li>
+              <li>Host: <code>smtp.gmail.com</code> · Port: <code>587</code> · Username: your Gmail · Password: the app password</li>
+            </ol>
           </div>
         </div>
 
@@ -661,6 +747,60 @@
         <div class="modal-actions">
           <button type="submit" class="modal-submit" id="projectSubmitBtn">Add Project</button>
           <button type="button" class="modal-cancel" onclick="closeProjectModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NEW CONTRACT MODAL ══ -->
+<div class="modal-backdrop" id="contractModal" onclick="handleContractBackdropClick(event)">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <div class="modal-title">New Service Contract</div>
+      <button class="modal-close" onclick="closeContractModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="contractForm" onsubmit="submitContract(event)">
+        <div class="modal-grid">
+
+          <div>
+            <label>Client Full Name *</label>
+            <input type="text" name="client_name" id="ct-name" placeholder="Alex Johnson" required/>
+          </div>
+          <div>
+            <label>Client Email *</label>
+            <input type="email" name="client_email" id="ct-email" placeholder="alex@business.com" required/>
+          </div>
+
+          <div class="modal-full">
+            <label>Services Included <span style="color:rgba(255,255,255,0.25);font-weight:400">(one per line)</span></label>
+            <textarea name="services" id="ct-services" placeholder="Website Design & Development&#10;3 Months SEO Management&#10;Google Business Profile Setup" style="min-height:90px"></textarea>
+          </div>
+
+          <div>
+            <label>Agreed Amount ($) *</label>
+            <input type="number" name="amount" id="ct-amount" placeholder="800.00" min="0" step="0.01" required/>
+          </div>
+          <div>
+            <label>Start Date</label>
+            <input type="date" name="start_date" id="ct-start"/>
+          </div>
+
+          <div class="modal-full">
+            <label>Additional Notes <span style="color:rgba(255,255,255,0.25);font-weight:400">(optional)</span></label>
+            <textarea name="notes" id="ct-notes" placeholder="Payment due before project start. Includes up to 3 revision rounds…" style="min-height:60px"></textarea>
+          </div>
+
+          <div class="modal-full" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(61,214,245,0.04);border:1px solid rgba(61,214,245,0.12);border-radius:10px">
+            <input type="checkbox" name="send_now" id="ct-send" style="width:16px;height:16px;accent-color:#3dd6f5;flex-shrink:0"/>
+            <label for="ct-send" style="font-size:0.8rem;color:rgba(255,255,255,0.6);cursor:pointer;margin-bottom:0;font-weight:500">Send signing link to client by email immediately after creating</label>
+          </div>
+
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="modal-submit" id="contractSubmitBtn">Create Contract</button>
+          <button type="button" class="modal-cancel" onclick="closeContractModal()">Cancel</button>
         </div>
       </form>
     </div>
@@ -1095,19 +1235,34 @@
     }
   }
 
+  function updateSmtpStatus(s) {
+    const pill = document.getElementById('smtpStatusPill');
+    if (s.smtp_host && s.smtp_user) {
+      pill.className = 'status-pill active'; pill.textContent = 'Configured';
+    } else {
+      pill.className = 'status-pill inactive'; pill.textContent = 'Not Configured';
+    }
+  }
+
   async function loadSettings() {
     settingsLoaded = true;
     try {
       const res = await fetch('/api/settings');
       if (!res.ok) return;
       const s = await res.json();
-      // Populate fields (never reveal secret values - show placeholder if set)
       if (s.stripe_secret_key) document.getElementById('set-stripe-secret').placeholder = '••••••••••••••••••••• (saved)';
       if (s.stripe_webhook_secret) document.getElementById('set-stripe-webhook').placeholder = '••••••••••••••••••••• (saved)';
       if (s.plan_website_revamp_url) document.getElementById('set-plan-revamp').value = s.plan_website_revamp_url;
       if (s.plan_growth_monthly_url) document.getElementById('set-plan-growth').value = s.plan_growth_monthly_url;
       if (s.plan_premium_monthly_url) document.getElementById('set-plan-premium').value = s.plan_premium_monthly_url;
+      if (s.smtp_host) document.getElementById('set-smtp-host').value = s.smtp_host;
+      if (s.smtp_port) document.getElementById('set-smtp-port').value = s.smtp_port;
+      if (s.smtp_user) document.getElementById('set-smtp-user').value = s.smtp_user;
+      if (s.smtp_pass) document.getElementById('set-smtp-pass').placeholder = '••••••••••••••••••••• (saved)';
+      if (s.smtp_from) document.getElementById('set-smtp-from').value = s.smtp_from;
+      if (s.admin_email) document.getElementById('set-admin-email').value = s.admin_email;
       updateStripeStatus(s);
+      updateSmtpStatus(s);
     } catch (e) { console.error('settings load', e); }
   }
 
@@ -1125,6 +1280,14 @@
     body.plan_growth_monthly_url = document.getElementById('set-plan-growth').value.trim();
     body.plan_premium_monthly_url = document.getElementById('set-plan-premium').value.trim();
     body.payments_enabled = 'true';
+    // SMTP
+    const smtpPass = document.getElementById('set-smtp-pass').value.trim();
+    body.smtp_host = document.getElementById('set-smtp-host').value.trim();
+    body.smtp_port = document.getElementById('set-smtp-port').value.trim() || '587';
+    body.smtp_user = document.getElementById('set-smtp-user').value.trim();
+    if (smtpPass) body.smtp_pass = smtpPass;
+    body.smtp_from = document.getElementById('set-smtp-from').value.trim();
+    body.admin_email = document.getElementById('set-admin-email').value.trim();
 
     try {
       const res = await fetch('/api/settings', {
@@ -1139,7 +1302,10 @@
       document.getElementById('set-stripe-webhook').value = '';
       if (secretVal) document.getElementById('set-stripe-secret').placeholder = '••••••••••••••••••••• (saved)';
       if (webhookVal) document.getElementById('set-stripe-webhook').placeholder = '••••••••••••••••••••• (saved)';
+      if (smtpPass) document.getElementById('set-smtp-pass').value = '';
+      if (smtpPass) document.getElementById('set-smtp-pass').placeholder = '••••••••••••••••••••• (saved)';
       updateStripeStatus(body);
+      updateSmtpStatus(body);
     } catch (e) {
       showToast('Error saving settings');
     } finally {
@@ -1161,6 +1327,7 @@
       if (tab === 'payments' && !ordersLoaded) loadOrders();
       if (tab === 'settings' && !settingsLoaded) loadSettings();
       if (tab === 'portfolio' && !portfolioLoaded) loadPortfolioProjects();
+      if (tab === 'contracts' && !contractsLoaded) loadContracts();
     });
   });
 
@@ -1177,7 +1344,7 @@
   function handleBackdropClick(e) {
     if (e.target === document.getElementById('addLeadModal')) closeAddLead();
   }
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeAddLead(); closeProjectModal(); } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeAddLead(); closeProjectModal(); closeContractModal(); } });
 
   async function submitAddLead(e) {
     e.preventDefault();
@@ -1203,6 +1370,165 @@
     } finally {
       btn.disabled = false;
       btn.textContent = 'Add Lead';
+    }
+  }
+
+  // ── Contracts ──
+  let allContracts = [], contractsLoaded = false;
+  const BASE_URL = window.location.origin;
+
+  function contractStatusHtml(status) {
+    const map = {
+      draft:  ['cs-draft',  '● Draft'],
+      sent:   ['cs-sent',   '● Sent'],
+      signed: ['cs-signed', '✓ Signed'],
+      void:   ['cs-void',   '✕ Void'],
+    };
+    const [cls, label] = map[status] || map.draft;
+    return `<span class="contract-status ${cls}">${label}</span>`;
+  }
+
+  function updateContractStats(contracts) {
+    const sent   = contracts.filter(c => c.status === 'sent').length;
+    const signed = contracts.filter(c => c.status === 'signed');
+    const value  = signed.reduce((s, c) => s + parseFloat(c.amount || 0), 0);
+    document.getElementById('statCtTotal').textContent  = contracts.length;
+    document.getElementById('statCtSent').textContent   = sent;
+    document.getElementById('statCtSigned').textContent = signed.length;
+    document.getElementById('statCtValue').textContent  = '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2 });
+  }
+
+  function renderContracts(contracts) {
+    const q = document.getElementById('contractSearch').value.toLowerCase();
+    const filtered = q ? contracts.filter(c =>
+      [c.client_name, c.client_email, c.status].join(' ').toLowerCase().includes(q)
+    ) : contracts;
+
+    if (!filtered.length) {
+      document.getElementById('contractsTableContent').innerHTML =
+        `<div class="empty"><h3>${contracts.length ? 'No results' : 'No contracts yet'}</h3><p>Click "New Contract" to create and send your first service agreement.</p></div>`;
+      return;
+    }
+
+    const rows = filtered.map(c => {
+      const signingLink = `${BASE_URL}/contract/${c.token}`;
+      const isSigned = c.status === 'signed';
+      const isVoid   = c.status === 'void';
+      return `<tr>
+        <td>
+          <div class="lead-name">${c.client_name}</div>
+          <div class="lead-biz">${c.client_email}</div>
+        </td>
+        <td><div style="font-weight:700;color:#4ade80">$${parseFloat(c.amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}</div></td>
+        <td>${contractStatusHtml(c.status)}</td>
+        <td>
+          <div class="lead-date">${formatDate(c.created_at)}</div>
+          ${c.signed_at ? `<div class="lead-date" style="color:#4ade80;margin-top:2px">Signed ${formatDate(c.signed_at)}</div>` : ''}
+        </td>
+        <td>
+          <div class="contract-actions">
+            ${!isSigned && !isVoid ? `<button class="cact-btn cact-send" onclick="copyLink('${signingLink}')">Copy Link</button>` : ''}
+            ${!isSigned && !isVoid ? `<button class="cact-btn cact-send" onclick="resendContract(${c.id})">↺ Resend</button>` : ''}
+            <button class="cact-btn cact-pdf" onclick="downloadPdf(${c.id})">PDF</button>
+            ${!isVoid && !isSigned ? `<button class="cact-btn cact-void" onclick="voidContract(${c.id})">Void</button>` : ''}
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('contractsTableContent').innerHTML = `
+      <table>
+        <thead><tr>
+          <th>Client</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  async function loadContracts() {
+    contractsLoaded = true;
+    document.getElementById('contractsTableContent').innerHTML =
+      '<div class="loading"><div class="spinner"></div>Loading contracts...</div>';
+    try {
+      const res = await fetch('/api/contracts');
+      if (!res.ok) throw new Error('Failed');
+      allContracts = await res.json();
+      updateContractStats(allContracts);
+      renderContracts(allContracts);
+    } catch(e) {
+      document.getElementById('contractsTableContent').innerHTML =
+        `<div class="empty"><h3>Error loading contracts</h3><p style="color:#f87171">${e.message}</p></div>`;
+    }
+  }
+
+  document.getElementById('contractSearch').addEventListener('input', () => renderContracts(allContracts));
+  document.getElementById('refreshContractsBtn').addEventListener('click', () => { contractsLoaded = false; loadContracts(); });
+
+  async function copyLink(link) {
+    try { await navigator.clipboard.writeText(link); showToast('Signing link copied ✓'); }
+    catch { showToast('Copy: ' + link); }
+  }
+
+  async function resendContract(id) {
+    try {
+      const res = await fetch(`/api/contracts/${id}/resend`, { method: 'POST' });
+      if (!res.ok) throw new Error((await res.json()).error);
+      showToast('Reminder email sent ✓');
+      contractsLoaded = false; loadContracts();
+    } catch(e) { showToast('Error: ' + e.message); }
+  }
+
+  function downloadPdf(id) {
+    window.open(`/api/contracts/${id}/pdf`, '_blank');
+  }
+
+  async function voidContract(id) {
+    if (!confirm('Void this contract? The signing link will stop working.')) return;
+    try {
+      const res = await fetch(`/api/contracts/${id}/void`, { method: 'PATCH' });
+      if (!res.ok) throw new Error('Failed');
+      showToast('Contract voided');
+      contractsLoaded = false; loadContracts();
+    } catch(e) { showToast('Error: ' + e.message); }
+  }
+
+  // ── New contract modal ──
+  function openNewContract() {
+    document.getElementById('contractForm').reset();
+    document.getElementById('contractModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeContractModal() {
+    document.getElementById('contractModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function handleContractBackdropClick(e) {
+    if (e.target === document.getElementById('contractModal')) closeContractModal();
+  }
+
+  async function submitContract(e) {
+    e.preventDefault();
+    const btn = document.getElementById('contractSubmitBtn');
+    btn.disabled = true; btn.textContent = 'Creating…';
+
+    const data = Object.fromEntries(new FormData(e.target));
+    data.send_now = document.getElementById('ct-send').checked;
+
+    try {
+      const res = await fetch('/api/contracts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error);
+      showToast(data.send_now ? 'Contract created & email sent ✓' : 'Contract created ✓');
+      closeContractModal();
+      contractsLoaded = false; loadContracts();
+    } catch(err) {
+      showToast('Error: ' + err.message);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Create Contract';
     }
   }
 
