@@ -147,12 +147,17 @@ function buildContractPdf(contract) {
     y += 6;
     section('PAYMENT');
     // Total amount highlight box
+    const isMonthly = contract.payment_type === 'monthly';
     const boxY = y;
     doc.rect(L, boxY, CW, 34).fillColor('#f6fffc').stroke();
     doc.fontSize(8.5).fillColor(lgray).font('Helvetica')
-      .text('TOTAL AGREED AMOUNT', L + 12, boxY + 8, { lineBreak: false });
+      .text(isMonthly ? 'MONTHLY AMOUNT' : 'TOTAL AGREED AMOUNT', L + 12, boxY + 8, { lineBreak: false });
     doc.fontSize(15).fillColor('#15803d').font('Helvetica-Bold')
-      .text(`$${parseFloat(contract.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`, L + 12, boxY + 18, { lineBreak: false });
+      .text(`$${parseFloat(contract.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}${isMonthly ? '/mo' : ''}`, L + 12, boxY + 18, { lineBreak: false });
+    if (isMonthly) {
+      doc.fontSize(8).fillColor('#15803d').font('Helvetica-Bold')
+        .text('MONTHLY PLAN', L + CW - 80, boxY + 14, { lineBreak: false });
+    }
     y = boxY + 44;
 
     if (contract.payment_schedule && contract.payment_schedule.trim()) {
@@ -351,6 +356,7 @@ async function initDb() {
     )
   `);
   await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS payment_schedule TEXT`);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS payment_type TEXT DEFAULT 'onetime'`);
 
   console.log('[db] tables ready');
 }
@@ -1012,7 +1018,7 @@ app.get('/api/contracts', requireAuth, async (req, res) => {
 
 // ── API: create contract (admin) ──
 app.post('/api/contracts', requireAuth, async (req, res) => {
-  const { client_name, client_email, services, amount, payment_schedule, start_date, notes, send_now } = req.body;
+  const { client_name, client_email, services, amount, payment_schedule, payment_type, start_date, notes, send_now } = req.body;
   if (!client_name || !client_email) return res.status(400).json({ error: 'Client name and email required' });
   const token = crypto.randomBytes(24).toString('hex');
   const expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -1020,10 +1026,10 @@ app.post('/api/contracts', requireAuth, async (req, res) => {
   const link = `${baseUrl}/contract/${token}`;
   try {
     const r = await pool.query(
-      `INSERT INTO contracts (token, client_name, client_email, services, amount, payment_schedule, start_date, notes, status, expires_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'draft',$9) RETURNING *`,
+      `INSERT INTO contracts (token, client_name, client_email, services, amount, payment_schedule, payment_type, start_date, notes, status, expires_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'draft',$10) RETURNING *`,
       [token, client_name, client_email, services||'', parseFloat(amount)||0,
-       payment_schedule||'', start_date||null, notes||'', expires_at]
+       payment_schedule||'', payment_type||'onetime', start_date||null, notes||'', expires_at]
     );
     const contract = r.rows[0];
     let emailSent = false;
@@ -1094,7 +1100,7 @@ app.patch('/api/contracts/:id/void', requireAuth, async (req, res) => {
 app.get('/api/contract/:token', async (req, res) => {
   try {
     const r = await pool.query(
-      `SELECT id, client_name, client_email, services, amount, payment_schedule, start_date, notes,
+      `SELECT id, client_name, client_email, services, amount, payment_schedule, payment_type, start_date, notes,
               status, created_at, expires_at, signed_at, signer_name
        FROM contracts WHERE token=$1`, [req.params.token]
     );
