@@ -10,7 +10,6 @@ const Stripe     = require('stripe');
 const nodemailer = require('nodemailer');
 const PDFDocument= require('pdfkit');
 const crypto     = require('crypto');
-const { Resend } = require('resend');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -34,20 +33,24 @@ async function getSetting(key) {
 
 // ── Email helper — tries Resend first, falls back to SMTP ──
 async function sendMail({ to, subject, html, attachments }) {
-  // ── Resend (preferred — just needs RESEND_API_KEY env var) ──
+  // ── Resend REST API (preferred — just needs RESEND_API_KEY env var) ──
   const resendKey = process.env.RESEND_API_KEY || await getSetting('resend_api_key');
   if (resendKey) {
-    const resend = new Resend(resendKey);
     const fromAddr = process.env.RESEND_FROM || await getSetting('resend_from') || 'Revamp Digital <hello@gorevamp.ai>';
-    const payload = { from: fromAddr, to, subject, html };
+    const payload = { from: fromAddr, to: Array.isArray(to) ? to : [to], subject, html };
     if (attachments && attachments.length) {
       payload.attachments = attachments.map(a => ({
         filename: a.filename,
         content: a.content.toString('base64'),
       }));
     }
-    const { error } = await resend.emails.send(payload);
-    if (error) throw new Error(error.message || JSON.stringify(error));
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.message || data.name || 'Resend API error');
     return true;
   }
 
