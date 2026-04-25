@@ -1103,17 +1103,17 @@ app.post('/api/contracts', requireAuth, async (req, res) => {
               <p style="margin:4px 0 0;color:rgba(255,255,255,0.5);font-size:0.8rem">Service Agreement — Ready to Sign</p>
             </div>
             <div style="padding:28px 32px;background:#ffffff">
-              <p style="margin:0 0 16px;font-size:0.95rem;color:#111">Hi <strong>${client_name}</strong>,</p>
-              <p style="margin:0 0 20px;color:#444;font-size:0.9rem;line-height:1.6">We've prepared your service agreement. Please review the details and sign when you're ready.</p>
-              <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
-                <tr><td style="padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;font-size:0.85rem;color:#666;font-weight:bold">Amount</td><td style="padding:8px 12px;border:1px solid #e5e7eb;font-size:0.95rem;color:#15803d;font-weight:bold">$${parseFloat(amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td></tr>
-                ${payment_schedule ? `<tr><td style="padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;font-size:0.85rem;color:#666;font-weight:bold">Payment Schedule</td><td style="padding:8px 12px;border:1px solid #e5e7eb;font-size:0.85rem;color:#444;white-space:pre-line">${payment_schedule}</td></tr>` : ''}
-                ${start_date ? `<tr><td style="padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;font-size:0.85rem;color:#666;font-weight:bold">Start Date</td><td style="padding:8px 12px;border:1px solid #e5e7eb;font-size:0.85rem;color:#444">${new Date(start_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</td></tr>` : ''}
-              </table>
-              <div style="text-align:center;margin:28px 0">
-                <a href="${link}" style="background:#1F7A8C;color:#ffffff;font-weight:700;font-size:1rem;padding:14px 36px;border-radius:10px;text-decoration:none;display:inline-block">Review &amp; Sign Agreement →</a>
+              <p style="margin:0 0 12px;font-size:0.95rem;color:#111">Hi <strong>${client_name}</strong>,</p>
+              <p style="margin:0 0 24px;color:#444;font-size:0.9rem;line-height:1.6">We've prepared your service agreement. Tap the button below to review and sign — it only takes a minute.</p>
+              <div style="text-align:center;margin:0 0 28px">
+                <a href="${link}" style="background:linear-gradient(135deg,#1F7A8C,#15606e);color:#ffffff;font-weight:700;font-size:1.05rem;padding:16px 40px;border-radius:12px;text-decoration:none;display:inline-block;letter-spacing:0.3px">✍ Review &amp; Sign Agreement →</a>
               </div>
-              <p style="margin:20px 0 0;color:#999;font-size:0.78rem;text-align:center">This link expires in 30 days. Questions? Reply to this email or call (385) 253-2318.</p>
+              <table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:0.85rem">
+                <tr><td style="padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;color:#666;font-weight:bold;width:130px">Amount</td><td style="padding:8px 12px;border:1px solid #e5e7eb;color:#15803d;font-weight:bold">$${parseFloat(amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td></tr>
+                ${payment_schedule ? `<tr><td style="padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;color:#666;font-weight:bold;vertical-align:top">Payment Schedule</td><td style="padding:8px 12px;border:1px solid #e5e7eb;color:#444;white-space:pre-line">${payment_schedule}</td></tr>` : ''}
+                ${start_date ? `<tr><td style="padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;color:#666;font-weight:bold">Start Date</td><td style="padding:8px 12px;border:1px solid #e5e7eb;color:#444">${new Date(start_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</td></tr>` : ''}
+              </table>
+              <p style="margin:0;color:#999;font-size:0.75rem;text-align:center">Link expires in 30 days · Questions? Reply to this email or call (385) 253-2318</p>
             </div>
           </div>`,
         });

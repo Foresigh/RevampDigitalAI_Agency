@@ -284,15 +284,34 @@
     const fmt = n => '$' + parseFloat(n||0).toLocaleString('en-US',{minimumFractionDigits:2});
     const hasMonthly = parseFloat(c.monthly_amount) > 0;
     const hasSub = parseFloat(c.sub_amount) > 0;
-    if (hasMonthly || hasSub) {
+    // Also show payment choice if a payment schedule exists (even without monthly_amount set)
+    const hasSchedule = c.payment_schedule && c.payment_schedule.trim().length > 0;
+    const showChoice = hasMonthly || hasSub || hasSchedule;
+
+    if (showChoice) {
       document.getElementById('amountBlock').style.display = 'none';
       document.getElementById('paymentChoiceSection').style.display = 'block';
       const cards = document.getElementById('paymentCards');
-      // Determine grid columns
-      const count = 1 + (hasMonthly?1:0) + (hasSub?1:0);
+      const count = 1 + (hasMonthly||hasSchedule?1:0) + (hasSub?1:0);
       cards.style.gridTemplateColumns = count === 3 ? '1fr 1fr 1fr' : count === 2 ? '1fr 1fr' : '1fr';
 
-      // One-time card (always)
+      // Build monthly card label — use monthly_amount if available, else show "Payment Schedule"
+      let monthlyCardHTML = '';
+      if (hasMonthly) {
+        monthlyCardHTML = `
+          <div style="font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Monthly Plan</div>
+          <div style="font-size:0.95rem;font-weight:700;color:#60a5fa;line-height:1.5">${fmt(c.initial_payment)} initial<br/><span style="font-size:1.35rem">${fmt(c.monthly_amount)}/mo</span></div>
+          <div style="font-size:0.73rem;color:rgba(255,255,255,0.4);margin-top:6px">× ${c.monthly_months} month${c.monthly_months==1?'':'s'} — fixed term</div>`;
+      } else if (hasSchedule) {
+        // Parse first line of schedule for the card
+        const firstLine = c.payment_schedule.split('\n')[0].trim();
+        const lineCount = c.payment_schedule.split('\n').filter(l=>l.trim()).length;
+        monthlyCardHTML = `
+          <div style="font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Payment Plan</div>
+          <div style="font-size:0.85rem;font-weight:700;color:#60a5fa;line-height:1.6">${firstLine}</div>
+          <div style="font-size:0.73rem;color:rgba(255,255,255,0.4);margin-top:6px">${lineCount} payment${lineCount===1?'':'s'} total</div>`;
+      }
+
       cards.innerHTML = `
         <div id="choiceOnetime" onclick="selectPaymentPlan('onetime')" style="cursor:pointer;border-radius:14px;padding:18px 16px;border:2px solid rgba(74,222,128,0.5);background:rgba(74,222,128,0.08);transition:all 0.2s">
           <div style="font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Pay in Full</div>
@@ -302,11 +321,9 @@
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Selected
           </div>
         </div>
-        ${hasMonthly ? `
+        ${(hasMonthly || hasSchedule) ? `
         <div id="choiceMonthly" onclick="selectPaymentPlan('monthly')" style="cursor:pointer;border-radius:14px;padding:18px 16px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);transition:all 0.2s">
-          <div style="font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Monthly Plan</div>
-          <div style="font-size:0.95rem;font-weight:700;color:#60a5fa;line-height:1.5">${fmt(c.initial_payment)} initial<br/><span style="font-size:1.35rem">${fmt(c.monthly_amount)}/mo</span></div>
-          <div style="font-size:0.73rem;color:rgba(255,255,255,0.4);margin-top:6px">× ${c.monthly_months} month${c.monthly_months==1?'':'s'} — fixed term</div>
+          ${monthlyCardHTML}
           <div id="monthlyCheck" style="margin-top:10px;display:none;align-items:center;gap:6px;font-size:0.75rem;font-weight:700;color:#60a5fa">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Selected
           </div>
@@ -321,7 +338,6 @@
           </div>
         </div>` : ''}`;
 
-      // If subscription, show what's included below the cards
       if (hasSub && c.sub_includes && c.sub_includes.trim()) {
         window._subIncludes = c.sub_includes;
       }
@@ -340,14 +356,16 @@
       ? lines.map(s => `<div class="service-item"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>${s}</div>`).join('')
       : '<div class="service-item"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Services as discussed and agreed upon</div>';
 
-    // Payment schedule
-    if (c.payment_schedule && c.payment_schedule.trim()) {
+    // Payment schedule — only show as separate section if no choice toggle
+    if (c.payment_schedule && c.payment_schedule.trim() && !showChoice) {
       const lines = c.payment_schedule.split('\n').map(s => s.trim()).filter(Boolean);
       document.getElementById('scheduleList').innerHTML = lines.map(s =>
         `<div class="service-item"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>${s}</div>`
       ).join('');
       document.getElementById('scheduleSection').style.display = 'block';
     }
+    // Store schedule for showing under selected plan
+    window._paymentSchedule = c.payment_schedule || '';
 
     if (c.notes) {
       document.getElementById('notes').textContent = c.notes;
@@ -391,6 +409,25 @@
       cards[t].style.background = selected ? bgs[t] : 'rgba(255,255,255,0.03)';
       if (checks[t]) checks[t].style.display = selected ? 'flex' : 'none';
     });
+
+    // Show/hide payment schedule detail under monthly card
+    const existingSchedule = document.getElementById('scheduleDetailSection');
+    if (existingSchedule) existingSchedule.remove();
+    if (type === 'monthly' && window._paymentSchedule) {
+      const schedLines = window._paymentSchedule.split('\n').map(s=>s.trim()).filter(Boolean);
+      if (schedLines.length) {
+        const sec = document.createElement('div');
+        sec.id = 'scheduleDetailSection';
+        sec.style.cssText = 'margin-top:16px;background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);border-radius:12px;padding:16px 18px';
+        sec.innerHTML = `<div style="font-size:0.68rem;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Payment Schedule</div>
+          <div style="display:flex;flex-direction:column;gap:7px">${schedLines.map(s=>`
+            <div style="display:flex;align-items:center;gap:10px;font-size:0.83rem;color:rgba(255,255,255,0.75)">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#60a5fa" stroke-width="2.5" style="flex-shrink:0"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>${s}
+            </div>`).join('')}
+          </div>`;
+        document.getElementById('paymentChoiceSection').appendChild(sec);
+      }
+    }
 
     // Show/hide subscription includes section
     const existingIncludes = document.getElementById('subIncludesSection');
