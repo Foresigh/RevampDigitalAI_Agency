@@ -864,6 +864,36 @@
             </div>
           </div>
 
+          <!-- Subscription plan option -->
+          <div class="modal-full">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <input type="checkbox" id="ct-offer-sub" onchange="toggleSubOption()" style="width:16px;height:16px;accent-color:#a78bfa;flex-shrink:0;cursor:pointer"/>
+              <label for="ct-offer-sub" style="font-size:0.82rem;font-weight:700;color:#a78bfa;cursor:pointer;margin-bottom:0">
+                Also offer a subscription plan (ongoing — hosting, updates &amp; new features forever)
+              </label>
+            </div>
+            <div id="sub-option-fields" style="display:none;background:rgba(167,139,250,0.04);border:1px solid rgba(167,139,250,0.2);border-radius:12px;padding:16px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                <div>
+                  <label style="font-size:0.74rem">Initial / Setup Fee ($)</label>
+                  <input type="number" name="sub_initial" id="ct-sub-initial" placeholder="200.00" min="0" step="0.01"/>
+                </div>
+                <div>
+                  <label style="font-size:0.74rem">Monthly Subscription ($) *</label>
+                  <input type="number" name="sub_amount" id="ct-sub-amount" placeholder="150.00" min="0" step="0.01"/>
+                </div>
+              </div>
+              <div>
+                <label style="font-size:0.74rem">What's Included <span style="color:rgba(255,255,255,0.25);font-weight:400">(one per line)</span></label>
+                <textarea name="sub_includes" id="ct-sub-includes" style="min-height:80px;width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(167,139,250,0.2);border-radius:10px;padding:10px 14px;color:#e8f0fe;font-size:0.82rem;font-family:inherit;outline:none;resize:vertical">Website Hosting &amp; SSL Certificate
+Monthly Content &amp; Feature Updates
+Priority Support &amp; Bug Fixes
+Google Business Profile Management
+New Page &amp; Section Additions</textarea>
+              </div>
+            </div>
+          </div>
+
           <div class="modal-full">
             <label>Additional Notes <span style="color:rgba(255,255,255,0.25);font-weight:400">(optional)</span></label>
             <textarea name="notes" id="ct-notes" placeholder="Includes up to 3 revision rounds. Delivery in 10–14 business days…" style="min-height:56px"></textarea>
@@ -1591,6 +1621,8 @@
     document.getElementById('monthly-option-fields').style.display = 'none';
     document.getElementById('monthly-total-preview').textContent = '—';
     document.getElementById('ct-monthly-schedule').value = '';
+    document.getElementById('ct-offer-sub').checked = false;
+    document.getElementById('sub-option-fields').style.display = 'none';
   }
   function handleContractBackdropClick(e) {
     if (e.target === document.getElementById('contractModal')) closeContractModal();
@@ -1600,6 +1632,11 @@
     const checked = document.getElementById('ct-offer-monthly').checked;
     document.getElementById('monthly-option-fields').style.display = checked ? 'block' : 'none';
     if (checked) updateMonthlyPreview();
+  }
+
+  function toggleSubOption() {
+    const checked = document.getElementById('ct-offer-sub').checked;
+    document.getElementById('sub-option-fields').style.display = checked ? 'block' : 'none';
   }
 
   function updateMonthlyPreview() {
@@ -1645,6 +1682,12 @@
       data.monthly_months = document.getElementById('ct-monthly-months').value;
       data.initial_payment = document.getElementById('ct-initial').value;
       data.payment_schedule = document.getElementById('ct-monthly-schedule').value;
+    }
+    const offerSub = document.getElementById('ct-offer-sub').checked;
+    if (offerSub) {
+      data.sub_amount = document.getElementById('ct-sub-amount').value;
+      data.sub_initial = document.getElementById('ct-sub-initial').value;
+      data.sub_includes = document.getElementById('ct-sub-includes').value;
     }
     data.payment_type = 'client_choice';
 

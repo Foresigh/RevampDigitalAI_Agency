@@ -149,10 +149,34 @@ function buildContractPdf(contract) {
 
     const chosenPlan = contract.chosen_payment_type || 'onetime';
     const hasMonthlyOption = parseFloat(contract.monthly_amount) > 0;
-    const showMonthly = hasMonthlyOption && chosenPlan === 'monthly';
+    const hasSubOption = parseFloat(contract.sub_amount) > 0;
+    const hasChoice = hasMonthlyOption || hasSubOption;
     const fmt = n => `$${parseFloat(n||0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
 
-    if (showMonthly) {
+    if (chosenPlan === 'subscription' && hasSubOption) {
+      // Subscription: initial + monthly forever
+      const halfW = (CW - 8) / 2;
+      const boxY = y;
+      doc.rect(L, boxY, halfW, 42).fillColor('#faf5ff').stroke();
+      doc.fontSize(8).fillColor('#6d28d9').font('Helvetica-Bold').text('SETUP FEE (DUE TODAY)', L + 8, boxY + 7, { lineBreak: false });
+      doc.fontSize(14).fillColor('#6d28d9').font('Helvetica-Bold').text(fmt(contract.sub_initial), L + 8, boxY + 18, { lineBreak: false });
+      doc.fontSize(7.5).fillColor('#6d28d9').font('Helvetica').text('one-time setup', L + 8, boxY + 33, { lineBreak: false });
+      doc.rect(L + halfW + 8, boxY, halfW, 42).fillColor('#faf5ff').stroke();
+      doc.fontSize(8).fillColor('#6d28d9').font('Helvetica-Bold').text('THEN MONTHLY (ONGOING)', L + halfW + 16, boxY + 7, { lineBreak: false });
+      doc.fontSize(14).fillColor('#6d28d9').font('Helvetica-Bold').text(`${fmt(contract.sub_amount)}/mo`, L + halfW + 16, boxY + 18, { lineBreak: false });
+      doc.fontSize(7.5).fillColor('#6d28d9').font('Helvetica').text('billed monthly · no end date', L + halfW + 16, boxY + 33, { lineBreak: false });
+      y = boxY + 52;
+      doc.fontSize(8).fillColor('#6d28d9').font('Helvetica-Bold').text('✓ CLIENT SELECTED: SUBSCRIPTION PLAN', L, y, { lineBreak: false });
+      y += 16;
+      if (contract.sub_includes && contract.sub_includes.trim()) {
+        doc.fontSize(8).fillColor(lgray).font('Helvetica-Bold').text('SUBSCRIPTION INCLUDES:', L, y, { lineBreak: false });
+        y += 13;
+        contract.sub_includes.split('\n').map(s => s.trim()).filter(Boolean).forEach(s => {
+          doc.fontSize(8).fillColor(black).font('Helvetica').text(`✓  ${s}`, L + 4, y, { width: CW - 4 });
+          y = doc.y + 2;
+        });
+      }
+    } else if (chosenPlan === 'monthly' && hasMonthlyOption) {
       // Monthly plan: initial payment box + monthly box side by side
       const halfW = (CW - 8) / 2;
       const boxY = y;
@@ -164,8 +188,6 @@ function buildContractPdf(contract) {
       doc.fontSize(14).fillColor('#1d4ed8').font('Helvetica-Bold').text(`${fmt(contract.monthly_amount)}/mo`, L + halfW + 16, boxY + 18, { lineBreak: false });
       doc.fontSize(7.5).fillColor('#1d4ed8').font('Helvetica').text(`× ${contract.monthly_months} month${contract.monthly_months==1?'':'s'}`, L + halfW + 16, boxY + 33, { lineBreak: false });
       y = boxY + 48;
-
-      // Chosen badge
       doc.fontSize(8).fillColor('#15803d').font('Helvetica-Bold').text('✓ CLIENT SELECTED: MONTHLY PLAN', L, y, { lineBreak: false });
       y += 16;
     } else {
@@ -174,7 +196,7 @@ function buildContractPdf(contract) {
       doc.rect(L, boxY, CW, 34).fillColor('#f6fffc').stroke();
       doc.fontSize(8.5).fillColor(lgray).font('Helvetica').text('TOTAL AGREED AMOUNT', L + 12, boxY + 8, { lineBreak: false });
       doc.fontSize(15).fillColor('#15803d').font('Helvetica-Bold').text(fmt(contract.amount), L + 12, boxY + 18, { lineBreak: false });
-      if (hasMonthlyOption) {
+      if (hasChoice) {
         doc.fontSize(8).fillColor('#15803d').font('Helvetica-Bold').text('✓ CLIENT SELECTED: PAY IN FULL', L + CW - 170, boxY + 14, { lineBreak: false });
       }
       y = boxY + 44;
@@ -381,6 +403,9 @@ async function initDb() {
   await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS monthly_amount NUMERIC(10,2) DEFAULT 0`);
   await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS monthly_months INT DEFAULT 0`);
   await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS chosen_payment_type TEXT`);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS sub_amount NUMERIC(10,2) DEFAULT 0`);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS sub_initial NUMERIC(10,2) DEFAULT 0`);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS sub_includes TEXT`);
 
   console.log('[db] tables ready');
 }
@@ -1043,7 +1068,9 @@ app.get('/api/contracts', requireAuth, async (req, res) => {
 // ── API: create contract (admin) ──
 app.post('/api/contracts', requireAuth, async (req, res) => {
   const { client_name, client_email, services, amount, payment_schedule, payment_type,
-          initial_payment, monthly_amount, monthly_months, start_date, notes, send_now } = req.body;
+          initial_payment, monthly_amount, monthly_months,
+          sub_amount, sub_initial, sub_includes,
+          start_date, notes, send_now } = req.body;
   if (!client_name || !client_email) return res.status(400).json({ error: 'Client name and email required' });
   const token = crypto.randomBytes(24).toString('hex');
   const expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -1052,11 +1079,14 @@ app.post('/api/contracts', requireAuth, async (req, res) => {
   try {
     const r = await pool.query(
       `INSERT INTO contracts (token, client_name, client_email, services, amount, payment_schedule, payment_type,
-                             initial_payment, monthly_amount, monthly_months, start_date, notes, status, expires_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'draft',$13) RETURNING *`,
+                             initial_payment, monthly_amount, monthly_months,
+                             sub_amount, sub_initial, sub_includes,
+                             start_date, notes, status, expires_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,'draft',$16) RETURNING *`,
       [token, client_name, client_email, services||'', parseFloat(amount)||0,
        payment_schedule||'', payment_type||'onetime',
        parseFloat(initial_payment)||0, parseFloat(monthly_amount)||0, parseInt(monthly_months)||0,
+       parseFloat(sub_amount)||0, parseFloat(sub_initial)||0, sub_includes||'',
        start_date||null, notes||'', expires_at]
     );
     const contract = r.rows[0];

@@ -153,27 +153,10 @@
       <div class="services-list" id="servicesList"></div>
     </div>
 
-    <!-- Payment choice (shown when monthly option is available) -->
+    <!-- Payment choice (shown when options are available) -->
     <div id="paymentChoiceSection" style="display:none">
       <div class="section-label">Choose Your Payment Plan</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div id="choiceOnetime" onclick="selectPaymentPlan('onetime')" style="cursor:pointer;border-radius:14px;padding:18px 16px;border:2px solid rgba(74,222,128,0.5);background:rgba(74,222,128,0.08);transition:all 0.2s">
-          <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Pay in Full</div>
-          <div style="font-size:1.6rem;font-weight:800;color:#4ade80;line-height:1" id="onetimeDisplay">$0.00</div>
-          <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:6px">One single payment — best value</div>
-          <div id="onetimeCheck" style="margin-top:10px;display:flex;align-items:center;gap:6px;font-size:0.75rem;font-weight:700;color:#4ade80">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Selected
-          </div>
-        </div>
-        <div id="choiceMonthly" onclick="selectPaymentPlan('monthly')" style="cursor:pointer;border-radius:14px;padding:18px 16px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);transition:all 0.2s">
-          <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Monthly Plan</div>
-          <div style="font-size:1rem;font-weight:800;color:#60a5fa;line-height:1.3" id="monthlyDisplay">$0 initial<br/><span style="font-size:1.4rem">$0/mo</span></div>
-          <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:6px" id="monthlySubtext">— months</div>
-          <div id="monthlyCheck" style="margin-top:10px;display:none;align-items:center;gap:6px;font-size:0.75rem;font-weight:700;color:#60a5fa">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Selected
-          </div>
-        </div>
-      </div>
+      <div id="paymentCards" style="display:grid;gap:12px"></div>
     </div>
 
     <!-- Amount (one-time, hidden when choice section is shown) -->
@@ -300,13 +283,48 @@
     document.getElementById('clientEmail').textContent = c.client_email;
     const fmt = n => '$' + parseFloat(n||0).toLocaleString('en-US',{minimumFractionDigits:2});
     const hasMonthly = parseFloat(c.monthly_amount) > 0;
-    if (hasMonthly) {
-      // Show payment choice section, hide static amount block
+    const hasSub = parseFloat(c.sub_amount) > 0;
+    if (hasMonthly || hasSub) {
       document.getElementById('amountBlock').style.display = 'none';
       document.getElementById('paymentChoiceSection').style.display = 'block';
-      document.getElementById('onetimeDisplay').textContent = fmt(c.amount);
-      document.getElementById('monthlyDisplay').innerHTML = `${fmt(c.initial_payment)} initial<br/><span style="font-size:1.4rem">${fmt(c.monthly_amount)}/mo</span>`;
-      document.getElementById('monthlySubtext').textContent = `× ${c.monthly_months} month${c.monthly_months==1?'':'s'}`;
+      const cards = document.getElementById('paymentCards');
+      // Determine grid columns
+      const count = 1 + (hasMonthly?1:0) + (hasSub?1:0);
+      cards.style.gridTemplateColumns = count === 3 ? '1fr 1fr 1fr' : count === 2 ? '1fr 1fr' : '1fr';
+
+      // One-time card (always)
+      cards.innerHTML = `
+        <div id="choiceOnetime" onclick="selectPaymentPlan('onetime')" style="cursor:pointer;border-radius:14px;padding:18px 16px;border:2px solid rgba(74,222,128,0.5);background:rgba(74,222,128,0.08);transition:all 0.2s">
+          <div style="font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Pay in Full</div>
+          <div style="font-size:1.55rem;font-weight:800;color:#4ade80;line-height:1">${fmt(c.amount)}</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:6px">One single payment — best value</div>
+          <div id="onetimeCheck" style="margin-top:10px;display:flex;align-items:center;gap:6px;font-size:0.75rem;font-weight:700;color:#4ade80">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Selected
+          </div>
+        </div>
+        ${hasMonthly ? `
+        <div id="choiceMonthly" onclick="selectPaymentPlan('monthly')" style="cursor:pointer;border-radius:14px;padding:18px 16px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);transition:all 0.2s">
+          <div style="font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Monthly Plan</div>
+          <div style="font-size:0.95rem;font-weight:700;color:#60a5fa;line-height:1.5">${fmt(c.initial_payment)} initial<br/><span style="font-size:1.35rem">${fmt(c.monthly_amount)}/mo</span></div>
+          <div style="font-size:0.73rem;color:rgba(255,255,255,0.4);margin-top:6px">× ${c.monthly_months} month${c.monthly_months==1?'':'s'} — fixed term</div>
+          <div id="monthlyCheck" style="margin-top:10px;display:none;align-items:center;gap:6px;font-size:0.75rem;font-weight:700;color:#60a5fa">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Selected
+          </div>
+        </div>` : ''}
+        ${hasSub ? `
+        <div id="choiceSub" onclick="selectPaymentPlan('subscription')" style="cursor:pointer;border-radius:14px;padding:18px 16px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);transition:all 0.2s">
+          <div style="font-size:0.68rem;font-weight:700;color:rgba(167,139,250,0.7);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Subscription ∞</div>
+          <div style="font-size:0.95rem;font-weight:700;color:#a78bfa;line-height:1.5">${fmt(c.sub_initial)} setup<br/><span style="font-size:1.35rem">${fmt(c.sub_amount)}/mo</span></div>
+          <div style="font-size:0.73rem;color:rgba(255,255,255,0.4);margin-top:6px">Ongoing — hosting, updates &amp; more</div>
+          <div id="subCheck" style="margin-top:10px;display:none;align-items:center;gap:6px;font-size:0.75rem;font-weight:700;color:#a78bfa">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Selected
+          </div>
+        </div>` : ''}`;
+
+      // If subscription, show what's included below the cards
+      if (hasSub && c.sub_includes && c.sub_includes.trim()) {
+        window._subIncludes = c.sub_includes;
+      }
     } else {
       document.getElementById('amount').textContent = fmt(c.amount);
     }
@@ -362,22 +380,32 @@
   let chosenPlan = 'onetime';
   function selectPaymentPlan(type) {
     chosenPlan = type;
-    const onCard = document.getElementById('choiceOnetime');
-    const moCard = document.getElementById('choiceMonthly');
-    if (type === 'onetime') {
-      onCard.style.border = '2px solid rgba(74,222,128,0.5)';
-      onCard.style.background = 'rgba(74,222,128,0.08)';
-      moCard.style.border = '2px solid rgba(255,255,255,0.1)';
-      moCard.style.background = 'rgba(255,255,255,0.03)';
-      document.getElementById('onetimeCheck').style.display = 'flex';
-      document.getElementById('monthlyCheck').style.display = 'none';
-    } else {
-      moCard.style.border = '2px solid rgba(96,165,250,0.5)';
-      moCard.style.background = 'rgba(96,165,250,0.08)';
-      onCard.style.border = '2px solid rgba(255,255,255,0.1)';
-      onCard.style.background = 'rgba(255,255,255,0.03)';
-      document.getElementById('monthlyCheck').style.display = 'flex';
-      document.getElementById('onetimeCheck').style.display = 'none';
+    const cards = { onetime: document.getElementById('choiceOnetime'), monthly: document.getElementById('choiceMonthly'), subscription: document.getElementById('choiceSub') };
+    const checks = { onetime: document.getElementById('onetimeCheck'), monthly: document.getElementById('monthlyCheck'), subscription: document.getElementById('subCheck') };
+    const borders = { onetime: 'rgba(74,222,128,0.5)', monthly: 'rgba(96,165,250,0.5)', subscription: 'rgba(167,139,250,0.5)' };
+    const bgs = { onetime: 'rgba(74,222,128,0.08)', monthly: 'rgba(96,165,250,0.08)', subscription: 'rgba(167,139,250,0.08)' };
+    ['onetime','monthly','subscription'].forEach(t => {
+      if (!cards[t]) return;
+      const selected = t === type;
+      cards[t].style.border = `2px solid ${selected ? borders[t] : 'rgba(255,255,255,0.1)'}`;
+      cards[t].style.background = selected ? bgs[t] : 'rgba(255,255,255,0.03)';
+      if (checks[t]) checks[t].style.display = selected ? 'flex' : 'none';
+    });
+
+    // Show/hide subscription includes section
+    const existingIncludes = document.getElementById('subIncludesSection');
+    if (existingIncludes) existingIncludes.remove();
+    if (type === 'subscription' && window._subIncludes) {
+      const section = document.createElement('div');
+      section.id = 'subIncludesSection';
+      section.style.cssText = 'margin-top:16px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.2);border-radius:12px;padding:16px 18px';
+      section.innerHTML = `<div style="font-size:0.68rem;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">What's Included in Your Subscription</div>
+        <div style="display:flex;flex-direction:column;gap:8px">${window._subIncludes.split('\n').map(s=>s.trim()).filter(Boolean).map(s=>`
+          <div style="display:flex;align-items:center;gap:10px;font-size:0.85rem;color:rgba(255,255,255,0.8)">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#a78bfa" stroke-width="2.5" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg>${s}
+          </div>`).join('')}
+        </div>`;
+      document.getElementById('paymentChoiceSection').appendChild(section);
     }
   }
 
