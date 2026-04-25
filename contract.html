@@ -266,7 +266,8 @@
     document.getElementById('loadingCard').style.display = 'none';
     document.getElementById('contractCard').style.display = 'block';
 
-    document.getElementById('contractId').textContent = `Agreement #${c.id} · ${new Date(c.created_at).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`;
+    const refCode = `REVAMP-${String(c.id).padStart(4,'0')}-RV`;
+    document.getElementById('contractId').textContent = `${refCode}  ·  ${new Date(c.created_at).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`;
     document.getElementById('clientName').textContent = c.client_name;
     document.getElementById('clientEmail').textContent = c.client_email;
     document.getElementById('amount').textContent = '$' + parseFloat(c.amount||0).toLocaleString('en-US',{minimumFractionDigits:2});

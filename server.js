@@ -98,7 +98,7 @@ function buildContractPdf(contract) {
       .text('SERVICE AGREEMENT', L, 52, { lineBreak: false });
     const dateStr = new Date(contract.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     doc.fontSize(8.5).fillColor('rgba(255,255,255,0.55)').font('Helvetica')
-      .text(`Contract #${contract.id}   ·   ${dateStr}`, L, 52, { align: 'right', width: CW, lineBreak: false });
+      .text(`REVAMP-${String(contract.id).padStart(4,'0')}-RV   ·   ${dateStr}`, L, 52, { align: 'right', width: CW, lineBreak: false });
 
     // ── Helpers ──
     let y = 108;
