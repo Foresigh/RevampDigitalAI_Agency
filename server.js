@@ -146,19 +146,39 @@ function buildContractPdf(contract) {
     // ── Payment ──
     y += 6;
     section('PAYMENT');
-    // Total amount highlight box
-    const isMonthly = contract.payment_type === 'monthly';
-    const boxY = y;
-    doc.rect(L, boxY, CW, 34).fillColor('#f6fffc').stroke();
-    doc.fontSize(8.5).fillColor(lgray).font('Helvetica')
-      .text(isMonthly ? 'MONTHLY AMOUNT' : 'TOTAL AGREED AMOUNT', L + 12, boxY + 8, { lineBreak: false });
-    doc.fontSize(15).fillColor('#15803d').font('Helvetica-Bold')
-      .text(`$${parseFloat(contract.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}${isMonthly ? '/mo' : ''}`, L + 12, boxY + 18, { lineBreak: false });
-    if (isMonthly) {
-      doc.fontSize(8).fillColor('#15803d').font('Helvetica-Bold')
-        .text('MONTHLY PLAN', L + CW - 80, boxY + 14, { lineBreak: false });
+
+    const chosenPlan = contract.chosen_payment_type || 'onetime';
+    const hasMonthlyOption = parseFloat(contract.monthly_amount) > 0;
+    const showMonthly = hasMonthlyOption && chosenPlan === 'monthly';
+    const fmt = n => `$${parseFloat(n||0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+
+    if (showMonthly) {
+      // Monthly plan: initial payment box + monthly box side by side
+      const halfW = (CW - 8) / 2;
+      const boxY = y;
+      doc.rect(L, boxY, halfW, 38).fillColor('#f6fffc').stroke();
+      doc.fontSize(8).fillColor(lgray).font('Helvetica').text('INITIAL PAYMENT (DUE TODAY)', L + 8, boxY + 7, { lineBreak: false });
+      doc.fontSize(14).fillColor('#15803d').font('Helvetica-Bold').text(fmt(contract.initial_payment), L + 8, boxY + 18, { lineBreak: false });
+      doc.rect(L + halfW + 8, boxY, halfW, 38).fillColor('#f0f9ff').stroke();
+      doc.fontSize(8).fillColor(lgray).font('Helvetica').text('THEN MONTHLY', L + halfW + 16, boxY + 7, { lineBreak: false });
+      doc.fontSize(14).fillColor('#1d4ed8').font('Helvetica-Bold').text(`${fmt(contract.monthly_amount)}/mo`, L + halfW + 16, boxY + 18, { lineBreak: false });
+      doc.fontSize(7.5).fillColor('#1d4ed8').font('Helvetica').text(`× ${contract.monthly_months} month${contract.monthly_months==1?'':'s'}`, L + halfW + 16, boxY + 33, { lineBreak: false });
+      y = boxY + 48;
+
+      // Chosen badge
+      doc.fontSize(8).fillColor('#15803d').font('Helvetica-Bold').text('✓ CLIENT SELECTED: MONTHLY PLAN', L, y, { lineBreak: false });
+      y += 16;
+    } else {
+      // One-time payment box
+      const boxY = y;
+      doc.rect(L, boxY, CW, 34).fillColor('#f6fffc').stroke();
+      doc.fontSize(8.5).fillColor(lgray).font('Helvetica').text('TOTAL AGREED AMOUNT', L + 12, boxY + 8, { lineBreak: false });
+      doc.fontSize(15).fillColor('#15803d').font('Helvetica-Bold').text(fmt(contract.amount), L + 12, boxY + 18, { lineBreak: false });
+      if (hasMonthlyOption) {
+        doc.fontSize(8).fillColor('#15803d').font('Helvetica-Bold').text('✓ CLIENT SELECTED: PAY IN FULL', L + CW - 170, boxY + 14, { lineBreak: false });
+      }
+      y = boxY + 44;
     }
-    y = boxY + 44;
 
     if (contract.payment_schedule && contract.payment_schedule.trim()) {
       y += 4;
@@ -357,6 +377,10 @@ async function initDb() {
   `);
   await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS payment_schedule TEXT`);
   await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS payment_type TEXT DEFAULT 'onetime'`);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS initial_payment NUMERIC(10,2) DEFAULT 0`);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS monthly_amount NUMERIC(10,2) DEFAULT 0`);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS monthly_months INT DEFAULT 0`);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS chosen_payment_type TEXT`);
 
   console.log('[db] tables ready');
 }
@@ -1018,7 +1042,8 @@ app.get('/api/contracts', requireAuth, async (req, res) => {
 
 // ── API: create contract (admin) ──
 app.post('/api/contracts', requireAuth, async (req, res) => {
-  const { client_name, client_email, services, amount, payment_schedule, payment_type, start_date, notes, send_now } = req.body;
+  const { client_name, client_email, services, amount, payment_schedule, payment_type,
+          initial_payment, monthly_amount, monthly_months, start_date, notes, send_now } = req.body;
   if (!client_name || !client_email) return res.status(400).json({ error: 'Client name and email required' });
   const token = crypto.randomBytes(24).toString('hex');
   const expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -1026,10 +1051,13 @@ app.post('/api/contracts', requireAuth, async (req, res) => {
   const link = `${baseUrl}/contract/${token}`;
   try {
     const r = await pool.query(
-      `INSERT INTO contracts (token, client_name, client_email, services, amount, payment_schedule, payment_type, start_date, notes, status, expires_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'draft',$10) RETURNING *`,
+      `INSERT INTO contracts (token, client_name, client_email, services, amount, payment_schedule, payment_type,
+                             initial_payment, monthly_amount, monthly_months, start_date, notes, status, expires_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'draft',$13) RETURNING *`,
       [token, client_name, client_email, services||'', parseFloat(amount)||0,
-       payment_schedule||'', payment_type||'onetime', start_date||null, notes||'', expires_at]
+       payment_schedule||'', payment_type||'onetime',
+       parseFloat(initial_payment)||0, parseFloat(monthly_amount)||0, parseInt(monthly_months)||0,
+       start_date||null, notes||'', expires_at]
     );
     const contract = r.rows[0];
     let emailSent = false;
@@ -1114,7 +1142,7 @@ app.get('/api/contract/:token', async (req, res) => {
 
 // ── API: sign contract (public) ──
 app.post('/api/contract/:token/sign', async (req, res) => {
-  const { signer_name } = req.body;
+  const { signer_name, chosen_payment_type } = req.body;
   if (!signer_name || signer_name.trim().length < 2)
     return res.status(400).json({ error: 'Please enter your full name to sign' });
   const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || '';
@@ -1127,14 +1155,16 @@ app.post('/api/contract/:token/sign', async (req, res) => {
     if (contract.expires_at && new Date(contract.expires_at) < new Date())
       return res.status(410).json({ error: 'Contract has expired' });
 
+    const cpt = chosen_payment_type || 'onetime';
     await pool.query(
-      `UPDATE contracts SET status='signed', signed_at=NOW(), signer_name=$1, signer_ip=$2 WHERE id=$3`,
-      [signer_name.trim(), ip, contract.id]
+      `UPDATE contracts SET status='signed', signed_at=NOW(), signer_name=$1, signer_ip=$2, chosen_payment_type=$3 WHERE id=$4`,
+      [signer_name.trim(), ip, cpt, contract.id]
     );
     contract.status = 'signed';
     contract.signed_at = new Date();
     contract.signer_name = signer_name.trim();
     contract.signer_ip = ip;
+    contract.chosen_payment_type = cpt;
 
     // Generate PDF
     let pdfBuffer;

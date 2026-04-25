@@ -817,54 +817,50 @@
             <input type="date" name="start_date" id="ct-start"/>
           </div>
 
-          <!-- Payment type toggle -->
+          <!-- Pricing -->
+          <div>
+            <label>One-time Total ($) *</label>
+            <input type="number" name="amount" id="ct-amount" placeholder="1200.00" min="0" step="0.01"/>
+          </div>
           <div class="modal-full">
-            <label>Payment Type *</label>
-            <div style="display:flex;gap:8px;margin-top:2px">
-              <button type="button" id="pt-onetime" onclick="setPaymentType('onetime')"
-                style="flex:1;padding:10px;border-radius:10px;font-size:0.82rem;font-weight:700;font-family:inherit;cursor:pointer;border:2px solid rgba(61,214,245,0.4);background:rgba(61,214,245,0.12);color:#3dd6f5;transition:all 0.2s">
-                One-time Payment
-              </button>
-              <button type="button" id="pt-monthly" onclick="setPaymentType('monthly')"
-                style="flex:1;padding:10px;border-radius:10px;font-size:0.82rem;font-weight:700;font-family:inherit;cursor:pointer;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.4);transition:all 0.2s">
-                Monthly Plan
-              </button>
-            </div>
-            <input type="hidden" name="payment_type" id="ct-payment-type" value="onetime"/>
+            <label>Payment Notes <span style="color:rgba(255,255,255,0.25);font-weight:400">(optional — e.g. 50% upfront, 50% on delivery)</span></label>
+            <textarea name="payment_schedule" id="ct-schedule" placeholder="50% deposit ($600) — due before work begins&#10;50% ($600) — due on completion" style="min-height:56px"></textarea>
           </div>
 
-          <!-- One-time fields -->
-          <div id="onetime-fields" class="modal-grid" style="grid-column:1/-1;display:grid">
-            <div>
-              <label>Total Amount ($) *</label>
-              <input type="number" name="amount" id="ct-amount" placeholder="800.00" min="0" step="0.01"/>
+          <!-- Monthly plan option -->
+          <div class="modal-full">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <input type="checkbox" id="ct-offer-monthly" onchange="toggleMonthlyOption()" style="width:16px;height:16px;accent-color:#3dd6f5;flex-shrink:0;cursor:pointer"/>
+              <label for="ct-offer-monthly" style="font-size:0.82rem;font-weight:700;color:#3dd6f5;cursor:pointer;margin-bottom:0">
+                Also offer client a monthly payment plan option
+              </label>
             </div>
-            <div class="modal-full">
-              <label>Payment Schedule <span style="color:rgba(255,255,255,0.25);font-weight:400">(optional — one line per milestone)</span></label>
-              <textarea name="payment_schedule" id="ct-schedule" placeholder="50% deposit ($400) — due before work begins&#10;50% ($400) — due on completion" style="min-height:68px"></textarea>
-            </div>
-          </div>
-
-          <!-- Monthly fields -->
-          <div id="monthly-fields" class="modal-grid" style="grid-column:1/-1;display:none;grid-template-columns:1fr 1fr;gap:14px">
-            <div>
-              <label>Monthly Amount ($) *</label>
-              <input type="number" id="ct-monthly-amount" placeholder="750.00" min="0" step="0.01" oninput="updateMonthlyPreview()"/>
-            </div>
-            <div>
-              <label>Number of Months *</label>
-              <input type="number" id="ct-monthly-months" placeholder="3" min="1" max="60" oninput="updateMonthlyPreview()"/>
-            </div>
-            <div>
-              <label>Billing Day of Month</label>
-              <input type="number" id="ct-billing-day" placeholder="1" min="1" max="28" value="1" oninput="updateMonthlyPreview()"/>
-            </div>
-            <div style="display:flex;align-items:flex-end">
-              <div id="monthly-total-preview" style="font-size:0.8rem;color:rgba(255,255,255,0.4);padding-bottom:2px">Total: —</div>
-            </div>
-            <div class="modal-full">
-              <label>Schedule Preview <span style="color:rgba(255,255,255,0.25);font-weight:400">(auto-generated — editable)</span></label>
-              <textarea id="ct-monthly-schedule" style="min-height:80px;width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(61,214,245,0.12);border-radius:10px;padding:10px 14px;color:#e8f0fe;font-size:0.84rem;font-family:inherit;outline:none;resize:vertical" placeholder="Will generate automatically…"></textarea>
+            <div id="monthly-option-fields" style="display:none;background:rgba(61,214,245,0.04);border:1px solid rgba(61,214,245,0.15);border-radius:12px;padding:16px;display:none">
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+                <div>
+                  <label style="font-size:0.74rem">Initial Payment ($) *</label>
+                  <input type="number" name="initial_payment" id="ct-initial" placeholder="300.00" min="0" step="0.01" oninput="updateMonthlyPreview()"/>
+                </div>
+                <div>
+                  <label style="font-size:0.74rem">Monthly Amount ($) *</label>
+                  <input type="number" name="monthly_amount" id="ct-monthly-amount" placeholder="250.00" min="0" step="0.01" oninput="updateMonthlyPreview()"/>
+                </div>
+                <div>
+                  <label style="font-size:0.74rem">Number of Months *</label>
+                  <input type="number" name="monthly_months" id="ct-monthly-months" placeholder="4" min="1" max="60" oninput="updateMonthlyPreview()"/>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:16px;margin-bottom:10px">
+                <div>
+                  <label style="font-size:0.74rem">Billing Day</label>
+                  <input type="number" name="billing_day" id="ct-billing-day" placeholder="1" min="1" max="28" value="1" oninput="updateMonthlyPreview()" style="width:80px"/>
+                </div>
+                <div id="monthly-total-preview" style="font-size:0.8rem;color:#3dd6f5;padding-top:18px">—</div>
+              </div>
+              <div>
+                <label style="font-size:0.74rem">Schedule Preview <span style="color:rgba(255,255,255,0.25);font-weight:400">(auto-generated — editable)</span></label>
+                <textarea id="ct-monthly-schedule" name="payment_schedule_monthly" style="min-height:72px;width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(61,214,245,0.12);border-radius:10px;padding:10px 14px;color:#e8f0fe;font-size:0.82rem;font-family:inherit;outline:none;resize:vertical" placeholder="Auto-generated…"></textarea>
+              </div>
             </div>
           </div>
 
@@ -1590,62 +1586,47 @@
   function closeContractModal() {
     document.getElementById('contractModal').classList.remove('open');
     document.body.style.overflow = '';
+    document.getElementById('contractForm').reset();
+    document.getElementById('ct-offer-monthly').checked = false;
+    document.getElementById('monthly-option-fields').style.display = 'none';
+    document.getElementById('monthly-total-preview').textContent = '—';
+    document.getElementById('ct-monthly-schedule').value = '';
   }
   function handleContractBackdropClick(e) {
     if (e.target === document.getElementById('contractModal')) closeContractModal();
   }
 
-  function setPaymentType(type) {
-    document.getElementById('ct-payment-type').value = type;
-    const onBtn = document.getElementById('pt-onetime');
-    const moBtn = document.getElementById('pt-monthly');
-    const onFields = document.getElementById('onetime-fields');
-    const moFields = document.getElementById('monthly-fields');
-    if (type === 'monthly') {
-      moBtn.style.background = 'linear-gradient(135deg,#1F7A8C,#15606e)';
-      moBtn.style.color = '#fff';
-      onBtn.style.background = 'rgba(255,255,255,0.04)';
-      onBtn.style.color = 'rgba(255,255,255,0.5)';
-      onFields.style.display = 'none';
-      moFields.style.display = 'grid';
-    } else {
-      onBtn.style.background = 'linear-gradient(135deg,#1F7A8C,#15606e)';
-      onBtn.style.color = '#fff';
-      moBtn.style.background = 'rgba(255,255,255,0.04)';
-      moBtn.style.color = 'rgba(255,255,255,0.5)';
-      onFields.style.display = 'grid';
-      moFields.style.display = 'none';
-    }
+  function toggleMonthlyOption() {
+    const checked = document.getElementById('ct-offer-monthly').checked;
+    document.getElementById('monthly-option-fields').style.display = checked ? 'block' : 'none';
+    if (checked) updateMonthlyPreview();
   }
 
   function updateMonthlyPreview() {
+    const init = parseFloat(document.getElementById('ct-initial').value) || 0;
     const amt = parseFloat(document.getElementById('ct-monthly-amount').value) || 0;
     const months = parseInt(document.getElementById('ct-monthly-months').value) || 0;
     const day = parseInt(document.getElementById('ct-billing-day').value) || 1;
     const preview = document.getElementById('monthly-total-preview');
     const scheduleTA = document.getElementById('ct-monthly-schedule');
+    const fmtAmt = n => '$' + n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
 
-    if (!amt || !months) { preview.textContent = 'Total: —'; scheduleTA.value = ''; return; }
+    if (!amt || !months) { preview.textContent = '—'; scheduleTA.value = ''; return; }
 
-    const total = amt * months;
-    preview.textContent = `Total: $${total.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
-    preview.style.color = '#3dd6f5';
+    const total = init + amt * months;
+    preview.textContent = `Total: ${fmtAmt(total)} (${fmtAmt(init)} initial + ${fmtAmt(amt)}/mo × ${months})`;
 
-    // Generate schedule lines starting from next billing date
-    const lines = [];
+    const lines = [`Initial payment: ${fmtAmt(init)} — due on signing`];
     const now = new Date();
     let year = now.getFullYear();
-    let month = now.getMonth(); // 0-indexed
-    // Move to next occurrence of billing day
+    let month = now.getMonth();
     if (now.getDate() >= day) month++;
     if (month > 11) { month = 0; year++; }
-
-    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const mn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     for (let i = 0; i < months; i++) {
-      let m = month + i;
-      let y = year + Math.floor(m / 12);
-      m = m % 12;
-      lines.push(`Payment ${i+1}: $${amt.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} — due ${monthNames[m]} ${day}, ${y}`);
+      let m = month + i, y = year + Math.floor((month + i) / 12);
+      m = (month + i) % 12;
+      lines.push(`Payment ${i+1}: ${fmtAmt(amt)} — due ${mn[m]} ${day}, ${y}`);
     }
     scheduleTA.value = lines.join('\n');
   }
@@ -1658,14 +1639,14 @@
     const data = Object.fromEntries(new FormData(e.target));
     data.send_now = document.getElementById('ct-send').checked;
 
-    const paymentType = document.getElementById('ct-payment-type').value;
-    data.payment_type = paymentType;
-    if (paymentType === 'monthly') {
-      data.amount = document.getElementById('ct-monthly-amount').value;
+    const offerMonthly = document.getElementById('ct-offer-monthly').checked;
+    if (offerMonthly) {
+      data.monthly_amount = document.getElementById('ct-monthly-amount').value;
+      data.monthly_months = document.getElementById('ct-monthly-months').value;
+      data.initial_payment = document.getElementById('ct-initial').value;
       data.payment_schedule = document.getElementById('ct-monthly-schedule').value;
-      const months = document.getElementById('ct-monthly-months').value;
-      if (months) data.payment_schedule = `Monthly Plan · ${months} month${months==1?'':'s'}\n` + data.payment_schedule;
     }
+    data.payment_type = 'client_choice';
 
     try {
       const res = await fetch('/api/contracts', {
