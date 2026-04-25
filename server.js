@@ -10,6 +10,7 @@ const Stripe     = require('stripe');
 const nodemailer = require('nodemailer');
 const PDFDocument= require('pdfkit');
 const crypto     = require('crypto');
+const { Resend } = require('resend');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -31,8 +32,26 @@ async function getSetting(key) {
   } catch { return null; }
 }
 
-// ── Email helper ──
+// ── Email helper — tries Resend first, falls back to SMTP ──
 async function sendMail({ to, subject, html, attachments }) {
+  // ── Resend (preferred — just needs RESEND_API_KEY env var) ──
+  const resendKey = process.env.RESEND_API_KEY || await getSetting('resend_api_key');
+  if (resendKey) {
+    const resend = new Resend(resendKey);
+    const fromAddr = process.env.RESEND_FROM || await getSetting('resend_from') || 'Revamp Digital <hello@gorevamp.ai>';
+    const payload = { from: fromAddr, to, subject, html };
+    if (attachments && attachments.length) {
+      payload.attachments = attachments.map(a => ({
+        filename: a.filename,
+        content: a.content.toString('base64'),
+      }));
+    }
+    const { error } = await resend.emails.send(payload);
+    if (error) throw new Error(error.message || JSON.stringify(error));
+    return true;
+  }
+
+  // ── SMTP fallback ──
   const host = process.env.SMTP_HOST || await getSetting('smtp_host');
   const port = parseInt(process.env.SMTP_PORT || await getSetting('smtp_port') || '587');
   const user = process.env.SMTP_USER || await getSetting('smtp_user');
@@ -40,8 +59,7 @@ async function sendMail({ to, subject, html, attachments }) {
   const from = process.env.SMTP_FROM || await getSetting('smtp_from') || `"Revamp Digital" <${user}>`;
 
   if (!host || !user || !pass) {
-    console.warn('[mail] SMTP not configured — skipping email');
-    return false;
+    throw new Error('No email provider configured. Add RESEND_API_KEY to Railway environment variables.');
   }
   const transporter = nodemailer.createTransport({ host, port, secure: port === 465, auth: { user, pass } });
   await transporter.sendMail({ from, to, subject, html, attachments });

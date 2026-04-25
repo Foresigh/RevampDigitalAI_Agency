@@ -562,44 +562,72 @@
         <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(61,214,245,0.08)">
           <div class="settings-card-title" style="margin-bottom:16px">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            Email (SMTP) — for Contract Signing Emails
+            Email — for Contract Signing &amp; Notifications
             <span id="smtpStatusPill" class="status-pill inactive" style="margin-left:8px">Not Configured</span>
           </div>
-          <p style="font-size:0.78rem;color:rgba(255,255,255,0.38);margin-bottom:16px;line-height:1.6">Required for sending contract signing links and signed PDF copies to clients. Use Gmail App Password or any SMTP provider.</p>
+
+          <!-- Resend (recommended) -->
+          <div style="background:rgba(61,214,245,0.04);border:1px solid rgba(61,214,245,0.15);border-radius:12px;padding:18px 20px;margin-bottom:20px">
+            <div style="font-size:0.78rem;font-weight:700;color:#3dd6f5;margin-bottom:8px">⚡ Recommended — Resend.com (free, 3,000 emails/month)</div>
+            <p style="font-size:0.76rem;color:rgba(255,255,255,0.45);margin-bottom:14px;line-height:1.6">Easiest setup — just an API key. No SMTP, no app passwords. Sign up free at resend.com, verify your domain, copy your key below.</p>
+            <div class="settings-grid">
+              <div class="settings-field settings-full">
+                <label class="settings-label">Resend API Key</label>
+                <input class="settings-input" id="set-resend-key" type="password" placeholder="re_••••••••••••••••••••••••"/>
+                <div class="settings-hint">From resend.com → API Keys → Create API Key</div>
+              </div>
+              <div class="settings-field settings-full">
+                <label class="settings-label">From Address <span>(must match your verified domain on Resend)</span></label>
+                <input class="settings-input" id="set-resend-from" type="text" placeholder="Revamp Digital &lt;hello@gorevamp.ai&gt;"/>
+              </div>
+            </div>
+            <div class="settings-guide" style="margin-top:12px">
+              <h4>🚀 3-minute Resend setup</h4>
+              <ol>
+                <li>Go to <code>resend.com</code> → Sign up free</li>
+                <li>Add domain → add the DNS records to your domain (same place you set up gorevamp.ai)</li>
+                <li>Create an API Key → paste it above · Set From: <code>Revamp Digital &lt;hello@gorevamp.ai&gt;</code></li>
+                <li>Click Save below</li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- Admin email -->
           <div class="settings-grid">
-            <div class="settings-field">
-              <label class="settings-label">SMTP Host</label>
-              <input class="settings-input" id="set-smtp-host" type="text" placeholder="smtp.gmail.com"/>
-            </div>
-            <div class="settings-field">
-              <label class="settings-label">SMTP Port</label>
-              <input class="settings-input" id="set-smtp-port" type="number" placeholder="587"/>
-            </div>
-            <div class="settings-field">
-              <label class="settings-label">SMTP Username</label>
-              <input class="settings-input" id="set-smtp-user" type="text" placeholder="you@gmail.com"/>
-            </div>
-            <div class="settings-field">
-              <label class="settings-label">SMTP Password / App Password</label>
-              <input class="settings-input" id="set-smtp-pass" type="password" placeholder="••••••••••••••••"/>
-            </div>
-            <div class="settings-field settings-full">
-              <label class="settings-label">From Address <span>(shown to clients)</span></label>
-              <input class="settings-input" id="set-smtp-from" type="text" placeholder='"Revamp Digital" &lt;hello@gorevamp.ai&gt;'/>
-            </div>
             <div class="settings-field settings-full">
               <label class="settings-label">Admin Notification Email <span>(receives copy of signed contracts)</span></label>
               <input class="settings-input" id="set-admin-email" type="email" placeholder="feyisa.berisa@gorevamp.ai"/>
             </div>
           </div>
-          <div class="settings-guide" style="margin-top:16px">
-            <h4>📧 Gmail Setup (easiest)</h4>
-            <ol>
-              <li>Go to <code>myaccount.google.com</code> → Security → 2-Step Verification → App passwords</li>
-              <li>Create an App Password for "Mail" — copy the 16-character code</li>
-              <li>Host: <code>smtp.gmail.com</code> · Port: <code>587</code> · Username: your Gmail · Password: the app password</li>
-            </ol>
-          </div>
+
+          <!-- SMTP fallback (collapsed) -->
+          <details style="margin-top:16px">
+            <summary style="font-size:0.76rem;color:rgba(255,255,255,0.35);cursor:pointer;user-select:none;list-style:none">▶ Advanced — SMTP fallback (Gmail / custom server)</summary>
+            <div style="margin-top:14px">
+              <div class="settings-grid">
+                <div class="settings-field">
+                  <label class="settings-label">SMTP Host</label>
+                  <input class="settings-input" id="set-smtp-host" type="text" placeholder="smtp.gmail.com"/>
+                </div>
+                <div class="settings-field">
+                  <label class="settings-label">SMTP Port</label>
+                  <input class="settings-input" id="set-smtp-port" type="number" placeholder="587"/>
+                </div>
+                <div class="settings-field">
+                  <label class="settings-label">SMTP Username</label>
+                  <input class="settings-input" id="set-smtp-user" type="text" placeholder="you@gmail.com"/>
+                </div>
+                <div class="settings-field">
+                  <label class="settings-label">SMTP Password / App Password</label>
+                  <input class="settings-input" id="set-smtp-pass" type="password" placeholder="••••••••••••••••"/>
+                </div>
+                <div class="settings-field settings-full">
+                  <label class="settings-label">From Address</label>
+                  <input class="settings-input" id="set-smtp-from" type="text" placeholder='"Revamp Digital" &lt;hello@gorevamp.ai&gt;'/>
+                </div>
+              </div>
+            </div>
+          </details>
         </div>
 
         <div>
@@ -1242,8 +1270,10 @@
 
   function updateSmtpStatus(s) {
     const pill = document.getElementById('smtpStatusPill');
-    if (s.smtp_host && s.smtp_user) {
-      pill.className = 'status-pill active'; pill.textContent = 'Configured';
+    if (s.resend_api_key) {
+      pill.className = 'status-pill active'; pill.textContent = 'Resend ✓';
+    } else if (s.smtp_host && s.smtp_user) {
+      pill.className = 'status-pill active'; pill.textContent = 'SMTP ✓';
     } else {
       pill.className = 'status-pill inactive'; pill.textContent = 'Not Configured';
     }
@@ -1260,6 +1290,8 @@
       if (s.plan_website_revamp_url) document.getElementById('set-plan-revamp').value = s.plan_website_revamp_url;
       if (s.plan_growth_monthly_url) document.getElementById('set-plan-growth').value = s.plan_growth_monthly_url;
       if (s.plan_premium_monthly_url) document.getElementById('set-plan-premium').value = s.plan_premium_monthly_url;
+      if (s.resend_api_key) document.getElementById('set-resend-key').placeholder = '••••••••••••••••••••• (saved)';
+      if (s.resend_from) document.getElementById('set-resend-from').value = s.resend_from;
       if (s.smtp_host) document.getElementById('set-smtp-host').value = s.smtp_host;
       if (s.smtp_port) document.getElementById('set-smtp-port').value = s.smtp_port;
       if (s.smtp_user) document.getElementById('set-smtp-user').value = s.smtp_user;
@@ -1285,7 +1317,11 @@
     body.plan_growth_monthly_url = document.getElementById('set-plan-growth').value.trim();
     body.plan_premium_monthly_url = document.getElementById('set-plan-premium').value.trim();
     body.payments_enabled = 'true';
-    // SMTP
+    // Resend
+    const resendKey = document.getElementById('set-resend-key').value.trim();
+    if (resendKey) body.resend_api_key = resendKey;
+    body.resend_from = document.getElementById('set-resend-from').value.trim();
+    // SMTP fallback
     const smtpPass = document.getElementById('set-smtp-pass').value.trim();
     body.smtp_host = document.getElementById('set-smtp-host').value.trim();
     body.smtp_port = document.getElementById('set-smtp-port').value.trim() || '587';
@@ -1307,8 +1343,8 @@
       document.getElementById('set-stripe-webhook').value = '';
       if (secretVal) document.getElementById('set-stripe-secret').placeholder = '••••••••••••••••••••• (saved)';
       if (webhookVal) document.getElementById('set-stripe-webhook').placeholder = '••••••••••••••••••••• (saved)';
-      if (smtpPass) document.getElementById('set-smtp-pass').value = '';
-      if (smtpPass) document.getElementById('set-smtp-pass').placeholder = '••••••••••••••••••••• (saved)';
+      if (resendKey) { document.getElementById('set-resend-key').value = ''; document.getElementById('set-resend-key').placeholder = '••••••••••••••••••••• (saved)'; }
+      if (smtpPass) { document.getElementById('set-smtp-pass').value = ''; document.getElementById('set-smtp-pass').placeholder = '••••••••••••••••••••• (saved)'; }
       updateStripeStatus(body);
       updateSmtpStatus(body);
     } catch (e) {
