@@ -485,6 +485,16 @@ app.post('/api/stripe-contracts-webhook', express.raw({ type: 'application/json'
         [session.id, session.subscription || null, contractId]
       );
       console.log(`[contract payment] paid — contract #${contractId}`);
+
+      // Apply cancel_at for fixed-term monthly plans
+      const months = parseInt(session.metadata?.monthly_months);
+      if (session.subscription && months > 0) {
+        const stripeKey2 = process.env.STRIPE_SECRET_KEY || await getSetting('stripe_secret_key');
+        const stripe2 = Stripe(stripeKey2);
+        const cancelAt = Math.floor(Date.now() / 1000) + (months * 30 * 24 * 60 * 60);
+        await stripe2.subscriptions.update(session.subscription, { cancel_at: cancelAt });
+        console.log(`[contract payment] set cancel_at ${months} months — sub ${session.subscription}`);
+      }
     }
 
     if (event.type === 'invoice.payment_failed') {
@@ -1357,11 +1367,12 @@ app.post('/api/contract/:token/checkout', async (req, res) => {
         quantity: 1,
       });
     }
-    const cancelAt = Math.floor(Date.now() / 1000) + ((parseInt(contract.monthly_months) || 1) * 30 * 24 * 60 * 60);
+    // cancel_at is set via webhook after subscription created (not supported in Checkout session params)
     sessionParams.subscription_data = {
-      cancel_at: cancelAt,
       description: `Contract REVAMP-${String(contract.id).padStart(4,'0')}-RV · ${contract.monthly_months} months`,
     };
+    // Store months in metadata so webhook can apply cancel_at
+    sessionParams.metadata.monthly_months = String(parseInt(contract.monthly_months) || 1);
   } else {
     // Pay in full — one-time payment
     sessionParams.mode = 'payment';
