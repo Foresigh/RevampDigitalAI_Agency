@@ -866,30 +866,31 @@
 
           <!-- Subscription plan option -->
           <div class="modal-full">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-              <input type="checkbox" id="ct-offer-sub" onchange="toggleSubOption()" style="width:16px;height:16px;accent-color:#a78bfa;flex-shrink:0;cursor:pointer"/>
-              <label for="ct-offer-sub" style="font-size:0.82rem;font-weight:700;color:#a78bfa;cursor:pointer;margin-bottom:0">
-                Also offer a subscription plan (ongoing — hosting, updates &amp; new features forever)
-              </label>
+            <div onclick="document.getElementById('ct-offer-sub').click()" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(167,139,250,0.06);border:2px solid rgba(167,139,250,0.25);border-radius:12px;transition:background 0.2s" onmouseover="this.style.background='rgba(167,139,250,0.1)'" onmouseout="this.style.background='rgba(167,139,250,0.06)'">
+              <input type="checkbox" id="ct-offer-sub" onchange="toggleSubOption();event.stopPropagation()" onclick="event.stopPropagation()" style="width:18px;height:18px;accent-color:#a78bfa;flex-shrink:0;cursor:pointer"/>
+              <div>
+                <div style="font-size:0.84rem;font-weight:700;color:#a78bfa">∞ Offer Subscription Plan</div>
+                <div style="font-size:0.74rem;color:rgba(255,255,255,0.45);margin-top:2px">Client pays ongoing monthly — includes hosting, updates &amp; new features forever</div>
+              </div>
             </div>
-            <div id="sub-option-fields" style="display:none;background:rgba(167,139,250,0.04);border:1px solid rgba(167,139,250,0.2);border-radius:12px;padding:16px">
+            <div id="sub-option-fields" style="display:none;background:rgba(167,139,250,0.04);border:1px solid rgba(167,139,250,0.2);border-radius:0 0 12px 12px;border-top:none;padding:16px">
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
                 <div>
-                  <label style="font-size:0.74rem">Initial / Setup Fee ($)</label>
+                  <label style="font-size:0.74rem">Setup / Initial Fee ($)</label>
                   <input type="number" id="ct-sub-initial" placeholder="200.00" min="0" step="0.01"/>
                 </div>
                 <div>
-                  <label style="font-size:0.74rem">Monthly Subscription ($) *</label>
+                  <label style="font-size:0.74rem">Monthly Amount ($) *</label>
                   <input type="number" id="ct-sub-amount" placeholder="150.00" min="0" step="0.01"/>
                 </div>
               </div>
               <div>
                 <label style="font-size:0.74rem">What's Included <span style="color:rgba(255,255,255,0.25);font-weight:400">(one per line)</span></label>
-                <textarea id="ct-sub-includes" style="min-height:80px;width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(167,139,250,0.2);border-radius:10px;padding:10px 14px;color:#e8f0fe;font-size:0.82rem;font-family:inherit;outline:none;resize:vertical">Website Hosting &amp; SSL Certificate
-Monthly Content &amp; Feature Updates
-Priority Support &amp; Bug Fixes
+                <textarea id="ct-sub-includes" style="min-height:80px;width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(167,139,250,0.2);border-radius:10px;padding:10px 14px;color:#e8f0fe;font-size:0.82rem;font-family:inherit;outline:none;resize:vertical">Website Hosting & SSL Certificate
+Monthly Content & Feature Updates
+Priority Support & Bug Fixes
 Google Business Profile Management
-New Page &amp; Section Additions</textarea>
+New Page & Section Additions</textarea>
               </div>
             </div>
           </div>
@@ -1643,7 +1644,10 @@ New Page &amp; Section Additions</textarea>
 
   function toggleSubOption() {
     const checked = document.getElementById('ct-offer-sub').checked;
-    document.getElementById('sub-option-fields').style.display = checked ? 'block' : 'none';
+    const fields = document.getElementById('sub-option-fields');
+    const header = document.getElementById('ct-offer-sub').closest('[onclick]');
+    fields.style.display = checked ? 'block' : 'none';
+    if (header) header.style.borderRadius = checked ? '12px 12px 0 0' : '12px';
   }
 
   function updateMonthlyPreview() {

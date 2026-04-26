@@ -116,7 +116,13 @@
 
 <!-- Top bar -->
 <div class="topbar">
-  <a class="topbar-logo" href="/">Revamp <span>Digital</span></a>
+  <div style="display:flex;align-items:center;gap:16px">
+    <a href="/" style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:rgba(255,255,255,0.4);text-decoration:none;padding:6px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Home
+    </a>
+    <a class="topbar-logo" href="/">Revamp <span>Digital</span></a>
+  </div>
   <div class="secure-badge">
     <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
     Secure &amp; Encrypted
