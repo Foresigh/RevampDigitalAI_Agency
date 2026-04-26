@@ -537,9 +537,14 @@
             <div class="settings-hint">From Stripe Dashboard → Developers → API Keys. Keep this secret — never share it.</div>
           </div>
           <div class="settings-field settings-full">
-            <label class="settings-label">Stripe Webhook Secret <span>(optional — for order tracking)</span></label>
+            <label class="settings-label">Stripe Webhook Secret <span>(optional — for order/pricing page tracking)</span></label>
             <input class="settings-input" id="set-stripe-webhook" type="password" placeholder="whsec_••••••••"/>
-            <div class="settings-hint">From Stripe Dashboard → Developers → Webhooks → your endpoint → Signing secret.</div>
+            <div class="settings-hint">From Stripe Dashboard → Developers → Webhooks → endpoint for <code>gorevamp.ai/api/stripe-webhook</code> → Signing secret.</div>
+          </div>
+          <div class="settings-field settings-full">
+            <label class="settings-label">Contract Payment Webhook Secret <span>(for contract invoice tracking)</span></label>
+            <input class="settings-input" id="set-stripe-contract-webhook" type="password" placeholder="whsec_••••••••"/>
+            <div class="settings-hint">From Stripe Dashboard → Developers → Webhooks → endpoint for <code>gorevamp.ai/api/stripe-contracts-webhook</code> → Signing secret. Add events: <code>checkout.session.completed</code> &amp; <code>invoice.payment_failed</code>.</div>
           </div>
         </div>
 
@@ -1368,6 +1373,7 @@ New Page & Section Additions</textarea>
       const s = await res.json();
       if (s.stripe_secret_key) document.getElementById('set-stripe-secret').placeholder = '••••••••••••••••••••• (saved)';
       if (s.stripe_webhook_secret) document.getElementById('set-stripe-webhook').placeholder = '••••••••••••••••••••• (saved)';
+      if (s.stripe_contract_webhook_secret) document.getElementById('set-stripe-contract-webhook').placeholder = '••••••••••••••••••••• (saved)';
       if (s.plan_website_revamp_url) document.getElementById('set-plan-revamp').value = s.plan_website_revamp_url;
       if (s.plan_growth_monthly_url) document.getElementById('set-plan-growth').value = s.plan_growth_monthly_url;
       if (s.plan_premium_monthly_url) document.getElementById('set-plan-premium').value = s.plan_premium_monthly_url;
@@ -1392,8 +1398,10 @@ New Page & Section Additions</textarea>
     const body = {};
     const secretVal = document.getElementById('set-stripe-secret').value.trim();
     const webhookVal = document.getElementById('set-stripe-webhook').value.trim();
+    const contractWebhookVal = document.getElementById('set-stripe-contract-webhook').value.trim();
     if (secretVal) body.stripe_secret_key = secretVal;
     if (webhookVal) body.stripe_webhook_secret = webhookVal;
+    if (contractWebhookVal) body.stripe_contract_webhook_secret = contractWebhookVal;
     body.plan_website_revamp_url = document.getElementById('set-plan-revamp').value.trim();
     body.plan_growth_monthly_url = document.getElementById('set-plan-growth').value.trim();
     body.plan_premium_monthly_url = document.getElementById('set-plan-premium').value.trim();
@@ -1422,8 +1430,10 @@ New Page & Section Additions</textarea>
       // Clear secret fields after save (security)
       document.getElementById('set-stripe-secret').value = '';
       document.getElementById('set-stripe-webhook').value = '';
+      document.getElementById('set-stripe-contract-webhook').value = '';
       if (secretVal) document.getElementById('set-stripe-secret').placeholder = '••••••••••••••••••••• (saved)';
       if (webhookVal) document.getElementById('set-stripe-webhook').placeholder = '••••••••••••••••••••• (saved)';
+      if (contractWebhookVal) document.getElementById('set-stripe-contract-webhook').placeholder = '••••••••••••••••••••• (saved)';
       if (resendKey) { document.getElementById('set-resend-key').value = ''; document.getElementById('set-resend-key').placeholder = '••••••••••••••••••••• (saved)'; }
       if (smtpPass) { document.getElementById('set-smtp-pass').value = ''; document.getElementById('set-smtp-pass').placeholder = '••••••••••••••••••••• (saved)'; }
       updateStripeStatus(body);

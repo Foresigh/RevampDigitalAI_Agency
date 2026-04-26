@@ -452,7 +452,7 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
 // ── Stripe webhook — contract payments ──
 app.post('/api/stripe-contracts-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const stripeKey = process.env.STRIPE_SECRET_KEY || await getSetting('stripe_secret_key');
-  const webhookSecret = process.env.STRIPE_CONTRACT_WEBHOOK_SECRET;
+  const webhookSecret = process.env.STRIPE_CONTRACT_WEBHOOK_SECRET || await getSetting('stripe_contract_webhook_secret');
   if (!stripeKey) return res.status(400).json({ error: 'Stripe not configured' });
 
   let event;
@@ -1045,7 +1045,7 @@ app.get('/api/settings', requireAuth, async (req, res) => {
 // ── API: save settings (admin) ──
 app.post('/api/settings', requireAuth, async (req, res) => {
   const allowed = [
-    'stripe_secret_key', 'stripe_webhook_secret',
+    'stripe_secret_key', 'stripe_webhook_secret', 'stripe_contract_webhook_secret',
     'plan_website_revamp_url', 'plan_growth_monthly_url', 'plan_premium_monthly_url',
     'payments_enabled'
   ];
