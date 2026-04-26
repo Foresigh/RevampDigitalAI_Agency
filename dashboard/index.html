@@ -532,6 +532,11 @@
 
         <div class="settings-grid">
           <div class="settings-field settings-full">
+            <label class="settings-label">Stripe Publishable Key</label>
+            <input class="settings-input" id="set-stripe-publishable" type="text" placeholder="pk_live_••••  or  pk_test_••••"/>
+            <div class="settings-hint">From Stripe Dashboard → Developers → API Keys. This one is safe to expose — used in the browser.</div>
+          </div>
+          <div class="settings-field settings-full">
             <label class="settings-label">Stripe Secret Key <span>(for webhook verification)</span></label>
             <input class="settings-input" id="set-stripe-secret" type="password" placeholder="sk_live_••••  or  sk_test_••••"/>
             <div class="settings-hint">From Stripe Dashboard → Developers → API Keys. Keep this secret — never share it.</div>
@@ -1371,6 +1376,7 @@ New Page & Section Additions</textarea>
       const res = await apiFetch('/api/settings');
       if (!res.ok) return;
       const s = await res.json();
+      if (s.stripe_publishable_key) document.getElementById('set-stripe-publishable').value = s.stripe_publishable_key;
       if (s.stripe_secret_key) document.getElementById('set-stripe-secret').placeholder = '••••••••••••••••••••• (saved)';
       if (s.stripe_webhook_secret) document.getElementById('set-stripe-webhook').placeholder = '••••••••••••••••••••• (saved)';
       if (s.stripe_contract_webhook_secret) document.getElementById('set-stripe-contract-webhook').placeholder = '••••••••••••••••••••• (saved)';
@@ -1396,9 +1402,11 @@ New Page & Section Additions</textarea>
     btn.disabled = true;
 
     const body = {};
+    const publishableVal = document.getElementById('set-stripe-publishable').value.trim();
     const secretVal = document.getElementById('set-stripe-secret').value.trim();
     const webhookVal = document.getElementById('set-stripe-webhook').value.trim();
     const contractWebhookVal = document.getElementById('set-stripe-contract-webhook').value.trim();
+    if (publishableVal) body.stripe_publishable_key = publishableVal;
     if (secretVal) body.stripe_secret_key = secretVal;
     if (webhookVal) body.stripe_webhook_secret = webhookVal;
     if (contractWebhookVal) body.stripe_contract_webhook_secret = contractWebhookVal;

@@ -1055,7 +1055,7 @@ app.get('/api/settings', requireAuth, async (req, res) => {
 // ── API: save settings (admin) ──
 app.post('/api/settings', requireAuth, async (req, res) => {
   const allowed = [
-    'stripe_secret_key', 'stripe_webhook_secret', 'stripe_contract_webhook_secret',
+    'stripe_publishable_key', 'stripe_secret_key', 'stripe_webhook_secret', 'stripe_contract_webhook_secret',
     'plan_website_revamp_url', 'plan_growth_monthly_url', 'plan_premium_monthly_url',
     'payments_enabled'
   ];
@@ -1297,6 +1297,7 @@ app.post('/api/contract/:token/sign', async (req, res) => {
 // ── API: create Stripe checkout for contract payment (public) ──
 app.post('/api/contract/:token/checkout', async (req, res) => {
   const stripeKey = process.env.STRIPE_SECRET_KEY || await getSetting('stripe_secret_key');
+  const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY || await getSetting('stripe_publishable_key');
   if (!stripeKey) return res.status(400).json({ error: 'Payment not configured — contact Revamp Digital LLC.' });
 
   const r = await pool.query(`SELECT * FROM contracts WHERE token=$1`, [req.params.token]);
@@ -1306,16 +1307,15 @@ app.post('/api/contract/:token/checkout', async (req, res) => {
 
   const stripe = Stripe(stripeKey);
   const baseUrl = process.env.BASE_URL || 'https://gorevamp.ai';
-  const successUrl = `${baseUrl}/contract/${req.params.token}?paid=1`;
-  const cancelUrl  = `${baseUrl}/contract/${req.params.token}`;
+  const returnUrl = `${baseUrl}/contract/${req.params.token}?paid=1`;
   const chosen = contract.chosen_payment_type || 'onetime';
   const serviceDesc = (contract.services || 'Digital Marketing Services').split('\n')[0].trim().substring(0, 100);
   const fmt = n => Math.round(parseFloat(n || 0) * 100); // convert to cents
 
   let sessionParams = {
     customer_email: contract.client_email,
-    success_url: successUrl,
-    cancel_url: cancelUrl,
+    ui_mode: 'embedded',
+    return_url: returnUrl,
     metadata: { contract_id: String(contract.id), contract_token: req.params.token, chosen_payment_type: chosen },
     billing_address_collection: 'auto',
   };
@@ -1389,7 +1389,7 @@ app.post('/api/contract/:token/checkout', async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.create(sessionParams);
     await pool.query(`UPDATE contracts SET stripe_checkout_id=$1 WHERE id=$2`, [session.id, contract.id]);
-    res.json({ url: session.url });
+    res.json({ clientSecret: session.client_secret, publishableKey });
   } catch (e) {
     console.error('[stripe checkout error]', e.message);
     res.status(500).json({ error: e.message });
