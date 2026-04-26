@@ -1159,9 +1159,7 @@ app.patch('/api/contracts/:id/void', requireAuth, async (req, res) => {
 app.get('/api/contract/:token', async (req, res) => {
   try {
     const r = await pool.query(
-      `SELECT id, client_name, client_email, services, amount, payment_schedule, payment_type, start_date, notes,
-              status, created_at, expires_at, signed_at, signer_name
-       FROM contracts WHERE token=$1`, [req.params.token]
+      `SELECT * FROM contracts WHERE token=$1`, [req.params.token]
     );
     if (!r.rows.length) return res.status(404).json({ error: 'Contract not found' });
     const c = r.rows[0];
