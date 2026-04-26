@@ -406,6 +406,10 @@ async function initDb() {
   await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS sub_amount NUMERIC(10,2) DEFAULT 0`);
   await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS sub_initial NUMERIC(10,2) DEFAULT 0`);
   await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS sub_includes TEXT`);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'unpaid'`);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS paid_at TIMESTAMPTZ`);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS stripe_checkout_id TEXT`);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS stripe_subscription_id TEXT`);
 
   console.log('[db] tables ready');
 }
@@ -441,6 +445,60 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
       console.log(`[order] paid — ${email} — ${planName} — $${((session.amount_total||0)/100).toFixed(2)}`);
     } catch (e) { console.error('[order save error]', e.message); }
   }
+
+  res.json({ received: true });
+});
+
+// ── Stripe webhook — contract payments ──
+app.post('/api/stripe-contracts-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const stripeKey = process.env.STRIPE_SECRET_KEY || await getSetting('stripe_secret_key');
+  const webhookSecret = process.env.STRIPE_CONTRACT_WEBHOOK_SECRET;
+  if (!stripeKey) return res.status(400).json({ error: 'Stripe not configured' });
+
+  let event;
+  try {
+    const stripe = Stripe(stripeKey);
+    if (webhookSecret) {
+      event = stripe.webhooks.constructEvent(req.body, req.headers['stripe-signature'], webhookSecret);
+    } else {
+      event = JSON.parse(req.body.toString());
+    }
+  } catch (err) {
+    return res.status(400).send(`Webhook error: ${err.message}`);
+  }
+
+  try {
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      const contractId = session.metadata?.contract_id;
+      if (!contractId) return res.json({ received: true });
+
+      const updates = {
+        payment_status: 'paid',
+        paid_at: new Date(),
+        stripe_checkout_id: session.id,
+      };
+      if (session.subscription) updates.stripe_subscription_id = session.subscription;
+
+      await pool.query(
+        `UPDATE contracts SET payment_status='paid', paid_at=NOW(), stripe_checkout_id=$1, stripe_subscription_id=$2 WHERE id=$3`,
+        [session.id, session.subscription || null, contractId]
+      );
+      console.log(`[contract payment] paid — contract #${contractId}`);
+    }
+
+    if (event.type === 'invoice.payment_failed') {
+      const inv = event.data.object;
+      const subId = inv.subscription;
+      if (subId) {
+        await pool.query(
+          `UPDATE contracts SET payment_status='overdue' WHERE stripe_subscription_id=$1`,
+          [subId]
+        );
+        console.log(`[contract payment] overdue — subscription ${subId}`);
+      }
+    }
+  } catch (e) { console.error('[contract webhook error]', e.message); }
 
   res.json({ received: true });
 });
@@ -1059,7 +1117,7 @@ app.get('/api/contracts', requireAuth, async (req, res) => {
   try {
     const r = await pool.query(
       `SELECT id, token, client_name, client_email, services, amount, start_date,
-              notes, status, created_at, sent_at, signed_at, signer_name, expires_at
+              notes, status, payment_status, paid_at, created_at, sent_at, signed_at, signer_name, expires_at
        FROM contracts ORDER BY created_at DESC`
     );
     res.json(r.rows);
@@ -1224,6 +1282,105 @@ app.post('/api/contract/:token/sign', async (req, res) => {
 
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: create Stripe checkout for contract payment (public) ──
+app.post('/api/contract/:token/checkout', async (req, res) => {
+  const stripeKey = process.env.STRIPE_SECRET_KEY || await getSetting('stripe_secret_key');
+  if (!stripeKey) return res.status(400).json({ error: 'Payment not configured — contact Revamp Digital LLC.' });
+
+  const r = await pool.query(`SELECT * FROM contracts WHERE token=$1`, [req.params.token]);
+  if (!r.rows.length) return res.status(404).json({ error: 'Contract not found' });
+  const contract = r.rows[0];
+  if (contract.status !== 'signed') return res.status(400).json({ error: 'Contract must be signed before payment.' });
+
+  const stripe = Stripe(stripeKey);
+  const baseUrl = process.env.BASE_URL || 'https://gorevamp.ai';
+  const successUrl = `${baseUrl}/contract/${req.params.token}?paid=1`;
+  const cancelUrl  = `${baseUrl}/contract/${req.params.token}`;
+  const chosen = contract.chosen_payment_type || 'onetime';
+  const serviceDesc = (contract.services || 'Digital Marketing Services').split('\n')[0].trim().substring(0, 100);
+  const fmt = n => Math.round(parseFloat(n || 0) * 100); // convert to cents
+
+  let sessionParams = {
+    customer_email: contract.client_email,
+    success_url: successUrl,
+    cancel_url: cancelUrl,
+    metadata: { contract_id: String(contract.id), contract_token: req.params.token, chosen_payment_type: chosen },
+    billing_address_collection: 'auto',
+  };
+
+  if (chosen === 'subscription' && parseFloat(contract.sub_amount) > 0) {
+    // Ongoing subscription: setup fee on first invoice + recurring monthly
+    sessionParams.mode = 'subscription';
+    sessionParams.line_items = [{
+      price_data: {
+        currency: 'usd',
+        product_data: { name: `Revamp Digital — Monthly Subscription`, description: serviceDesc },
+        recurring: { interval: 'month' },
+        unit_amount: fmt(contract.sub_amount),
+      },
+      quantity: 1,
+    }];
+    if (parseFloat(contract.sub_initial) > 0) {
+      sessionParams.subscription_data = {
+        add_invoice_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: { name: 'Setup / Onboarding Fee' },
+            unit_amount: fmt(contract.sub_initial),
+          },
+        }],
+        description: `Contract REVAMP-${String(contract.id).padStart(4,'0')}-RV`,
+      };
+    }
+  } else if (chosen === 'monthly' && parseFloat(contract.monthly_amount) > 0) {
+    // Fixed-term monthly: initial now, then recurring until cancel_at
+    sessionParams.mode = 'subscription';
+    sessionParams.line_items = [{
+      price_data: {
+        currency: 'usd',
+        product_data: { name: `Revamp Digital — Monthly Plan`, description: serviceDesc },
+        recurring: { interval: 'month' },
+        unit_amount: fmt(contract.monthly_amount),
+      },
+      quantity: 1,
+    }];
+    const cancelAt = Math.floor(Date.now() / 1000) + ((parseInt(contract.monthly_months) || 1) * 30 * 24 * 60 * 60);
+    sessionParams.subscription_data = {
+      cancel_at: cancelAt,
+      description: `Contract REVAMP-${String(contract.id).padStart(4,'0')}-RV · ${contract.monthly_months} months`,
+    };
+    if (parseFloat(contract.initial_payment) > 0) {
+      sessionParams.subscription_data.add_invoice_items = [{
+        price_data: {
+          currency: 'usd',
+          product_data: { name: 'Initial Payment / Deposit' },
+          unit_amount: fmt(contract.initial_payment),
+        },
+      }];
+    }
+  } else {
+    // Pay in full — one-time payment
+    sessionParams.mode = 'payment';
+    sessionParams.line_items = [{
+      price_data: {
+        currency: 'usd',
+        product_data: { name: `Service Agreement — ${contract.client_name}`, description: serviceDesc },
+        unit_amount: fmt(contract.amount),
+      },
+      quantity: 1,
+    }];
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.create(sessionParams);
+    await pool.query(`UPDATE contracts SET stripe_checkout_id=$1 WHERE id=$2`, [session.id, contract.id]);
+    res.json({ url: session.url });
+  } catch (e) {
+    console.error('[stripe checkout error]', e.message);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // ── API: download signed PDF (admin) ──
