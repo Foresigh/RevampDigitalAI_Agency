@@ -487,8 +487,9 @@
       if (pr.ok && pd.url) {
         window.location.href = pd.url;
       } else {
-        // Payment not configured — show success without payment
-        document.getElementById('successOverlay').classList.add('show');
+        alert('Payment error: ' + (pd.error || 'Unknown error — check server logs'));
+        btn.disabled = false;
+        btn.textContent = 'Sign & Continue to Payment';
       }
     } catch(e) {
       alert(e.message || 'Something went wrong. Please try again.');
