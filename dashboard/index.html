@@ -839,21 +839,21 @@
               <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
                 <div>
                   <label style="font-size:0.74rem">Initial Payment ($) *</label>
-                  <input type="number" name="initial_payment" id="ct-initial" placeholder="300.00" min="0" step="0.01" oninput="updateMonthlyPreview()"/>
+                  <input type="number" id="ct-initial" placeholder="300.00" min="0" step="0.01" oninput="updateMonthlyPreview()"/>
                 </div>
                 <div>
                   <label style="font-size:0.74rem">Monthly Amount ($) *</label>
-                  <input type="number" name="monthly_amount" id="ct-monthly-amount" placeholder="250.00" min="0" step="0.01" oninput="updateMonthlyPreview()"/>
+                  <input type="number" id="ct-monthly-amount" placeholder="250.00" min="0" step="0.01" oninput="updateMonthlyPreview()"/>
                 </div>
                 <div>
                   <label style="font-size:0.74rem">Number of Months *</label>
-                  <input type="number" name="monthly_months" id="ct-monthly-months" placeholder="4" min="1" max="60" oninput="updateMonthlyPreview()"/>
+                  <input type="number" id="ct-monthly-months" placeholder="4" min="1" max="60" oninput="updateMonthlyPreview()"/>
                 </div>
               </div>
               <div style="display:flex;align-items:center;gap:16px;margin-bottom:10px">
                 <div>
                   <label style="font-size:0.74rem">Billing Day</label>
-                  <input type="number" name="billing_day" id="ct-billing-day" placeholder="1" min="1" max="28" value="1" oninput="updateMonthlyPreview()" style="width:80px"/>
+                  <input type="number" id="ct-billing-day" placeholder="1" min="1" max="28" value="1" oninput="updateMonthlyPreview()" style="width:80px"/>
                 </div>
                 <div id="monthly-total-preview" style="font-size:0.8rem;color:#3dd6f5;padding-top:18px">—</div>
               </div>
@@ -876,16 +876,16 @@
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
                 <div>
                   <label style="font-size:0.74rem">Initial / Setup Fee ($)</label>
-                  <input type="number" name="sub_initial" id="ct-sub-initial" placeholder="200.00" min="0" step="0.01"/>
+                  <input type="number" id="ct-sub-initial" placeholder="200.00" min="0" step="0.01"/>
                 </div>
                 <div>
                   <label style="font-size:0.74rem">Monthly Subscription ($) *</label>
-                  <input type="number" name="sub_amount" id="ct-sub-amount" placeholder="150.00" min="0" step="0.01"/>
+                  <input type="number" id="ct-sub-amount" placeholder="150.00" min="0" step="0.01"/>
                 </div>
               </div>
               <div>
                 <label style="font-size:0.74rem">What's Included <span style="color:rgba(255,255,255,0.25);font-weight:400">(one per line)</span></label>
-                <textarea name="sub_includes" id="ct-sub-includes" style="min-height:80px;width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(167,139,250,0.2);border-radius:10px;padding:10px 14px;color:#e8f0fe;font-size:0.82rem;font-family:inherit;outline:none;resize:vertical">Website Hosting &amp; SSL Certificate
+                <textarea id="ct-sub-includes" style="min-height:80px;width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(167,139,250,0.2);border-radius:10px;padding:10px 14px;color:#e8f0fe;font-size:0.82rem;font-family:inherit;outline:none;resize:vertical">Website Hosting &amp; SSL Certificate
 Monthly Content &amp; Feature Updates
 Priority Support &amp; Bug Fixes
 Google Business Profile Management
@@ -917,6 +917,12 @@ New Page &amp; Section Additions</textarea>
 <div class="toast" id="toast"></div>
 
 <script>
+  async function apiFetch(url, opts = {}) {
+    const res = await fetch(url, opts);
+    if (res.status === 401) { window.location.href = '/admin/login'; return null; }
+    return res;
+  }
+
   let allLeads = [];
   let currentFilter = 'all';
 
@@ -1027,7 +1033,7 @@ New Page &amp; Section Additions</textarea>
     const lead = allLeads.find(l => String(l.id) === String(id));
     if (lead) lead.status = status;
     updateStats(allLeads);
-    await fetch(`/api/leads/${id}`, {
+    await apiFetch(`/api/leads/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status })
@@ -1040,7 +1046,7 @@ New Page &amp; Section Additions</textarea>
     const notes = el.value;
     const lead = allLeads.find(l => String(l.id) === String(id));
     if (lead) lead.notes = notes;
-    await fetch(`/api/leads/${id}`, {
+    await apiFetch(`/api/leads/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ notes })
@@ -1053,7 +1059,7 @@ New Page &amp; Section Additions</textarea>
     document.getElementById('tableContent').innerHTML =
       '<div class="loading"><div class="spinner"></div>Loading leads...</div>';
     try {
-      const res = await fetch('/api/leads');
+      const res = await apiFetch('/api/leads');
       if (!res.ok) throw new Error('Failed to load leads');
       allLeads = await res.json();
       updateStats(allLeads);
@@ -1154,7 +1160,7 @@ New Page &amp; Section Additions</textarea>
     document.getElementById('auditsTableContent').innerHTML =
       '<div class="loading"><div class="spinner"></div>Loading audits...</div>';
     try {
-      const res = await fetch('/api/audits');
+      const res = await apiFetch('/api/audits');
       if (!res.ok) throw new Error('Failed to load audits');
       allAudits = await res.json();
       updateAuditStats(allAudits);
@@ -1240,7 +1246,7 @@ New Page &amp; Section Additions</textarea>
     document.getElementById('rlTableContent').innerHTML =
       '<div class="loading"><div class="spinner"></div>Loading report downloads...</div>';
     try {
-      const res = await fetch('/api/audit-leads');
+      const res = await apiFetch('/api/audit-leads');
       if (!res.ok) throw new Error('Failed');
       allRl = await res.json();
       updateRlStats(allRl);
@@ -1312,7 +1318,7 @@ New Page &amp; Section Additions</textarea>
     document.getElementById('ordersTableContent').innerHTML =
       '<div class="loading"><div class="spinner"></div>Loading payments...</div>';
     try {
-      const res = await fetch('/api/orders');
+      const res = await apiFetch('/api/orders');
       if (!res.ok) throw new Error('Failed');
       allOrders = await res.json();
       updateOrderStats(allOrders);
@@ -1356,7 +1362,7 @@ New Page &amp; Section Additions</textarea>
   async function loadSettings() {
     settingsLoaded = true;
     try {
-      const res = await fetch('/api/settings');
+      const res = await apiFetch('/api/settings');
       if (!res.ok) return;
       const s = await res.json();
       if (s.stripe_secret_key) document.getElementById('set-stripe-secret').placeholder = '••••••••••••••••••••• (saved)';
@@ -1405,7 +1411,7 @@ New Page &amp; Section Additions</textarea>
     body.admin_email = document.getElementById('set-admin-email').value.trim();
 
     try {
-      const res = await fetch('/api/settings', {
+      const res = await apiFetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
@@ -1471,7 +1477,7 @@ New Page &amp; Section Additions</textarea>
     const data = Object.fromEntries(new FormData(form));
 
     try {
-      const res = await fetch('/api/leads/manual', {
+      const res = await apiFetch('/api/leads/manual', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -1565,7 +1571,8 @@ New Page &amp; Section Additions</textarea>
     document.getElementById('contractsTableContent').innerHTML =
       '<div class="loading"><div class="spinner"></div>Loading contracts...</div>';
     try {
-      const res = await fetch('/api/contracts');
+      const res = await apiFetch('/api/contracts');
+      if (!res) return;
       if (!res.ok) throw new Error('Failed');
       allContracts = await res.json();
       updateContractStats(allContracts);
@@ -1586,7 +1593,7 @@ New Page &amp; Section Additions</textarea>
 
   async function resendContract(id) {
     try {
-      const res = await fetch(`/api/contracts/${id}/resend`, { method: 'POST' });
+      const res = await apiFetch(`/api/contracts/${id}/resend`, { method: 'POST' });
       if (!res.ok) throw new Error((await res.json()).error);
       showToast('Reminder email sent ✓');
       contractsLoaded = false; loadContracts();
@@ -1600,7 +1607,7 @@ New Page &amp; Section Additions</textarea>
   async function voidContract(id) {
     if (!confirm('Void this contract? The signing link will stop working.')) return;
     try {
-      const res = await fetch(`/api/contracts/${id}/void`, { method: 'PATCH' });
+      const res = await apiFetch(`/api/contracts/${id}/void`, { method: 'PATCH' });
       if (!res.ok) throw new Error('Failed');
       showToast('Contract voided');
       contractsLoaded = false; loadContracts();
@@ -1692,11 +1699,12 @@ New Page &amp; Section Additions</textarea>
     data.payment_type = 'client_choice';
 
     try {
-      const res = await fetch('/api/contracts', {
+      const res = await apiFetch('/api/contracts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
+      if (!res) return;
       const result = await res.json();
       if (!res.ok) throw new Error(result.error);
 
@@ -1821,7 +1829,7 @@ New Page &amp; Section Additions</textarea>
     document.getElementById('revamped-grid').innerHTML = '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading...</div>';
     document.getElementById('built-grid').innerHTML = '';
     try {
-      const res = await fetch('/api/portfolio?all=1');
+      const res = await apiFetch('/api/portfolio?all=1');
       if (!res.ok) throw new Error('Failed');
       allProjects = await res.json();
       renderPortfolioGrids(allProjects);
@@ -1894,13 +1902,13 @@ New Page &amp; Section Additions</textarea>
     try {
       let res;
       if (editingProjectId) {
-        res = await fetch(`/api/portfolio/${editingProjectId}`, {
+        res = await apiFetch(`/api/portfolio/${editingProjectId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
       } else {
-        res = await fetch('/api/portfolio', {
+        res = await apiFetch('/api/portfolio', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
@@ -1922,7 +1930,7 @@ New Page &amp; Section Additions</textarea>
   async function deleteProject(id) {
     if (!confirm('Delete this project from the portfolio?')) return;
     try {
-      const res = await fetch(`/api/portfolio/${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/portfolio/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Delete failed');
       showToast('Project deleted');
       portfolioLoaded = false;

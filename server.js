@@ -452,12 +452,13 @@ app.use(session({
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
+  cookie: { secure: false, maxAge: 7 * 24 * 60 * 60 * 1000 }
 }));
 
 // ── Auth middleware ──
 function requireAuth(req, res, next) {
   if (req.session && req.session.authenticated) return next();
+  if (req.path.startsWith('/api/')) return res.status(401).json({ error: 'Session expired — please log in again' });
   res.redirect('/admin/login');
 }
 
