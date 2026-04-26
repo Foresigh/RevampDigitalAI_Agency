@@ -1311,7 +1311,7 @@ app.post('/api/contract/:token/checkout', async (req, res) => {
   };
 
   if (chosen === 'subscription' && parseFloat(contract.sub_amount) > 0) {
-    // Ongoing subscription: setup fee on first invoice + recurring monthly
+    // Ongoing subscription: recurring monthly + optional one-time setup fee as extra line item
     sessionParams.mode = 'subscription';
     sessionParams.line_items = [{
       price_data: {
@@ -1323,19 +1323,20 @@ app.post('/api/contract/:token/checkout', async (req, res) => {
       quantity: 1,
     }];
     if (parseFloat(contract.sub_initial) > 0) {
-      sessionParams.subscription_data = {
-        add_invoice_items: [{
-          price_data: {
-            currency: 'usd',
-            product_data: { name: 'Setup / Onboarding Fee' },
-            unit_amount: fmt(contract.sub_initial),
-          },
-        }],
-        description: `Contract REVAMP-${String(contract.id).padStart(4,'0')}-RV`,
-      };
+      sessionParams.line_items.push({
+        price_data: {
+          currency: 'usd',
+          product_data: { name: 'Setup / Onboarding Fee' },
+          unit_amount: fmt(contract.sub_initial),
+        },
+        quantity: 1,
+      });
     }
+    sessionParams.subscription_data = {
+      description: `Contract REVAMP-${String(contract.id).padStart(4,'0')}-RV`,
+    };
   } else if (chosen === 'monthly' && parseFloat(contract.monthly_amount) > 0) {
-    // Fixed-term monthly: initial now, then recurring until cancel_at
+    // Fixed-term monthly: recurring + optional initial deposit as extra line item
     sessionParams.mode = 'subscription';
     sessionParams.line_items = [{
       price_data: {
@@ -1346,20 +1347,21 @@ app.post('/api/contract/:token/checkout', async (req, res) => {
       },
       quantity: 1,
     }];
-    const cancelAt = Math.floor(Date.now() / 1000) + ((parseInt(contract.monthly_months) || 1) * 30 * 24 * 60 * 60);
-    sessionParams.subscription_data = {
-      cancel_at: cancelAt,
-      description: `Contract REVAMP-${String(contract.id).padStart(4,'0')}-RV · ${contract.monthly_months} months`,
-    };
     if (parseFloat(contract.initial_payment) > 0) {
-      sessionParams.subscription_data.add_invoice_items = [{
+      sessionParams.line_items.push({
         price_data: {
           currency: 'usd',
           product_data: { name: 'Initial Payment / Deposit' },
           unit_amount: fmt(contract.initial_payment),
         },
-      }];
+        quantity: 1,
+      });
     }
+    const cancelAt = Math.floor(Date.now() / 1000) + ((parseInt(contract.monthly_months) || 1) * 30 * 24 * 60 * 60);
+    sessionParams.subscription_data = {
+      cancel_at: cancelAt,
+      description: `Contract REVAMP-${String(contract.id).padStart(4,'0')}-RV · ${contract.monthly_months} months`,
+    };
   } else {
     // Pay in full — one-time payment
     sessionParams.mode = 'payment';
