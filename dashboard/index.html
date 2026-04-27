@@ -1349,8 +1349,9 @@ New Page & Section Additions</textarea>
   function updateStripeStatus(settings) {
     const pill = document.getElementById('stripeStatusPill');
     const hasKey = settings.stripe_secret_key && settings.stripe_secret_key.length > 10;
+    const hasPubKey = settings.stripe_publishable_key && settings.stripe_publishable_key.length > 10;
     const hasUrl = settings.plan_website_revamp_url || settings.plan_growth_monthly_url || settings.plan_premium_monthly_url;
-    if (hasKey || hasUrl) {
+    if (hasKey || hasPubKey || hasUrl) {
       pill.className = 'status-pill active';
       pill.textContent = 'Configured';
     } else {
@@ -1444,6 +1445,8 @@ New Page & Section Additions</textarea>
       if (contractWebhookVal) document.getElementById('set-stripe-contract-webhook').placeholder = '••••••••••••••••••••• (saved)';
       if (resendKey) { document.getElementById('set-resend-key').value = ''; document.getElementById('set-resend-key').placeholder = '••••••••••••••••••••• (saved)'; }
       if (smtpPass) { document.getElementById('set-smtp-pass').value = ''; document.getElementById('set-smtp-pass').placeholder = '••••••••••••••••••••• (saved)'; }
+      // Include current publishable key value for status check even if not changed this save
+      if (!body.stripe_publishable_key) body.stripe_publishable_key = document.getElementById('set-stripe-publishable').value.trim();
       updateStripeStatus(body);
       updateSmtpStatus(body);
     } catch (e) {
