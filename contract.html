@@ -531,7 +531,7 @@
 
     try {
       const stripe = Stripe(publishableKey);
-      stripeCheckout = await stripe.initEmbeddedCheckout({ clientSecret, appearance: { theme: 'night' } });
+      stripeCheckout = await stripe.initEmbeddedCheckout({ clientSecret });
       document.getElementById('stripe-checkout-container').innerHTML = '';
       stripeCheckout.mount('#stripe-checkout-container');
     } catch(err) {
