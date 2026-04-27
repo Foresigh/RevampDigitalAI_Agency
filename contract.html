@@ -527,29 +527,23 @@
   async function openStripeModal(publishableKey, clientSecret) {
     const modal = document.getElementById('stripePaymentModal');
     modal.style.display = 'flex';
-    document.getElementById('stripe-checkout-container').innerHTML = '<div style="padding:40px;text-align:center;color:#666"><div style="width:32px;height:32px;border:3px solid #e0e0e0;border-top-color:#635bff;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 12px"></div>Loading…</div>';
+    document.getElementById('stripe-checkout-container').innerHTML = '<div style="padding:40px;text-align:center;color:rgba(232,240,254,0.5)"><div style="width:32px;height:32px;border:3px solid rgba(61,214,245,0.2);border-top-color:#3dd6f5;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 12px"></div>Loading…</div>';
 
-    const stripe = Stripe(publishableKey);
-    stripeCheckout = await stripe.initEmbeddedCheckout({
-      clientSecret,
-      appearance: {
-        theme: 'night',
-        variables: {
-          colorPrimary: '#3dd6f5',
-          colorBackground: '#0b1220',
-          colorText: '#e8f0fe',
-          colorTextSecondary: 'rgba(232,240,254,0.55)',
-          colorTextPlaceholder: 'rgba(232,240,254,0.25)',
-          colorDanger: '#f87171',
-          colorSuccess: '#4ade80',
-          fontFamily: '"Poppins", sans-serif',
-          borderRadius: '10px',
-          spacingUnit: '5px',
-        },
-      },
-    });
-    document.getElementById('stripe-checkout-container').innerHTML = '';
-    stripeCheckout.mount('#stripe-checkout-container');
+    try {
+      const stripe = Stripe(publishableKey);
+      stripeCheckout = await stripe.initEmbeddedCheckout({ clientSecret });
+      document.getElementById('stripe-checkout-container').innerHTML = '';
+      stripeCheckout.mount('#stripe-checkout-container');
+    } catch(err) {
+      document.getElementById('stripe-checkout-container').innerHTML =
+        `<div style="padding:32px;text-align:center;color:#f87171">
+          <div style="font-size:2rem;margin-bottom:12px">⚠</div>
+          <div style="font-weight:700;margin-bottom:8px">Payment failed to load</div>
+          <div style="font-size:0.8rem;color:rgba(255,255,255,0.45);margin-bottom:16px">${err.message}</div>
+          <button onclick="closeStripeModal()" style="background:#3dd6f5;color:#05080f;border:none;border-radius:8px;padding:10px 20px;font-weight:700;cursor:pointer">Close</button>
+        </div>`;
+      console.error('[stripe embed error]', err);
+    }
   }
 
   function closeStripeModal() {
