@@ -117,8 +117,8 @@
 
 <!-- Stripe Embedded Checkout Modal -->
 <div id="stripePaymentModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;width:100%;max-width:520px;margin:16px;max-height:90vh;overflow-y:auto;position:relative;">
-    <button onclick="closeStripeModal()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:#666;z-index:1">✕</button>
+  <div style="background:#0b1220;border:1px solid rgba(61,214,245,0.2);border-radius:20px;width:100%;max-width:520px;margin:16px;max-height:90vh;overflow-y:auto;position:relative;">
+    <button onclick="closeStripeModal()" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer;color:rgba(255,255,255,0.6);z-index:1;display:flex;align-items:center;justify-content:center">✕</button>
     <div id="stripe-checkout-container" style="padding:8px"></div>
   </div>
 </div>
@@ -530,7 +530,24 @@
     document.getElementById('stripe-checkout-container').innerHTML = '<div style="padding:40px;text-align:center;color:#666"><div style="width:32px;height:32px;border:3px solid #e0e0e0;border-top-color:#635bff;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 12px"></div>Loading…</div>';
 
     const stripe = Stripe(publishableKey);
-    stripeCheckout = await stripe.initEmbeddedCheckout({ clientSecret });
+    stripeCheckout = await stripe.initEmbeddedCheckout({
+      clientSecret,
+      appearance: {
+        theme: 'night',
+        variables: {
+          colorPrimary: '#3dd6f5',
+          colorBackground: '#0b1220',
+          colorText: '#e8f0fe',
+          colorTextSecondary: 'rgba(232,240,254,0.55)',
+          colorTextPlaceholder: 'rgba(232,240,254,0.25)',
+          colorDanger: '#f87171',
+          colorSuccess: '#4ade80',
+          fontFamily: '"Poppins", sans-serif',
+          borderRadius: '10px',
+          spacingUnit: '5px',
+        },
+      },
+    });
     document.getElementById('stripe-checkout-container').innerHTML = '';
     stripeCheckout.mount('#stripe-checkout-container');
   }
