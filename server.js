@@ -1316,6 +1316,7 @@ app.post('/api/contract/:token/checkout', async (req, res) => {
     customer_email: contract.client_email,
     ui_mode: 'embedded',
     return_url: returnUrl,
+    payment_method_types: ['card'],
     metadata: { contract_id: String(contract.id), contract_token: req.params.token, chosen_payment_type: chosen },
     billing_address_collection: 'auto',
   };
