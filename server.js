@@ -10,6 +10,7 @@ const Stripe     = require('stripe');
 const nodemailer = require('nodemailer');
 const PDFDocument= require('pdfkit');
 const crypto     = require('crypto');
+const multer     = require('multer');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -410,6 +411,10 @@ async function initDb() {
   await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS paid_at TIMESTAMPTZ`);
   await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS stripe_checkout_id TEXT`);
   await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS stripe_subscription_id TEXT`);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS file_data BYTEA`);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS file_name TEXT`);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS file_mime TEXT`);
+  await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS free_delivery BOOLEAN DEFAULT FALSE`);
 
   console.log('[db] tables ready');
 }
@@ -1127,7 +1132,8 @@ app.get('/api/contracts', requireAuth, async (req, res) => {
   try {
     const r = await pool.query(
       `SELECT id, token, client_name, client_email, services, amount, start_date,
-              notes, status, payment_status, paid_at, created_at, sent_at, signed_at, signer_name, expires_at
+              notes, status, payment_status, paid_at, created_at, sent_at, signed_at, signer_name, expires_at,
+              file_name, free_delivery
        FROM contracts ORDER BY created_at DESC`
     );
     res.json(r.rows);
@@ -1395,6 +1401,44 @@ app.post('/api/contract/:token/checkout', async (req, res) => {
     console.error('[stripe checkout error]', e.message);
     res.status(500).json({ error: e.message });
   }
+});
+
+// ── Multer — memory storage for deliverable uploads ──
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } });
+
+// ── API: upload deliverable file (admin) ──
+app.post('/api/contracts/:id/upload', requireAuth, upload.single('file'), async (req, res) => {
+  try {
+    const freeDelivery = req.body.free_delivery === 'true';
+    await pool.query(
+      `UPDATE contracts SET file_data=$1, file_name=$2, file_mime=$3, free_delivery=$4 WHERE id=$5`,
+      [req.file.buffer, req.file.originalname, req.file.mimetype, freeDelivery, req.params.id]
+    );
+    res.json({ ok: true, file_name: req.file.originalname });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: remove deliverable file (admin) ──
+app.delete('/api/contracts/:id/file', requireAuth, async (req, res) => {
+  try {
+    await pool.query(`UPDATE contracts SET file_data=NULL, file_name=NULL, file_mime=NULL WHERE id=$1`, [req.params.id]);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: download deliverable (public — checks access) ──
+app.get('/api/contract/:token/download', async (req, res) => {
+  try {
+    const r = await pool.query(`SELECT status, payment_status, free_delivery, file_data, file_name, file_mime FROM contracts WHERE token=$1`, [req.params.token]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Contract not found' });
+    const c = r.rows[0];
+    if (!c.file_data) return res.status(404).json({ error: 'No file attached to this contract' });
+    const canDownload = c.free_delivery || c.payment_status === 'paid';
+    if (!canDownload) return res.status(403).json({ error: 'Payment required to download' });
+    res.setHeader('Content-Disposition', `attachment; filename="${c.file_name}"`);
+    res.setHeader('Content-Type', c.file_mime || 'application/octet-stream');
+    res.send(c.file_data);
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ── API: download signed PDF (admin) ──

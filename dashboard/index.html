@@ -797,6 +797,37 @@
   </div>
 </div>
 
+<!-- ══ FILE UPLOAD MODAL ══ -->
+<div class="modal-backdrop" id="uploadModal" onclick="if(event.target===this)closeUploadModal()" style="display:none">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title">Attach Deliverable File</div>
+      <button class="modal-close" onclick="closeUploadModal()">✕</button>
+    </div>
+    <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+      <div id="uploadCurrentFile" style="display:none;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div>
+          <div style="font-size:0.8rem;color:#4ade80;font-weight:700">📎 Current file</div>
+          <div id="uploadCurrentFileName" style="font-size:0.85rem;color:#e8f0fe;margin-top:2px"></div>
+        </div>
+        <button onclick="removeFile()" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;padding:6px 12px;font-size:0.78rem;cursor:pointer;font-weight:700">Remove</button>
+      </div>
+      <div>
+        <label style="display:block;font-size:0.75rem;color:rgba(255,255,255,0.45);font-weight:600;margin-bottom:8px">Upload File <span style="color:rgba(255,255,255,0.3)">(PDF, ZIP, images — max 50MB)</span></label>
+        <input type="file" id="uploadFileInput" style="width:100%;background:rgba(255,255,255,0.05);border:1.5px dashed rgba(61,214,245,0.3);border-radius:10px;padding:12px;color:#e8f0fe;cursor:pointer"/>
+      </div>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+        <input type="checkbox" id="uploadFreeDelivery" style="width:18px;height:18px;accent-color:#3dd6f5"/>
+        <div>
+          <div style="font-size:0.85rem;font-weight:600;color:#e8f0fe">Free delivery</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.4)">Client can download without payment (just signature required)</div>
+        </div>
+      </label>
+      <button onclick="submitUpload()" id="uploadSubmitBtn" style="width:100%;background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-weight:800;font-size:0.95rem;padding:13px;border:none;border-radius:10px;cursor:pointer">Upload File</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ NEW CONTRACT MODAL ══ -->
 <div class="modal-backdrop" id="contractModal" onclick="handleContractBackdropClick(event)">
   <div class="modal" style="max-width:600px">
@@ -1583,6 +1614,7 @@ New Page & Section Additions</textarea>
             ${!isSigned && !isVoid ? `<button class="cact-btn cact-send" onclick="copyLink('${signingLink}')">Copy Link</button>` : ''}
             ${!isSigned && !isVoid ? `<button class="cact-btn cact-send" onclick="resendContract(${c.id})">↺ Resend</button>` : ''}
             <button class="cact-btn cact-pdf" onclick="downloadPdf(${c.id})">PDF</button>
+            <button class="cact-btn" style="background:rgba(61,214,245,0.08);border-color:rgba(61,214,245,0.25);color:#3dd6f5" onclick="openUploadModal(${c.id},'${c.file_name||''}',${c.free_delivery||false})">📎 ${c.file_name ? 'File ✓' : 'Attach'}</button>
             ${!isVoid && !isSigned ? `<button class="cact-btn cact-void" onclick="voidContract(${c.id})">Void</button>` : ''}
           </div>
         </td>
@@ -1634,6 +1666,51 @@ New Page & Section Additions</textarea>
 
   function downloadPdf(id) {
     window.open(`/api/contracts/${id}/pdf`, '_blank');
+  }
+
+  let uploadContractId = null;
+
+  function openUploadModal(id, fileName, freeDelivery) {
+    uploadContractId = id;
+    document.getElementById('uploadModal').style.display = 'flex';
+    document.getElementById('uploadFreeDelivery').checked = freeDelivery;
+    document.getElementById('uploadFileInput').value = '';
+    const cur = document.getElementById('uploadCurrentFile');
+    const curName = document.getElementById('uploadCurrentFileName');
+    if (fileName) {
+      cur.style.display = 'flex';
+      curName.textContent = fileName;
+    } else {
+      cur.style.display = 'none';
+    }
+  }
+
+  function closeUploadModal() {
+    document.getElementById('uploadModal').style.display = 'none';
+    uploadContractId = null;
+  }
+
+  async function removeFile() {
+    if (!confirm('Remove the attached file from this contract?')) return;
+    const res = await apiFetch(`/api/contracts/${uploadContractId}/file`, { method: 'DELETE' });
+    if (res && res.ok) { showToast('File removed'); closeUploadModal(); loadContracts(); }
+  }
+
+  async function submitUpload() {
+    const fileInput = document.getElementById('uploadFileInput');
+    const freeDelivery = document.getElementById('uploadFreeDelivery').checked;
+    const btn = document.getElementById('uploadSubmitBtn');
+    if (!fileInput.files[0]) { alert('Please select a file first'); return; }
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    formData.append('free_delivery', freeDelivery);
+    btn.textContent = 'Uploading…'; btn.disabled = true;
+    try {
+      const res = await apiFetch(`/api/contracts/${uploadContractId}/upload`, { method: 'POST', body: formData });
+      if (res && res.ok) { showToast('File uploaded ✓'); closeUploadModal(); loadContracts(); }
+      else { const d = await res.json(); alert(d.error || 'Upload failed'); }
+    } catch(e) { alert(e.message); }
+    finally { btn.textContent = 'Upload File'; btn.disabled = false; }
   }
 
   async function voidContract(id) {

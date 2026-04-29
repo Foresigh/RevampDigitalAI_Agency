@@ -396,6 +396,24 @@
       document.getElementById('signedBanner').style.display = 'block';
       document.getElementById('signedByText').textContent =
         `Signed by ${c.signer_name} on ${new Date(c.signed_at).toLocaleString('en-US')}. A copy was emailed to ${c.client_email}.`;
+
+      // Show download button if file is attached and access is granted
+      if (c.file_name) {
+        const canDownload = c.free_delivery || c.payment_status === 'paid';
+        const dlSection = document.createElement('div');
+        dlSection.style.cssText = 'margin-top:20px;padding:18px 20px;border-radius:14px;text-align:center;' +
+          (canDownload
+            ? 'background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25)'
+            : 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08)');
+        dlSection.innerHTML = canDownload
+          ? `<div style="font-size:0.78rem;color:#4ade80;font-weight:700;margin-bottom:10px">📎 Your deliverable is ready</div>
+             <a href="/api/contract/${token}/download" download style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#4ade80,#22c55e);color:#05080f;font-weight:800;padding:12px 28px;border-radius:10px;text-decoration:none;font-size:0.9rem">
+               ⬇ Download ${c.file_name}
+             </a>`
+          : `<div style="font-size:0.78rem;color:rgba(255,255,255,0.4);font-weight:600;margin-bottom:6px">📎 A file is attached to this contract</div>
+             <div style="font-size:0.82rem;color:rgba(255,255,255,0.3)">Complete payment to unlock your download</div>`;
+        document.getElementById('signedBanner').appendChild(dlSection);
+      }
     } else if (c.status === 'void') {
       badge.className = 'contract-status-badge badge-void';
       badge.textContent = 'Voided';
