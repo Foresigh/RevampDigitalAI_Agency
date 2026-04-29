@@ -261,12 +261,13 @@
 </div>
 
 <!-- Success overlay -->
-<div class="success-overlay" id="successOverlay">
+<div class="success-overlay" id="successOverlay" onclick="this.classList.remove('show')" style="cursor:pointer">
   <div class="success-icon">
     <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#4ade80" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
   </div>
   <h2>Agreement Signed!</h2>
   <p>Thank you! Your signed agreement has been recorded and a copy has been sent to your email. We'll be in touch soon to get started.</p>
+  <p style="margin-top:16px;font-size:0.75rem;color:rgba(255,255,255,0.25)">Tap anywhere to close</p>
 </div>
 
 <script>
@@ -536,6 +537,7 @@
         overlay.querySelector('h2').textContent = '✓ Agreement Signed & Payment Received!';
         overlay.querySelector('p').textContent = 'Thank you! Your agreement is signed and your payment has been processed. A confirmation has been sent to your email. We\'ll be in touch soon to get started.';
         overlay.classList.add('show');
+        setTimeout(() => overlay.classList.remove('show'), 5000);
       }
     });
   }
