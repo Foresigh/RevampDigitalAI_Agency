@@ -501,6 +501,45 @@ app.post('/api/stripe-contracts-webhook', express.raw({ type: 'application/json'
             [session.subscription || null, session.id, dbSubId]
           );
           console.log(`[subscription] activated — db #${dbSubId}`);
+
+          // Send confirmation email to client
+          const subRow = await pool.query(`SELECT * FROM subscriptions WHERE id=$1`, [dbSubId]);
+          const sub = subRow.rows[0];
+          if (sub && sub.client_email) {
+            const fmt = n => `$${parseFloat(n).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+            try {
+              await sendMail({
+                to: sub.client_email,
+                subject: `You're all set! Monthly plan activated — Revamp Digital LLC`,
+                html: `
+                  <div style="font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fb;padding:40px 20px">
+                    <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+                      <div style="background:#0b1220;padding:32px 40px;text-align:center">
+                        <div style="font-size:22px;font-weight:800;color:#ffffff">Revamp Digital <span style="color:#3dd6f5">LLC</span></div>
+                        <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:6px">Subscription Confirmed</div>
+                      </div>
+                      <div style="padding:36px 40px">
+                        <div style="text-align:center;margin-bottom:28px">
+                          <div style="width:64px;height:64px;background:#f0fdf4;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px">
+                            <span style="font-size:28px">✓</span>
+                          </div>
+                          <h2 style="margin:0;font-size:22px;font-weight:800;color:#15803d">Subscription Active!</h2>
+                        </div>
+                        <p style="margin:0 0 16px;font-size:15px;color:#374151">Hi ${sub.client_name || sub.client_email.split('@')[0]},</p>
+                        <p style="margin:0 0 24px;font-size:15px;color:#374151;line-height:1.6">Your monthly plan with Revamp Digital LLC is now active. Here's a summary:</p>
+                        <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:20px 24px;margin-bottom:24px">
+                          <div style="font-size:12px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Monthly Plan</div>
+                          <div style="font-size:28px;font-weight:800;color:#15803d">${fmt(sub.amount)}<span style="font-size:14px;font-weight:500;color:#6b7280">/month</span></div>
+                          ${sub.description ? `<div style="font-size:13px;color:#374151;margin-top:8px;line-height:1.6">${sub.description}</div>` : ''}
+                        </div>
+                        <p style="margin:0 0 8px;font-size:13px;color:#6b7280;line-height:1.6">You'll be charged <strong>${fmt(sub.amount)}</strong> every month. To cancel or update your payment method, reply to this email and we'll take care of it.</p>
+                        <p style="margin:24px 0 0;font-size:13px;color:#6b7280">Questions? Reply to this email or visit <a href="https://gorevamp.ai" style="color:#0fa3b1">gorevamp.ai</a></p>
+                      </div>
+                    </div>
+                  </div>`,
+              });
+            } catch(emailErr) { console.error('[subscription confirm email]', emailErr.message); }
+          }
         }
         return res.json({ received: true });
       }
