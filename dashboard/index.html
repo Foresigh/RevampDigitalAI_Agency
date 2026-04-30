@@ -516,6 +516,19 @@
       </div>
     </div>
 
+    <!-- Subscriptions section -->
+    <div style="margin-top:36px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="font-size:1rem;font-weight:700;color:#a78bfa">∞ Active Subscriptions</div>
+        <button onclick="loadSubscriptions()" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);color:#a78bfa;border-radius:8px;padding:6px 14px;font-size:0.78rem;cursor:pointer;font-weight:600">↺ Refresh</button>
+      </div>
+      <div class="table-wrap">
+        <div id="subscriptionsTableContent">
+          <div class="loading"><div class="spinner"></div>Loading subscriptions...</div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /tab-contracts -->
 
   <!-- ══ SETTINGS TAB ══ -->
@@ -793,6 +806,38 @@
           <button type="button" class="modal-cancel" onclick="closeProjectModal()">Cancel</button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SUBSCRIPTION MODAL ══ -->
+<div class="modal-backdrop" id="subModal" onclick="if(event.target===this)closeSubModal()" style="display:none">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title">∞ Start Subscription</div>
+      <button class="modal-close" onclick="closeSubModal()">✕</button>
+    </div>
+    <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+      <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:10px;padding:12px 16px;font-size:0.82rem;color:rgba(255,255,255,0.6);line-height:1.6">
+        This will email the client a secure link to authorize a recurring monthly charge. You'll be notified once they activate it.
+      </div>
+      <div class="settings-field settings-full">
+        <label class="settings-label">Client Name</label>
+        <input class="settings-input" id="subClientName" type="text" placeholder="Client name"/>
+      </div>
+      <div class="settings-field settings-full">
+        <label class="settings-label">Client Email</label>
+        <input class="settings-input" id="subClientEmail" type="email" placeholder="client@email.com"/>
+      </div>
+      <div class="settings-field settings-full">
+        <label class="settings-label">Monthly Amount (USD)</label>
+        <input class="settings-input" id="subAmount" type="number" min="1" step="0.01" placeholder="e.g. 150.00"/>
+      </div>
+      <div class="settings-field settings-full">
+        <label class="settings-label">What's Included</label>
+        <textarea class="settings-input" id="subDescription" rows="3" placeholder="Hosting, monthly updates, support, new features…" style="resize:vertical"></textarea>
+      </div>
+      <button onclick="submitSubModal()" id="subSubmitBtn" style="width:100%;background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;font-weight:800;font-size:0.95rem;padding:13px;border:none;border-radius:10px;cursor:pointer">Send Subscription Request →</button>
     </div>
   </div>
 </div>
@@ -1501,7 +1546,7 @@ New Page & Section Additions</textarea>
       if (tab === 'payments' && !ordersLoaded) loadOrders();
       if (tab === 'settings' && !settingsLoaded) loadSettings();
       if (tab === 'portfolio' && !portfolioLoaded) loadPortfolioProjects();
-      if (tab === 'contracts' && !contractsLoaded) loadContracts();
+      if (tab === 'contracts' && !contractsLoaded) { loadContracts(); loadSubscriptions(); }
     });
   });
 
@@ -1615,6 +1660,7 @@ New Page & Section Additions</textarea>
             ${!isSigned && !isVoid ? `<button class="cact-btn cact-send" onclick="resendContract(${c.id})">↺ Resend</button>` : ''}
             <button class="cact-btn cact-pdf" onclick="downloadPdf(${c.id})">PDF</button>
             <button class="cact-btn" style="background:rgba(61,214,245,0.08);border-color:rgba(61,214,245,0.25);color:#3dd6f5" onclick="openUploadModal(${c.id},'${c.file_name||''}',${c.free_delivery||false})">📎 ${c.file_name ? 'File ✓' : 'Attach'}</button>
+            ${isSigned ? `<button class="cact-btn" style="background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.25);color:#a78bfa" onclick="openSubModal(${c.id},'${(c.client_name||'').replace(/'/g,"\\'")}','${c.client_email}')">∞ Subscription</button>` : ''}
             ${!isVoid && !isSigned ? `<button class="cact-btn cact-void" onclick="voidContract(${c.id})">Void</button>` : ''}
           </div>
         </td>
@@ -1666,6 +1712,75 @@ New Page & Section Additions</textarea>
 
   function downloadPdf(id) {
     window.open(`/api/contracts/${id}/pdf`, '_blank');
+  }
+
+  // ── Subscriptions ──
+  let subContractId = null;
+
+  function openSubModal(contractId, clientName, clientEmail) {
+    subContractId = contractId;
+    document.getElementById('subModal').style.display = 'flex';
+    document.getElementById('subClientName').value = clientName || '';
+    document.getElementById('subClientEmail').value = clientEmail || '';
+    document.getElementById('subAmount').value = '';
+    document.getElementById('subDescription').value = '';
+  }
+
+  function closeSubModal() {
+    document.getElementById('subModal').style.display = 'none';
+    subContractId = null;
+  }
+
+  async function submitSubModal() {
+    const btn = document.getElementById('subSubmitBtn');
+    const body = {
+      contract_id: subContractId,
+      client_name: document.getElementById('subClientName').value.trim(),
+      client_email: document.getElementById('subClientEmail').value.trim(),
+      amount: document.getElementById('subAmount').value.trim(),
+      description: document.getElementById('subDescription').value.trim(),
+    };
+    if (!body.client_email || !body.amount) { alert('Email and amount are required'); return; }
+    btn.textContent = 'Sending…'; btn.disabled = true;
+    try {
+      const res = await apiFetch('/api/subscriptions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!res) return;
+      if (res.ok) { showToast('Subscription request sent ✓'); closeSubModal(); loadSubscriptions(); }
+      else { const d = await res.json(); alert(d.error || 'Failed to create subscription'); }
+    } catch(e) { alert(e.message); }
+    finally { btn.textContent = 'Send Subscription Request →'; btn.disabled = false; }
+  }
+
+  async function cancelSubscription(id) {
+    if (!confirm('Cancel this subscription? This will stop future charges immediately.')) return;
+    const res = await apiFetch(`/api/subscriptions/${id}/cancel`, { method: 'POST' });
+    if (res && res.ok) { showToast('Subscription cancelled'); loadSubscriptions(); }
+  }
+
+  async function loadSubscriptions() {
+    const res = await apiFetch('/api/subscriptions');
+    if (!res) return;
+    const subs = await res.json();
+    const el = document.getElementById('subscriptionsTableContent');
+    if (!subs.length) { el.innerHTML = `<div class="empty"><h3>No subscriptions yet</h3><p>Click "∞ Subscription" on a signed contract to set one up.</p></div>`; return; }
+
+    const statusBadge = s => {
+      if (s === 'active') return `<span style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);border-radius:6px;padding:2px 8px;font-size:0.68rem;font-weight:700;color:#4ade80">● Active</span>`;
+      if (s === 'overdue') return `<span style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);border-radius:6px;padding:2px 8px;font-size:0.68rem;font-weight:700;color:#f87171">⚠ Overdue</span>`;
+      if (s === 'cancelled') return `<span style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:2px 8px;font-size:0.68rem;font-weight:600;color:rgba(255,255,255,0.3)">Cancelled</span>`;
+      return `<span style="background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.2);border-radius:6px;padding:2px 8px;font-size:0.68rem;font-weight:700;color:#f5c842">Pending</span>`;
+    };
+
+    const rows = subs.map(s => `<tr>
+      <td><div class="lead-name">${s.client_name || '—'}</div><div class="lead-biz">${s.client_email}</div></td>
+      <td><div style="font-weight:700;color:#a78bfa">$${parseFloat(s.amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}/mo</div></td>
+      <td><div style="font-size:0.82rem;color:rgba(255,255,255,0.6);max-width:200px">${s.description||'—'}</div></td>
+      <td>${statusBadge(s.status)}</td>
+      <td><div class="lead-date">${formatDate(s.created_at)}</div>${s.next_billing_date ? `<div class="lead-date" style="color:#a78bfa">Next: ${formatDate(s.next_billing_date)}</div>` : ''}</td>
+      <td>${s.status !== 'cancelled' ? `<button class="cact-btn cact-void" onclick="cancelSubscription(${s.id})">Cancel</button>` : ''}</td>
+    </tr>`).join('');
+
+    el.innerHTML = `<table><thead><tr><th>Client</th><th>Amount</th><th>Description</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
 
   let uploadContractId = null;

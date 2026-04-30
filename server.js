@@ -416,6 +416,22 @@ async function initDb() {
   await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS file_mime TEXT`);
   await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS free_delivery BOOLEAN DEFAULT FALSE`);
 
+  await pool.query(`CREATE TABLE IF NOT EXISTS subscriptions (
+    id SERIAL PRIMARY KEY,
+    contract_id INTEGER,
+    client_name TEXT,
+    client_email TEXT,
+    amount NUMERIC(10,2),
+    description TEXT,
+    status TEXT DEFAULT 'pending',
+    stripe_checkout_id TEXT,
+    stripe_subscription_id TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    activated_at TIMESTAMPTZ,
+    cancelled_at TIMESTAMPTZ,
+    next_billing_date TIMESTAMPTZ
+  )`);
+
   console.log('[db] tables ready');
 }
 
@@ -475,6 +491,20 @@ app.post('/api/stripe-contracts-webhook', express.raw({ type: 'application/json'
   try {
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
+
+      // Standalone subscription payment
+      if (session.metadata?.type === 'standalone_subscription') {
+        const dbSubId = session.metadata?.subscription_db_id;
+        if (dbSubId) {
+          await pool.query(
+            `UPDATE subscriptions SET status='active', stripe_subscription_id=$1, stripe_checkout_id=$2, activated_at=NOW() WHERE id=$3`,
+            [session.subscription || null, session.id, dbSubId]
+          );
+          console.log(`[subscription] activated — db #${dbSubId}`);
+        }
+        return res.json({ received: true });
+      }
+
       const contractId = session.metadata?.contract_id;
       if (!contractId) return res.json({ received: true });
 
@@ -506,11 +536,24 @@ app.post('/api/stripe-contracts-webhook', express.raw({ type: 'application/json'
       const inv = event.data.object;
       const subId = inv.subscription;
       if (subId) {
-        await pool.query(
-          `UPDATE contracts SET payment_status='overdue' WHERE stripe_subscription_id=$1`,
-          [subId]
-        );
-        console.log(`[contract payment] overdue — subscription ${subId}`);
+        await pool.query(`UPDATE contracts SET payment_status='overdue' WHERE stripe_subscription_id=$1`, [subId]);
+        await pool.query(`UPDATE subscriptions SET status='overdue' WHERE stripe_subscription_id=$1`, [subId]);
+        console.log(`[payment] overdue — subscription ${subId}`);
+      }
+    }
+
+    if (event.type === 'customer.subscription.deleted') {
+      const sub = event.data.object;
+      await pool.query(`UPDATE subscriptions SET status='cancelled', cancelled_at=NOW() WHERE stripe_subscription_id=$1`, [sub.id]);
+      console.log(`[subscription] cancelled — ${sub.id}`);
+    }
+
+    if (event.type === 'invoice.paid') {
+      const inv = event.data.object;
+      const subId = inv.subscription;
+      if (subId) {
+        const nextDate = new Date(inv.lines?.data?.[0]?.period?.end * 1000);
+        await pool.query(`UPDATE subscriptions SET next_billing_date=$1 WHERE stripe_subscription_id=$2`, [nextDate, subId]);
       }
     }
   } catch (e) { console.error('[contract webhook error]', e.message); }
@@ -1074,6 +1117,108 @@ app.post('/api/settings', requireAuth, async (req, res) => {
         );
       }
     }
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: list subscriptions (admin) ──
+app.get('/api/subscriptions', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(`SELECT * FROM subscriptions ORDER BY created_at DESC`);
+    res.json(r.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: create standalone subscription for existing client ──
+app.post('/api/subscriptions', requireAuth, async (req, res) => {
+  const { contract_id, client_name, client_email, amount, description } = req.body;
+  if (!client_email || !amount) return res.status(400).json({ error: 'Email and amount are required' });
+
+  const stripeKey = process.env.STRIPE_SECRET_KEY || await getSetting('stripe_secret_key');
+  if (!stripeKey) return res.status(400).json({ error: 'Stripe not configured' });
+
+  try {
+    // Insert subscription record first
+    const ins = await pool.query(
+      `INSERT INTO subscriptions (contract_id, client_name, client_email, amount, description, status)
+       VALUES ($1,$2,$3,$4,$5,'pending') RETURNING id`,
+      [contract_id || null, client_name, client_email, amount, description]
+    );
+    const subId = ins.rows[0].id;
+
+    const stripe = Stripe(stripeKey);
+    const baseUrl = process.env.BASE_URL || 'https://gorevamp.ai';
+    const session = await stripe.checkout.sessions.create({
+      customer_email: client_email,
+      mode: 'subscription',
+      payment_method_types: ['card', 'us_bank_account'],
+      line_items: [{
+        price_data: {
+          currency: 'usd',
+          product_data: { name: description || 'Revamp Digital — Monthly Services', description: 'Ongoing monthly services by Revamp Digital LLC' },
+          recurring: { interval: 'month' },
+          unit_amount: Math.round(parseFloat(amount) * 100),
+        },
+        quantity: 1,
+      }],
+      metadata: { type: 'standalone_subscription', subscription_db_id: String(subId) },
+      success_url: `${baseUrl}/?subscribed=1`,
+      cancel_url: `${baseUrl}/`,
+      billing_address_collection: 'auto',
+    });
+
+    await pool.query(`UPDATE subscriptions SET stripe_checkout_id=$1 WHERE id=$2`, [session.id, subId]);
+
+    // Email client the payment link
+    const fmt = n => `$${parseFloat(n).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    await sendMail({
+      to: client_email,
+      subject: `Action Required: Authorize Your Monthly Plan — Revamp Digital LLC`,
+      html: `
+        <div style="font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fb;padding:40px 20px;min-height:100vh">
+          <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+            <div style="background:#0b1220;padding:32px 40px;text-align:center">
+              <div style="font-size:22px;font-weight:800;color:#ffffff">Revamp Digital <span style="color:#3dd6f5">LLC</span></div>
+              <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:6px">Monthly Services Authorization</div>
+            </div>
+            <div style="padding:36px 40px">
+              <p style="margin:0 0 16px;font-size:15px;color:#374151">Hi ${client_name || client_email.split('@')[0]},</p>
+              <p style="margin:0 0 24px;font-size:15px;color:#374151;line-height:1.6">We're setting up your ongoing monthly services. Please authorize your payment below to get started.</p>
+              <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:20px 24px;margin-bottom:28px">
+                <div style="font-size:12px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Monthly Plan</div>
+                <div style="font-size:28px;font-weight:800;color:#15803d">${fmt(amount)}<span style="font-size:14px;font-weight:500;color:#6b7280">/month</span></div>
+                ${description ? `<div style="font-size:13px;color:#374151;margin-top:6px">${description}</div>` : ''}
+              </div>
+              <div style="text-align:center;margin-bottom:28px">
+                <a href="${session.url}" style="display:inline-block;background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-weight:800;font-size:16px;padding:16px 40px;border-radius:12px;text-decoration:none">Authorize Monthly Plan →</a>
+              </div>
+              <p style="margin:0;font-size:12px;color:#9ca3af;text-align:center;line-height:1.6">You'll be charged ${fmt(amount)}/month starting today. Cancel anytime by contacting us.</p>
+            </div>
+          </div>
+        </div>`,
+    });
+
+    res.json({ ok: true, id: subId });
+  } catch (e) {
+    console.error('[subscription create error]', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ── API: cancel subscription ──
+app.post('/api/subscriptions/:id/cancel', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(`SELECT * FROM subscriptions WHERE id=$1`, [req.params.id]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+    const sub = r.rows[0];
+
+    if (sub.stripe_subscription_id) {
+      const stripeKey = process.env.STRIPE_SECRET_KEY || await getSetting('stripe_secret_key');
+      const stripe = Stripe(stripeKey);
+      await stripe.subscriptions.cancel(sub.stripe_subscription_id);
+    }
+
+    await pool.query(`UPDATE subscriptions SET status='cancelled', cancelled_at=NOW() WHERE id=$1`, [req.params.id]);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
