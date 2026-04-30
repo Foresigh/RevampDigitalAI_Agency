@@ -429,7 +429,8 @@ async function initDb() {
     created_at TIMESTAMPTZ DEFAULT NOW(),
     activated_at TIMESTAMPTZ,
     cancelled_at TIMESTAMPTZ,
-    next_billing_date TIMESTAMPTZ
+    next_billing_date TIMESTAMPTZ,
+    paused_until TIMESTAMPTZ
   )`);
 
   console.log('[db] tables ready');
@@ -1258,6 +1259,46 @@ app.post('/api/subscriptions/:id/cancel', requireAuth, async (req, res) => {
     }
 
     await pool.query(`UPDATE subscriptions SET status='cancelled', cancelled_at=NOW() WHERE id=$1`, [req.params.id]);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: pause subscription ──
+app.post('/api/subscriptions/:id/pause', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(`SELECT * FROM subscriptions WHERE id=$1`, [req.params.id]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+    const sub = r.rows[0];
+    if (!sub.stripe_subscription_id) return res.status(400).json({ error: 'Subscription not yet active in Stripe' });
+
+    const months = parseInt(req.body.months) || 1;
+    const resumesAt = Math.floor(Date.now() / 1000) + (months * 30 * 24 * 60 * 60);
+
+    const stripeKey = process.env.STRIPE_SECRET_KEY || await getSetting('stripe_secret_key');
+    const stripe = Stripe(stripeKey);
+    await stripe.subscriptions.update(sub.stripe_subscription_id, {
+      pause_collection: { behavior: 'void', resumes_at: resumesAt },
+    });
+
+    const resumeDate = new Date(resumesAt * 1000);
+    await pool.query(`UPDATE subscriptions SET status='paused', paused_until=$1 WHERE id=$2`, [resumeDate, req.params.id]);
+    res.json({ ok: true, resumes_at: resumeDate });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: resume subscription ──
+app.post('/api/subscriptions/:id/resume', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(`SELECT * FROM subscriptions WHERE id=$1`, [req.params.id]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+    const sub = r.rows[0];
+    if (!sub.stripe_subscription_id) return res.status(400).json({ error: 'No Stripe subscription found' });
+
+    const stripeKey = process.env.STRIPE_SECRET_KEY || await getSetting('stripe_secret_key');
+    const stripe = Stripe(stripeKey);
+    await stripe.subscriptions.update(sub.stripe_subscription_id, { pause_collection: '' });
+
+    await pool.query(`UPDATE subscriptions SET status='active', paused_until=NULL WHERE id=$1`, [req.params.id]);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

@@ -842,6 +842,26 @@
   </div>
 </div>
 
+<!-- ══ PAUSE SUBSCRIPTION MODAL ══ -->
+<div class="modal-backdrop" id="pauseSubModal" onclick="if(event.target===this)closePauseModal()" style="display:none">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div class="modal-title">⏸ Pause Subscription</div>
+      <button class="modal-close" onclick="closePauseModal()">✕</button>
+    </div>
+    <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+      <div style="background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.2);border-radius:10px;padding:12px 16px;font-size:0.82rem;color:rgba(255,255,255,0.6);line-height:1.6">
+        Billing will be paused and will automatically resume after the selected period.
+      </div>
+      <div class="settings-field settings-full">
+        <label class="settings-label">Pause for how many months?</label>
+        <input class="settings-input" id="pauseMonths" type="number" min="1" max="12" value="1" placeholder="e.g. 1"/>
+      </div>
+      <button onclick="submitPause()" id="pauseSubmitBtn" style="width:100%;background:linear-gradient(135deg,#f5c842,#d97706);color:#05080f;font-weight:800;font-size:0.95rem;padding:13px;border:none;border-radius:10px;cursor:pointer">⏸ Pause Subscription</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ FILE UPLOAD MODAL ══ -->
 <div class="modal-backdrop" id="uploadModal" onclick="if(event.target===this)closeUploadModal()" style="display:none">
   <div class="modal" style="max-width:480px">
@@ -1751,6 +1771,42 @@ New Page & Section Additions</textarea>
     finally { btn.textContent = 'Send Subscription Request →'; btn.disabled = false; }
   }
 
+  let pauseSubId = null;
+
+  function openPauseModal(id) {
+    pauseSubId = id;
+    document.getElementById('pauseMonths').value = 1;
+    document.getElementById('pauseSubModal').style.display = 'flex';
+  }
+
+  function closePauseModal() {
+    document.getElementById('pauseSubModal').style.display = 'none';
+    pauseSubId = null;
+  }
+
+  async function submitPause() {
+    const months = document.getElementById('pauseMonths').value;
+    const btn = document.getElementById('pauseSubmitBtn');
+    btn.textContent = 'Pausing…'; btn.disabled = true;
+    try {
+      const res = await apiFetch(`/api/subscriptions/${pauseSubId}/pause`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ months }),
+      });
+      if (res && res.ok) { showToast(`Subscription paused for ${months} month(s) ✓`); closePauseModal(); loadSubscriptions(); }
+      else { const d = await res.json(); alert(d.error || 'Failed to pause'); }
+    } catch(e) { alert(e.message); }
+    finally { btn.textContent = '⏸ Pause Subscription'; btn.disabled = false; }
+  }
+
+  async function resumeSubscription(id) {
+    if (!confirm('Resume this subscription? Billing will restart immediately.')) return;
+    const res = await apiFetch(`/api/subscriptions/${id}/resume`, { method: 'POST' });
+    if (res && res.ok) { showToast('Subscription resumed ✓'); loadSubscriptions(); }
+    else { const d = await res.json(); alert(d.error || 'Failed to resume'); }
+  }
+
   async function cancelSubscription(id) {
     if (!confirm('Cancel this subscription? This will stop future charges immediately.')) return;
     const res = await apiFetch(`/api/subscriptions/${id}/cancel`, { method: 'POST' });
@@ -1766,18 +1822,23 @@ New Page & Section Additions</textarea>
 
     const statusBadge = s => {
       if (s === 'active') return `<span style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);border-radius:6px;padding:2px 8px;font-size:0.68rem;font-weight:700;color:#4ade80">● Active</span>`;
+      if (s === 'paused') return `<span style="background:rgba(245,200,66,0.12);border:1px solid rgba(245,200,66,0.3);border-radius:6px;padding:2px 8px;font-size:0.68rem;font-weight:700;color:#f5c842">⏸ Paused</span>`;
       if (s === 'overdue') return `<span style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);border-radius:6px;padding:2px 8px;font-size:0.68rem;font-weight:700;color:#f87171">⚠ Overdue</span>`;
       if (s === 'cancelled') return `<span style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:2px 8px;font-size:0.68rem;font-weight:600;color:rgba(255,255,255,0.3)">Cancelled</span>`;
-      return `<span style="background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.2);border-radius:6px;padding:2px 8px;font-size:0.68rem;font-weight:700;color:#f5c842">Pending</span>`;
+      return `<span style="background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.2);border-radius:6px;padding:2px 8px;font-size:0.68rem;font-weight:700;color:#a78bfa">Pending</span>`;
     };
 
     const rows = subs.map(s => `<tr>
       <td><div class="lead-name">${s.client_name || '—'}</div><div class="lead-biz">${s.client_email}</div></td>
       <td><div style="font-weight:700;color:#a78bfa">$${parseFloat(s.amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}/mo</div></td>
       <td><div style="font-size:0.82rem;color:rgba(255,255,255,0.6);max-width:200px">${s.description||'—'}</div></td>
-      <td>${statusBadge(s.status)}</td>
+      <td>${statusBadge(s.status)}${s.paused_until ? `<div class="lead-date" style="color:#f5c842;margin-top:3px">Resumes ${formatDate(s.paused_until)}</div>` : ''}</td>
       <td><div class="lead-date">${formatDate(s.created_at)}</div>${s.next_billing_date ? `<div class="lead-date" style="color:#a78bfa">Next: ${formatDate(s.next_billing_date)}</div>` : ''}</td>
-      <td>${s.status !== 'cancelled' ? `<button class="cact-btn cact-void" onclick="cancelSubscription(${s.id})">Cancel</button>` : ''}</td>
+      <td style="white-space:nowrap">
+        ${s.status === 'active' ? `<button class="cact-btn" style="background:rgba(245,200,66,0.08);border-color:rgba(245,200,66,0.25);color:#f5c842" onclick="openPauseModal(${s.id})">⏸ Pause</button>` : ''}
+        ${s.status === 'paused' ? `<button class="cact-btn" style="background:rgba(74,222,128,0.08);border-color:rgba(74,222,128,0.25);color:#4ade80" onclick="resumeSubscription(${s.id})">▶ Resume</button>` : ''}
+        ${s.status !== 'cancelled' ? `<button class="cact-btn cact-void" onclick="cancelSubscription(${s.id})">Cancel</button>` : ''}
+      </td>
     </tr>`).join('');
 
     el.innerHTML = `<table><thead><tr><th>Client</th><th>Amount</th><th>Description</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>`;
