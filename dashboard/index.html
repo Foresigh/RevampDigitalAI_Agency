@@ -276,6 +276,7 @@
     <button class="tab-btn" data-tab="payments">Payments</button>
     <button class="tab-btn" data-tab="portfolio">Portfolio</button>
     <button class="tab-btn" data-tab="contracts">Contracts</button>
+    <button class="tab-btn" data-tab="quotes">Quotes</button>
     <button class="tab-btn" data-tab="settings">⚙ Settings</button>
   </div>
 
@@ -530,6 +531,22 @@
     </div>
 
   </div><!-- /tab-contracts -->
+
+  <!-- ══ QUOTES TAB ══ -->
+  <div class="tab-panel" id="tab-quotes">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div>
+        <div style="font-size:1.1rem;font-weight:700;color:#e8f0fe">Quotes</div>
+        <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);margin-top:2px">Send PDF quotes to clients for review and signature</div>
+      </div>
+      <button onclick="openSendQuoteModal()" style="background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-weight:800;font-size:0.85rem;padding:10px 20px;border:none;border-radius:10px;cursor:pointer">+ Send Quote</button>
+    </div>
+    <div class="table-wrap">
+      <div id="quotesTableContent">
+        <div class="loading"><div class="spinner"></div>Loading quotes...</div>
+      </div>
+    </div>
+  </div><!-- /tab-quotes -->
 
   <!-- ══ SETTINGS TAB ══ -->
   <div class="tab-panel" id="tab-settings">
@@ -806,6 +823,38 @@
           <button type="button" class="modal-cancel" onclick="closeProjectModal()">Cancel</button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SEND QUOTE MODAL ══ -->
+<div class="modal-backdrop" id="sendQuoteModal" onclick="if(event.target===this)closeSendQuoteModal()" style="display:none">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <div class="modal-title">Send Quote</div>
+      <button class="modal-close" onclick="closeSendQuoteModal()">✕</button>
+    </div>
+    <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="settings-field">
+          <label class="settings-label">Client Name</label>
+          <input class="settings-input" id="qClientName" type="text" placeholder="John Smith"/>
+        </div>
+        <div class="settings-field">
+          <label class="settings-label">Client Email *</label>
+          <input class="settings-input" id="qClientEmail" type="email" placeholder="john@company.com"/>
+        </div>
+      </div>
+      <div class="settings-field settings-full">
+        <label class="settings-label">Notes <span>(optional — shown in email)</span></label>
+        <textarea class="settings-input" id="qNotes" rows="2" placeholder="e.g. This quote is valid for 30 days…" style="resize:vertical"></textarea>
+      </div>
+      <div class="settings-field settings-full">
+        <label class="settings-label">Quote PDF *</label>
+        <input type="file" id="qFile" accept=".pdf,application/pdf" style="width:100%;background:rgba(255,255,255,0.05);border:1.5px dashed rgba(61,214,245,0.3);border-radius:10px;padding:12px;color:#e8f0fe;cursor:pointer"/>
+        <div class="settings-hint">PDF only — max 50MB. Will be attached to the email and shown on the signing page.</div>
+      </div>
+      <button onclick="submitSendQuote()" id="sendQuoteBtn" style="width:100%;background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-weight:800;font-size:0.95rem;padding:13px;border:none;border-radius:10px;cursor:pointer">Send Quote →</button>
     </div>
   </div>
 </div>
@@ -1567,6 +1616,7 @@ New Page & Section Additions</textarea>
       if (tab === 'settings' && !settingsLoaded) loadSettings();
       if (tab === 'portfolio' && !portfolioLoaded) loadPortfolioProjects();
       if (tab === 'contracts' && !contractsLoaded) { loadContracts(); loadSubscriptions(); }
+      if (tab === 'quotes' && !quotesLoaded) loadQuotes();
     });
   });
 
@@ -1842,6 +1892,91 @@ New Page & Section Additions</textarea>
     </tr>`).join('');
 
     el.innerHTML = `<table><thead><tr><th>Client</th><th>Amount</th><th>Description</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  // ── Quotes ──
+  let quotesLoaded = false;
+
+  function openSendQuoteModal() {
+    document.getElementById('sendQuoteModal').style.display = 'flex';
+    document.getElementById('qClientName').value = '';
+    document.getElementById('qClientEmail').value = '';
+    document.getElementById('qNotes').value = '';
+    document.getElementById('qFile').value = '';
+  }
+
+  function closeSendQuoteModal() {
+    document.getElementById('sendQuoteModal').style.display = 'none';
+  }
+
+  async function submitSendQuote() {
+    const btn = document.getElementById('sendQuoteBtn');
+    const email = document.getElementById('qClientEmail').value.trim();
+    const file = document.getElementById('qFile').files[0];
+    if (!email) { alert('Client email is required'); return; }
+    if (!file) { alert('Please select a PDF file'); return; }
+
+    const fd = new FormData();
+    fd.append('client_name', document.getElementById('qClientName').value.trim());
+    fd.append('client_email', email);
+    fd.append('notes', document.getElementById('qNotes').value.trim());
+    fd.append('file', file);
+
+    btn.textContent = 'Sending…'; btn.disabled = true;
+    try {
+      const res = await apiFetch('/api/quotes', { method: 'POST', body: fd });
+      if (!res) return;
+      if (res.ok) { showToast('Quote sent ✓'); closeSendQuoteModal(); quotesLoaded = false; loadQuotes(); }
+      else { const d = await res.json(); alert(d.error || 'Failed to send quote'); }
+    } catch(e) { alert(e.message); }
+    finally { btn.textContent = 'Send Quote →'; btn.disabled = false; }
+  }
+
+  async function deleteQuote(id) {
+    if (!confirm('Delete this quote? This cannot be undone.')) return;
+    const res = await apiFetch(`/api/quotes/${id}`, { method: 'DELETE' });
+    if (res && res.ok) { showToast('Quote deleted'); loadQuotes(); }
+  }
+
+  async function loadQuotes() {
+    quotesLoaded = true;
+    document.getElementById('quotesTableContent').innerHTML = '<div class="loading"><div class="spinner"></div>Loading quotes...</div>';
+    const res = await apiFetch('/api/quotes');
+    if (!res) return;
+    const quotes = await res.json();
+    const el = document.getElementById('quotesTableContent');
+
+    if (!quotes.length) {
+      el.innerHTML = `<div class="empty"><h3>No quotes yet</h3><p>Click "Send Quote" to upload a PDF and send it to a client for signature.</p></div>`;
+      return;
+    }
+
+    const statusBadge = s => {
+      if (s === 'signed') return `<span style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);border-radius:6px;padding:2px 8px;font-size:0.68rem;font-weight:700;color:#4ade80">✓ Signed</span>`;
+      if (s === 'viewed') return `<span style="background:rgba(61,214,245,0.1);border:1px solid rgba(61,214,245,0.25);border-radius:6px;padding:2px 8px;font-size:0.68rem;font-weight:700;color:#3dd6f5">👁 Viewed</span>`;
+      return `<span style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:2px 8px;font-size:0.68rem;font-weight:600;color:rgba(255,255,255,0.4)">Sent</span>`;
+    };
+
+    const BASE_URL = window.location.origin;
+    const rows = quotes.map(q => `<tr>
+      <td><div class="lead-name">${q.client_name || '—'}</div><div class="lead-biz">${q.client_email}</div></td>
+      <td><div style="font-size:0.82rem;color:rgba(255,255,255,0.6)">${q.file_name || '—'}</div></td>
+      <td>${statusBadge(q.status)}${q.signed_at ? `<div class="lead-date" style="color:#4ade80;margin-top:3px">Signed by ${q.signer_name} · ${formatDate(q.signed_at)}</div>` : ''}</td>
+      <td><div class="lead-date">${formatDate(q.created_at)}</div></td>
+      <td>
+        <div class="contract-actions">
+          <button class="cact-btn cact-send" onclick="copyToClipboard('${BASE_URL}/quote/${q.token}')">Copy Link</button>
+          <button class="cact-btn cact-pdf" onclick="window.open('/api/quote/${q.token}/pdf','_blank')">View PDF</button>
+          <button class="cact-btn cact-void" onclick="deleteQuote(${q.id})">Delete</button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+    el.innerHTML = `<table><thead><tr><th>Client</th><th>File</th><th>Status</th><th>Sent</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => showToast('Link copied ✓'));
   }
 
   let uploadContractId = null;

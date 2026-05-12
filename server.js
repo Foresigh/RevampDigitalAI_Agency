@@ -416,6 +416,24 @@ async function initDb() {
   await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS file_mime TEXT`);
   await pool.query(`ALTER TABLE contracts ADD COLUMN IF NOT EXISTS free_delivery BOOLEAN DEFAULT FALSE`);
 
+  await pool.query(`CREATE TABLE IF NOT EXISTS quotes (
+    id SERIAL PRIMARY KEY,
+    token TEXT UNIQUE NOT NULL,
+    client_name TEXT,
+    client_email TEXT NOT NULL,
+    notes TEXT,
+    file_data BYTEA,
+    file_name TEXT,
+    file_mime TEXT,
+    status TEXT DEFAULT 'sent',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    sent_at TIMESTAMPTZ DEFAULT NOW(),
+    viewed_at TIMESTAMPTZ,
+    signed_at TIMESTAMPTZ,
+    signer_name TEXT,
+    signer_ip TEXT
+  )`);
+
   await pool.query(`CREATE TABLE IF NOT EXISTS subscriptions (
     id SERIAL PRIMARY KEY,
     contract_id INTEGER,
@@ -1160,6 +1178,134 @@ app.post('/api/settings', requireAuth, async (req, res) => {
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
+
+// ── API: send quote (admin) ──
+app.post('/api/quotes', requireAuth, upload.single('file'), async (req, res) => {
+  try {
+    const { client_name, client_email, notes } = req.body;
+    if (!client_email) return res.status(400).json({ error: 'Client email is required' });
+    if (!req.file) return res.status(400).json({ error: 'PDF file is required' });
+
+    const token = crypto.randomBytes(24).toString('hex');
+    const baseUrl = process.env.BASE_URL || 'https://gorevamp.ai';
+    const signingLink = `${baseUrl}/quote/${token}`;
+
+    const ins = await pool.query(
+      `INSERT INTO quotes (token, client_name, client_email, notes, file_data, file_name, file_mime)
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+      [token, client_name, client_email, notes, req.file.buffer, req.file.originalname, req.file.mimetype]
+    );
+
+    await sendMail({
+      to: client_email,
+      subject: `Your Quote from Revamp Digital LLC`,
+      html: `
+        <div style="font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fb;padding:40px 20px">
+          <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+            <div style="background:#0b1220;padding:32px 40px;text-align:center">
+              <div style="font-size:22px;font-weight:800;color:#ffffff">Revamp Digital <span style="color:#3dd6f5">LLC</span></div>
+              <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:6px">Your Quote is Ready</div>
+            </div>
+            <div style="padding:36px 40px">
+              <p style="margin:0 0 16px;font-size:15px;color:#374151">Hi ${client_name || client_email.split('@')[0]},</p>
+              <p style="margin:0 0 24px;font-size:15px;color:#374151;line-height:1.6">We've prepared a quote for you. Please review it and sign if you'd like to move forward.</p>
+              ${notes ? `<div style="background:#f8fafc;border-left:3px solid #3dd6f5;padding:12px 16px;margin-bottom:24px;font-size:14px;color:#374151;line-height:1.6">${notes}</div>` : ''}
+              <div style="text-align:center;margin-bottom:28px">
+                <a href="${signingLink}" style="display:inline-block;background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-weight:800;font-size:16px;padding:16px 40px;border-radius:12px;text-decoration:none">Review & Sign Quote →</a>
+              </div>
+              <p style="margin:0;font-size:12px;color:#9ca3af;text-align:center">The quote PDF is attached to this email for your records.</p>
+            </div>
+          </div>
+        </div>`,
+      attachments: [{ filename: req.file.originalname, content: req.file.buffer }],
+    });
+
+    res.json({ ok: true, id: ins.rows[0].id, token });
+  } catch (e) {
+    console.error('[quote send error]', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ── API: list quotes (admin) ──
+app.get('/api/quotes', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(`SELECT id, token, client_name, client_email, notes, file_name, status, created_at, signed_at, signer_name FROM quotes ORDER BY created_at DESC`);
+    res.json(r.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── API: delete quote (admin) ──
+app.delete('/api/quotes/:id', requireAuth, async (req, res) => {
+  try {
+    await pool.query(`DELETE FROM quotes WHERE id=$1`, [req.params.id]);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Public: get quote for signing ──
+app.get('/api/quote/:token', async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT id, token, client_name, client_email, notes, file_name, file_mime, status, created_at, signed_at, signer_name FROM quotes WHERE token=$1`,
+      [req.params.token]
+    );
+    if (!r.rows.length) return res.status(404).json({ error: 'Quote not found' });
+    if (r.rows[0].status === 'sent') {
+      await pool.query(`UPDATE quotes SET status='viewed', viewed_at=NOW() WHERE token=$1 AND status='sent'`, [req.params.token]);
+    }
+    res.json(r.rows[0]);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Public: download quote PDF ──
+app.get('/api/quote/:token/pdf', async (req, res) => {
+  try {
+    const r = await pool.query(`SELECT file_data, file_name, file_mime FROM quotes WHERE token=$1`, [req.params.token]);
+    if (!r.rows.length || !r.rows[0].file_data) return res.status(404).json({ error: 'File not found' });
+    const q = r.rows[0];
+    res.setHeader('Content-Disposition', `inline; filename="${q.file_name}"`);
+    res.setHeader('Content-Type', q.file_mime || 'application/pdf');
+    res.send(q.file_data);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Public: sign quote ──
+app.post('/api/quote/:token/sign', async (req, res) => {
+  try {
+    const { signer_name } = req.body;
+    if (!signer_name) return res.status(400).json({ error: 'Name is required' });
+    const r = await pool.query(`SELECT id, status, client_email, client_name FROM quotes WHERE token=$1`, [req.params.token]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Quote not found' });
+    const quote = r.rows[0];
+    if (quote.status === 'signed') return res.status(400).json({ error: 'Already signed' });
+
+    const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+    await pool.query(
+      `UPDATE quotes SET status='signed', signed_at=NOW(), signer_name=$1, signer_ip=$2 WHERE token=$3`,
+      [signer_name, ip, req.params.token]
+    );
+
+    // Notify admin
+    const adminEmail = process.env.ADMIN_EMAIL || await getSetting('admin_email');
+    if (adminEmail) {
+      await sendMail({
+        to: adminEmail,
+        subject: `✓ Quote Signed — ${quote.client_name || quote.client_email}`,
+        html: `<div style="font-family:Arial,sans-serif;padding:32px;max-width:500px">
+          <h2 style="color:#15803d">Quote Signed</h2>
+          <p><strong>${signer_name}</strong> (${quote.client_email}) has signed your quote.</p>
+          <p style="color:#6b7280;font-size:13px">Signed at ${new Date().toLocaleString('en-US')}</p>
+        </div>`,
+      }).catch(() => {});
+    }
+
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Public: serve quote signing page ──
+app.get('/quote/:token', (req, res) => res.sendFile(path.join(__dirname, 'quote.html')));
 
 // ── API: list subscriptions (admin) ──
 app.get('/api/subscriptions', requireAuth, async (req, res) => {
