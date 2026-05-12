@@ -1372,6 +1372,7 @@ app.post('/api/tickets', upload.single('file'), async (req, res) => {
             <div style="text-align:center">
               <a href="${ticketUrl}" style="display:inline-block;background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-weight:800;font-size:15px;padding:14px 36px;border-radius:12px;text-decoration:none">View Ticket →</a>
             </div>
+            <p style="margin:16px 0 0;font-size:12px;color:#9ca3af;text-align:center">View all your documents &amp; tickets at <a href="${baseUrl}/client" style="color:#0fa3b1;text-decoration:none">gorevamp.ai/client</a></p>
           </div>
         </div>
       </div>`,
@@ -1565,7 +1566,8 @@ app.post('/api/quotes', requireAuth, upload.single('file'), async (req, res) => 
               <div style="text-align:center;margin-bottom:28px">
                 <a href="${signingLink}" style="display:inline-block;background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-weight:800;font-size:16px;padding:16px 40px;border-radius:12px;text-decoration:none">Review & Sign Quote →</a>
               </div>
-              <p style="margin:0;font-size:12px;color:#9ca3af;text-align:center">Click the button above to view the full quote and sign online.</p>
+              <p style="margin:0 0 8px;font-size:12px;color:#9ca3af;text-align:center">Click the button above to view the full quote and sign online.</p>
+              <p style="margin:0;font-size:12px;color:#9ca3af;text-align:center">View all your documents anytime at <a href="${baseUrl}/client" style="color:#0fa3b1;text-decoration:none">gorevamp.ai/client</a></p>
             </div>
           </div>
         </div>`,
@@ -1991,7 +1993,8 @@ app.post('/api/contracts', requireAuth, async (req, res) => {
                 ${payment_schedule ? `<tr><td style="padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;color:#666;font-weight:bold;vertical-align:top">Payment Schedule</td><td style="padding:8px 12px;border:1px solid #e5e7eb;color:#444;white-space:pre-line">${payment_schedule}</td></tr>` : ''}
                 ${start_date ? `<tr><td style="padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;color:#666;font-weight:bold">Start Date</td><td style="padding:8px 12px;border:1px solid #e5e7eb;color:#444">${new Date(start_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</td></tr>` : ''}
               </table>
-              <p style="margin:0;color:#999;font-size:0.75rem;text-align:center">Link expires in 30 days · Questions? Reply to this email or call (385) 253-2318</p>
+              <p style="margin:0 0 12px;color:#999;font-size:0.75rem;text-align:center">Link expires in 30 days · Questions? Reply to this email or call (385) 253-2318</p>
+              <p style="margin:0;font-size:0.75rem;text-align:center;color:#9ca3af">View all your contracts, quotes &amp; tickets anytime at <a href="${baseUrl}/client" style="color:#0fa3b1;text-decoration:none">gorevamp.ai/client</a></p>
             </div>
           </div>`,
         });
