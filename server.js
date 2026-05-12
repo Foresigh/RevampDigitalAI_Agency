@@ -9,6 +9,7 @@ const compression= require('compression');
 const Stripe     = require('stripe');
 const nodemailer = require('nodemailer');
 const PDFDocument= require('pdfkit');
+const { PDFDocument: PDFLib, rgb, StandardFonts } = require('pdf-lib');
 const crypto     = require('crypto');
 const multer     = require('multer');
 
@@ -1278,15 +1279,96 @@ app.post('/api/quote/:token/sign', async (req, res) => {
   try {
     const { signer_name } = req.body;
     if (!signer_name) return res.status(400).json({ error: 'Name is required' });
-    const r = await pool.query(`SELECT id, status, client_email, client_name FROM quotes WHERE token=$1`, [req.params.token]);
+    const r = await pool.query(`SELECT id, status, client_email, client_name, file_data FROM quotes WHERE token=$1`, [req.params.token]);
     if (!r.rows.length) return res.status(404).json({ error: 'Quote not found' });
     const quote = r.rows[0];
     if (quote.status === 'signed') return res.status(400).json({ error: 'Already signed' });
 
     const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+    const signedAt = new Date();
+
+    // Embed signature into PDF
+    let signedPdfData = quote.file_data;
+    if (quote.file_data) {
+      try {
+        const pdfDoc = await PDFLib.load(quote.file_data);
+        const pages = pdfDoc.getPages();
+        const lastPage = pages[pages.length - 1];
+        const { width, height } = lastPage.getSize();
+        const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+        const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+        const sigBlockHeight = 90;
+        const margin = 40;
+        const blockY = 30;
+
+        // Background box
+        lastPage.drawRectangle({
+          x: margin,
+          y: blockY,
+          width: width - margin * 2,
+          height: sigBlockHeight,
+          color: rgb(0.96, 0.99, 1),
+          borderColor: rgb(0.24, 0.84, 0.96),
+          borderWidth: 0.75,
+          opacity: 1,
+        });
+
+        // Top label
+        lastPage.drawText('ELECTRONICALLY SIGNED', {
+          x: margin + 12,
+          y: blockY + sigBlockHeight - 18,
+          size: 7,
+          font,
+          color: rgb(0.06, 0.64, 0.69),
+          letterSpacing: 1,
+        });
+
+        // Divider
+        lastPage.drawLine({
+          start: { x: margin + 12, y: blockY + sigBlockHeight - 22 },
+          end:   { x: width - margin - 12, y: blockY + sigBlockHeight - 22 },
+          thickness: 0.5,
+          color: rgb(0.24, 0.84, 0.96),
+          opacity: 0.4,
+        });
+
+        // Signature name (large)
+        lastPage.drawText(signer_name, {
+          x: margin + 12,
+          y: blockY + sigBlockHeight - 44,
+          size: 16,
+          font: boldFont,
+          color: rgb(0.06, 0.1, 0.2),
+        });
+
+        // Date + IP
+        const dateStr = signedAt.toLocaleString('en-US', { timeZone: 'UTC' }) + ' UTC';
+        lastPage.drawText(`Signed: ${dateStr}`, {
+          x: margin + 12,
+          y: blockY + 26,
+          size: 8,
+          font,
+          color: rgb(0.35, 0.4, 0.5),
+        });
+        lastPage.drawText(`IP: ${ip}  ·  Verified by Revamp Digital LLC`, {
+          x: margin + 12,
+          y: blockY + 14,
+          size: 7,
+          font,
+          color: rgb(0.55, 0.6, 0.65),
+        });
+
+        signedPdfData = Buffer.from(await pdfDoc.save());
+      } catch (pdfErr) {
+        console.error('PDF embed error:', pdfErr.message);
+        // Continue without signature embed — don't block signing
+      }
+    }
+
     await pool.query(
-      `UPDATE quotes SET status='signed', signed_at=NOW(), signer_name=$1, signer_ip=$2 WHERE token=$3`,
-      [signer_name, ip, req.params.token]
+      `UPDATE quotes SET status='signed', signed_at=$1, signer_name=$2, signer_ip=$3, file_data=$4 WHERE token=$5`,
+      [signedAt, signer_name, ip, signedPdfData, req.params.token]
     );
 
     // Notify admin
