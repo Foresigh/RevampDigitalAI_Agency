@@ -477,6 +477,15 @@ async function initDb() {
     paused_until TIMESTAMPTZ
   )`);
 
+  await pool.query(`CREATE TABLE IF NOT EXISTS client_magic_links (
+    id SERIAL PRIMARY KEY,
+    token TEXT UNIQUE NOT NULL,
+    email TEXT NOT NULL,
+    expires_at TIMESTAMPTZ DEFAULT NOW() + INTERVAL '15 minutes',
+    used BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+  )`);
+
   console.log('[db] tables ready');
 }
 
@@ -664,6 +673,104 @@ function requireAuth(req, res, next) {
   if (req.path.startsWith('/api/')) return res.status(401).json({ error: 'Session expired — please log in again' });
   res.redirect('/admin/login');
 }
+
+function requireClientAuth(req, res, next) {
+  if (req.session && req.session.clientEmail) return next();
+  res.status(401).json({ error: 'Not authenticated' });
+}
+
+// ════════════════════════════════════════════════
+// CLIENT PORTAL AUTH
+// ════════════════════════════════════════════════
+
+// Request magic link
+app.post('/api/client/request-login', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Check this email has at least one contract, quote, or ticket
+    const exists = await pool.query(
+      `SELECT 1 FROM contracts WHERE LOWER(client_email)=$1
+       UNION SELECT 1 FROM quotes WHERE LOWER(client_email)=$1
+       UNION SELECT 1 FROM tickets WHERE LOWER(client_email)=$1 LIMIT 1`,
+      [normalizedEmail]
+    );
+    if (!exists.rows.length) return res.status(404).json({ error: 'No account found for this email address.' });
+
+    const token = crypto.randomBytes(24).toString('hex');
+    await pool.query(
+      `INSERT INTO client_magic_links (token, email, expires_at) VALUES ($1,$2, NOW() + INTERVAL '15 minutes')`,
+      [token, normalizedEmail]
+    );
+
+    const baseUrl = process.env.BASE_URL || 'https://gorevamp.ai';
+    const loginUrl = `${baseUrl}/client/login/${token}`;
+
+    await sendMail({
+      to: normalizedEmail,
+      subject: 'Your Revamp Digital login link',
+      html: `<div style="font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fb;padding:40px 20px">
+        <div style="max-width:500px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+          <div style="background:#0b1220;padding:28px 32px;text-align:center">
+            <div style="font-size:20px;font-weight:800;color:#fff">Revamp Digital <span style="color:#3dd6f5">LLC</span></div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:4px">Client Portal Access</div>
+          </div>
+          <div style="padding:32px;text-align:center">
+            <p style="margin:0 0 20px;font-size:15px;color:#374151;line-height:1.6">Click the button below to access your client portal. This link expires in <strong>15 minutes</strong>.</p>
+            <a href="${loginUrl}" style="display:inline-block;background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-weight:800;font-size:15px;padding:14px 36px;border-radius:12px;text-decoration:none">Access My Portal →</a>
+            <p style="margin:20px 0 0;font-size:12px;color:#9ca3af">If you didn't request this, you can safely ignore this email.</p>
+          </div>
+        </div>
+      </div>`,
+    });
+
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Validate magic link → set session
+app.get('/client/login/:token', async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT * FROM client_magic_links WHERE token=$1 AND used=FALSE AND expires_at > NOW()`,
+      [req.params.token]
+    );
+    if (!r.rows.length) return res.send(`<!DOCTYPE html><html><body style="font-family:sans-serif;background:#05080f;color:#e8f0fe;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center"><div><h2 style="color:#f87171">Link Expired</h2><p style="color:rgba(255,255,255,0.4)">This login link has expired or already been used.</p><a href="/client" style="color:#3dd6f5">Request a new link →</a></div></body></html>`);
+
+    await pool.query(`UPDATE client_magic_links SET used=TRUE WHERE id=$1`, [r.rows[0].id]);
+    req.session.clientEmail = r.rows[0].email;
+    res.redirect('/client');
+  } catch (e) { res.status(500).send('Server error'); }
+});
+
+// Get portal data
+app.get('/api/client/me', requireClientAuth, async (req, res) => {
+  try {
+    const email = req.session.clientEmail;
+    const [contracts, quotes, tickets] = await Promise.all([
+      pool.query(`SELECT id, token, title, amount, status, payment_status, created_at, signed_at, signer_name FROM contracts WHERE LOWER(client_email)=$1 ORDER BY created_at DESC`, [email]),
+      pool.query(`SELECT id, token, notes, file_name, status, created_at, signed_at FROM quotes WHERE LOWER(client_email)=$1 ORDER BY created_at DESC`, [email]),
+      pool.query(`SELECT id, token, subject, category, priority, status, created_at, updated_at, (SELECT COUNT(*) FROM ticket_messages WHERE ticket_id=tickets.id) AS message_count FROM tickets WHERE LOWER(client_email)=$1 ORDER BY updated_at DESC`, [email]),
+    ]);
+    res.json({
+      email,
+      contracts: contracts.rows,
+      quotes: quotes.rows,
+      tickets: tickets.rows,
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Logout
+app.post('/api/client/logout', (req, res) => {
+  req.session.clientEmail = null;
+  res.json({ ok: true });
+});
+
+// Serve portal
+app.get('/client', (req, res) => res.sendFile(path.join(__dirname, 'portal.html')));
 
 // ── Login page ──
 app.get('/admin/login', (req, res) => {

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Client Portal | Revamp Digital LLC</title>
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#05080f;color:#e8f0fe;font-family:'Poppins',sans-serif;min-height:100vh}
+
+    /* ── Top bar ── */
+    .topbar{background:rgba(5,8,15,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(61,214,245,0.1);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .topbar-logo{font-size:0.95rem;font-weight:700;color:#e8f0fe;text-decoration:none}
+    .topbar-logo span{color:#3dd6f5}
+    .logout-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:6px 14px;color:rgba(255,255,255,0.45);font-family:'Poppins',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer}
+
+    /* ── Login screen ── */
+    #loginScreen{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 56px);padding:24px}
+    .login-card{width:100%;max-width:420px;background:linear-gradient(135deg,rgba(31,122,140,0.08),rgba(255,255,255,0.01));border:1px solid rgba(61,214,245,0.15);border-radius:20px;overflow:hidden;position:relative}
+    .login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(61,214,245,0.5),transparent)}
+    .login-header{background:linear-gradient(135deg,#0b1220,#0d1a2d);padding:28px 32px;text-align:center;border-bottom:1px solid rgba(61,214,245,0.1)}
+    .login-body{padding:28px 32px}
+    .field-label{display:block;font-size:0.72rem;color:rgba(255,255,255,0.4);font-weight:600;margin-bottom:6px}
+    .field-input{width:100%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(61,214,245,0.2);border-radius:10px;padding:12px 14px;color:#e8f0fe;font-size:0.9rem;font-family:'Poppins',sans-serif;outline:none;transition:border 0.2s}
+    .field-input:focus{border-color:rgba(61,214,245,0.5)}
+    .field-input::placeholder{color:rgba(255,255,255,0.2)}
+    .primary-btn{width:100%;background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-family:'Poppins',sans-serif;font-size:0.95rem;font-weight:800;padding:13px;border:none;border-radius:12px;cursor:pointer;transition:opacity 0.2s;margin-top:14px}
+    .primary-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+    /* ── Portal screen ── */
+    #portalScreen{display:none;max-width:820px;margin:0 auto;padding:32px 20px 60px}
+    .welcome{margin-bottom:28px}
+    .welcome h1{font-size:1.3rem;font-weight:800;color:#e8f0fe}
+    .welcome p{font-size:0.82rem;color:rgba(255,255,255,0.4);margin-top:4px}
+
+    /* ── Section ── */
+    .section{margin-bottom:36px}
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .section-title{font-size:0.95rem;font-weight:700;color:#e8f0fe}
+    .section-count{font-size:0.72rem;background:rgba(61,214,245,0.1);border:1px solid rgba(61,214,245,0.2);border-radius:20px;padding:2px 10px;color:#3dd6f5;font-weight:700}
+
+    /* ── Cards ── */
+    .item-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-decoration:none;color:inherit;transition:border-color 0.2s,background 0.2s}
+    .item-card:hover{border-color:rgba(61,214,245,0.25);background:rgba(61,214,245,0.04)}
+    .item-main{flex:1;min-width:0}
+    .item-title{font-size:0.9rem;font-weight:700;color:#e8f0fe;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item-sub{font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:3px}
+    .item-arrow{color:rgba(255,255,255,0.2);flex-shrink:0}
+    .badge{display:inline-flex;align-items:center;border-radius:20px;padding:3px 10px;font-size:0.68rem;font-weight:700}
+    .badge-signed,.badge-resolved{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);color:#4ade80}
+    .badge-sent,.badge-open{background:rgba(61,214,245,0.1);border:1px solid rgba(61,214,245,0.25);color:#3dd6f5}
+    .badge-inprogress{background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.25);color:#a78bfa}
+    .badge-pending{background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.2);color:#f5c842}
+    .badge-closed{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3)}
+    .empty-state{text-align:center;padding:32px;font-size:0.85rem;color:rgba(255,255,255,0.25);background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px}
+
+    /* ── New ticket button ── */
+    .new-ticket-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(61,214,245,0.08);border:1px solid rgba(61,214,245,0.22);border-radius:8px;padding:7px 14px;color:#3dd6f5;font-family:'Poppins',sans-serif;font-size:0.76rem;font-weight:700;cursor:pointer}
+
+    /* ── Ticket form ── */
+    #ticketForm{display:none;background:linear-gradient(135deg,rgba(31,122,140,0.1),rgba(31,122,140,0.03));border:1px solid rgba(61,214,245,0.18);border-radius:16px;padding:22px 24px;margin-top:14px}
+    textarea{width:100%;background:rgba(255,255,255,0.04);border:1.5px solid rgba(61,214,245,0.18);border-radius:10px;padding:11px 14px;color:#e8f0fe;font-size:0.88rem;font-family:'Poppins',sans-serif;outline:none;resize:vertical;transition:border 0.2s}
+    textarea:focus{border-color:rgba(61,214,245,0.45)}
+    textarea::placeholder{color:rgba(255,255,255,0.2)}
+    select{background:#0d1a2d;border:1.5px solid rgba(61,214,245,0.2);border-radius:10px;padding:10px 14px;color:#e8f0fe;font-size:0.85rem;font-family:'Poppins',sans-serif;outline:none;width:100%}
+
+    /* ── Spinner ── */
+    .spinner{width:36px;height:36px;border:3px solid rgba(61,214,245,0.15);border-top-color:#3dd6f5;border-radius:50%;animation:spin 0.7s linear infinite;margin:40px auto}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── Toast ── */
+    #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e2d3d;border:1px solid rgba(61,214,245,0.25);border-radius:10px;padding:11px 22px;font-size:0.85rem;color:#e8f0fe;z-index:200;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap}
+    #toast.show{opacity:1}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/" class="topbar-logo">Revamp <span>Digital</span> LLC</a>
+  <button class="logout-btn" id="logoutBtn" style="display:none" onclick="logout()">Log out</button>
+</div>
+
+<!-- Login screen -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-header">
+      <div style="font-size:1.1rem;font-weight:800;color:#e8f0fe;margin-bottom:6px">Client Portal</div>
+      <div style="font-size:0.8rem;color:rgba(255,255,255,0.4)">Enter your email to receive a secure login link</div>
+    </div>
+    <div class="login-body">
+      <div id="loginForm">
+        <label class="field-label">Email Address</label>
+        <input class="field-input" id="loginEmail" type="email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')requestLogin()"/>
+        <button class="primary-btn" id="loginBtn" onclick="requestLogin()">Send Login Link →</button>
+        <p style="font-size:0.72rem;color:rgba(255,255,255,0.25);text-align:center;margin-top:14px;line-height:1.6">We'll email you a one-time link — no password needed</p>
+      </div>
+      <div id="loginSent" style="display:none;text-align:center;padding:8px 0">
+        <div style="width:56px;height:56px;border-radius:50%;background:rgba(74,222,128,0.1);border:2px solid rgba(74,222,128,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#4ade80" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div style="font-size:1rem;font-weight:700;color:#4ade80;margin-bottom:8px">Check your inbox</div>
+        <div style="font-size:0.82rem;color:rgba(255,255,255,0.45);line-height:1.6">We sent a login link to <strong id="sentToEmail" style="color:#e8f0fe"></strong>.<br/>It expires in 15 minutes.</div>
+        <button onclick="document.getElementById('loginSent').style.display='none';document.getElementById('loginForm').style.display='block'" style="margin-top:18px;background:none;border:none;color:#3dd6f5;font-family:'Poppins',sans-serif;font-size:0.78rem;cursor:pointer;font-weight:600">← Try a different email</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Portal screen -->
+<div id="portalScreen">
+  <div class="welcome">
+    <h1>Welcome back</h1>
+    <p id="welcomeEmail"></p>
+  </div>
+
+  <!-- Contracts -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">📄 Contracts</span>
+      <span class="section-count" id="contractCount">0</span>
+    </div>
+    <div id="contractsList"><div class="spinner"></div></div>
+  </div>
+
+  <!-- Quotes -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">📋 Quotes</span>
+      <span class="section-count" id="quoteCount">0</span>
+    </div>
+    <div id="quotesList"><div class="spinner"></div></div>
+  </div>
+
+  <!-- Tickets -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">🎫 Support Tickets</span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="section-count" id="ticketCount">0</span>
+        <button class="new-ticket-btn" onclick="toggleTicketForm()">+ New Ticket</button>
+      </div>
+    </div>
+
+    <!-- New ticket form -->
+    <div id="ticketForm">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label class="field-label" style="margin-bottom:5px">Subject *</label>
+          <input class="field-input" id="tk-subject" type="text" placeholder="Brief summary"/>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>
+            <label class="field-label" style="margin-bottom:5px">Category</label>
+            <select id="tk-category">
+              <option value="general">General</option>
+              <option value="bug">Bug</option>
+              <option value="feature-request">Feature</option>
+              <option value="billing">Billing</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" style="margin-bottom:5px">Priority</label>
+            <select id="tk-priority">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <textarea id="tk-description" rows="3" placeholder="Describe your issue in detail…" style="margin-bottom:10px"></textarea>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <label style="display:inline-flex;align-items:center;gap:6px;font-size:0.75rem;color:rgba(255,255,255,0.4);cursor:pointer">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+          <input type="file" id="tk-file" style="display:none"/>
+          <span id="tk-file-name">Attach file (optional)</span>
+        </label>
+        <div style="display:flex;gap:8px">
+          <button onclick="toggleTicketForm()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:9px 16px;color:rgba(255,255,255,0.45);font-family:'Poppins',sans-serif;font-size:0.8rem;cursor:pointer">Cancel</button>
+          <button id="tk-submitBtn" onclick="submitTicket()" style="background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:800;padding:9px 22px;border:none;border-radius:8px;cursor:pointer">Submit Ticket</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="ticketsList" style="margin-top:14px"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  function fmt(n) {
+    return '$' + parseFloat(n||0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+  }
+
+  function formatDate(d) {
+    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function statusBadge(status) {
+    const map = {
+      signed: 'signed', sent: 'sent', draft: 'pending',
+      open: 'open', 'in-progress': 'inprogress', resolved: 'resolved', closed: 'closed',
+      pending: 'pending',
+    };
+    const labels = { signed:'✓ Signed', sent:'Sent', draft:'Draft', open:'Open', 'in-progress':'In Progress', resolved:'Resolved', closed:'Closed', pending:'Pending' };
+    const cls = map[status] || 'sent';
+    return `<span class="badge badge-${cls}">${labels[status] || status}</span>`;
+  }
+
+  async function requestLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    if (!email) { alert('Please enter your email'); return; }
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true; btn.textContent = 'Sending…';
+    try {
+      const res = await fetch('/api/client/request-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send');
+      document.getElementById('sentToEmail').textContent = email;
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('loginSent').style.display = 'block';
+    } catch(e) {
+      alert(e.message);
+      btn.disabled = false; btn.textContent = 'Send Login Link →';
+    }
+  }
+
+  async function loadPortal() {
+    const res = await fetch('/api/client/me');
+    if (res.status === 401) {
+      // Not logged in — show login screen
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('portalScreen').style.display = 'none';
+      document.getElementById('logoutBtn').style.display = 'none';
+      return;
+    }
+    const data = await res.json();
+
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('portalScreen').style.display = 'block';
+    document.getElementById('logoutBtn').style.display = 'inline-flex';
+    document.getElementById('welcomeEmail').textContent = data.email;
+
+    // Contracts
+    document.getElementById('contractCount').textContent = data.contracts.length;
+    document.getElementById('contractsList').innerHTML = data.contracts.length
+      ? data.contracts.map(c => `
+        <a class="item-card" href="/contract/${c.token}" target="_blank" style="display:flex;margin-bottom:8px">
+          <div class="item-main">
+            <div class="item-title">${c.title || 'Service Agreement'}</div>
+            <div class="item-sub">${fmt(c.amount)} · Created ${formatDate(c.created_at)}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            ${statusBadge(c.status)}
+            <svg class="item-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </a>`).join('')
+      : '<div class="empty-state">No contracts yet</div>';
+
+    // Quotes
+    document.getElementById('quoteCount').textContent = data.quotes.length;
+    document.getElementById('quotesList').innerHTML = data.quotes.length
+      ? data.quotes.map(q => `
+        <a class="item-card" href="/quote/${q.token}" target="_blank" style="display:flex;margin-bottom:8px">
+          <div class="item-main">
+            <div class="item-title">${q.notes ? q.notes.substring(0, 60) + (q.notes.length > 60 ? '…' : '') : 'Quote'}</div>
+            <div class="item-sub">Sent ${formatDate(q.created_at)}${q.file_name ? ` · ${q.file_name}` : ''}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            ${statusBadge(q.status)}
+            <svg class="item-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </a>`).join('')
+      : '<div class="empty-state">No quotes yet</div>';
+
+    // Tickets
+    document.getElementById('ticketCount').textContent = data.tickets.length;
+    document.getElementById('ticketsList').innerHTML = data.tickets.length
+      ? data.tickets.map(t => `
+        <a class="item-card" href="/ticket/${t.token}" target="_blank" style="display:flex;margin-bottom:8px">
+          <div class="item-main">
+            <div class="item-title">${t.subject}</div>
+            <div class="item-sub">${t.category} · ${t.message_count} message${t.message_count != 1 ? 's' : ''} · Updated ${formatDate(t.updated_at)}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            ${statusBadge(t.status)}
+            <svg class="item-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </a>`).join('')
+      : '<div class="empty-state">No support tickets yet</div>';
+  }
+
+  async function logout() {
+    await fetch('/api/client/logout', { method: 'POST' });
+    loadPortal();
+  }
+
+  function toggleTicketForm() {
+    const f = document.getElementById('ticketForm');
+    f.style.display = f.style.display === 'none' ? 'block' : 'none';
+  }
+
+  document.getElementById('tk-file').addEventListener('change', function() {
+    document.getElementById('tk-file-name').textContent = this.files[0] ? this.files[0].name : 'Attach file (optional)';
+  });
+
+  async function submitTicket() {
+    const subject = document.getElementById('tk-subject').value.trim();
+    const description = document.getElementById('tk-description').value.trim();
+    if (!subject || !description) { alert('Subject and description are required'); return; }
+
+    const btn = document.getElementById('tk-submitBtn');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+
+    try {
+      const meRes = await fetch('/api/client/me');
+      const me = await meRes.json();
+
+      const fd = new FormData();
+      fd.append('client_email', me.email);
+      fd.append('subject', subject);
+      fd.append('description', description);
+      fd.append('category', document.getElementById('tk-category').value);
+      fd.append('priority', document.getElementById('tk-priority').value);
+      const file = document.getElementById('tk-file').files[0];
+      if (file) fd.append('file', file);
+
+      const res = await fetch('/api/tickets', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+
+      showToast('Ticket submitted ✓ — check your email for the link');
+      document.getElementById('ticketForm').style.display = 'none';
+      document.getElementById('tk-subject').value = '';
+      document.getElementById('tk-description').value = '';
+      document.getElementById('tk-file').value = '';
+      document.getElementById('tk-file-name').textContent = 'Attach file (optional)';
+      await loadPortal();
+    } catch(e) {
+      alert(e.message);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Submit Ticket';
+    }
+  }
+
+  loadPortal();
+</script>
+</body>
+</html>
