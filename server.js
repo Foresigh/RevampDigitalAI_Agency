@@ -456,6 +456,9 @@ async function initDb() {
 
 app.use(compression());
 
+// ── Multer — memory storage for file uploads ──
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } });
+
 // ── Stripe webhook — raw body required, must come BEFORE express.json() ──
 app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || await getSetting('stripe_webhook_secret');
@@ -1774,8 +1777,6 @@ app.post('/api/contract/:token/checkout', async (req, res) => {
   }
 });
 
-// ── Multer — memory storage for deliverable uploads ──
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } });
 
 // ── API: upload deliverable file (admin) ──
 app.post('/api/contracts/:id/upload', requireAuth, upload.single('file'), async (req, res) => {
