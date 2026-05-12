@@ -277,6 +277,7 @@
     <button class="tab-btn" data-tab="portfolio">Portfolio</button>
     <button class="tab-btn" data-tab="contracts">Contracts</button>
     <button class="tab-btn" data-tab="quotes">Quotes</button>
+    <button class="tab-btn" data-tab="tickets">🎫 Tickets</button>
     <button class="tab-btn" data-tab="settings">⚙ Settings</button>
   </div>
 
@@ -549,6 +550,59 @@
       </div>
     </div>
   </div><!-- /tab-quotes -->
+
+  <!-- ══ TICKETS TAB ══ -->
+  <div class="tab-panel" id="tab-tickets">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+      <div>
+        <div style="font-size:1.1rem;font-weight:700;color:#e8f0fe">Support Tickets</div>
+        <div style="font-size:0.78rem;color:rgba(255,255,255,0.35);margin-top:3px">Submitted by clients from their contract page</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div id="ticketFilterWrap" style="display:flex;gap:6px">
+          <button onclick="filterTickets('all')" id="tf-all" class="cact-btn" style="background:rgba(61,214,245,0.1);border-color:rgba(61,214,245,0.3);color:#3dd6f5">All</button>
+          <button onclick="filterTickets('open')" id="tf-open" class="cact-btn">Open</button>
+          <button onclick="filterTickets('in-progress')" id="tf-inprogress" class="cact-btn">In Progress</button>
+          <button onclick="filterTickets('resolved')" id="tf-resolved" class="cact-btn">Resolved</button>
+        </div>
+        <button onclick="loadTickets()" class="refresh-btn">↻ Refresh</button>
+      </div>
+    </div>
+    <div class="table-wrap" id="ticketsTableWrap">
+      <div class="loading"><div class="spinner"></div>Loading tickets…</div>
+    </div>
+  </div><!-- /tab-tickets -->
+
+  <!-- Ticket reply modal -->
+  <div id="ticketReplyModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center">
+    <div style="background:#0b1220;border:1px solid rgba(61,214,245,0.2);border-radius:20px;width:100%;max-width:620px;margin:16px;max-height:92vh;overflow-y:auto;position:relative;padding:0">
+      <div style="padding:24px 28px;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div id="trm-subject" style="font-size:1rem;font-weight:800;color:#e8f0fe"></div>
+          <div id="trm-meta" style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:4px"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <select id="trm-status" onchange="updateTicketStatus()" style="background:#0d1a2d;border:1px solid rgba(61,214,245,0.2);border-radius:8px;padding:6px 10px;color:#e8f0fe;font-size:0.78rem;font-family:'Poppins',sans-serif;outline:none">
+            <option value="open">Open</option>
+            <option value="in-progress">In Progress</option>
+            <option value="resolved">Resolved</option>
+            <option value="closed">Closed</option>
+          </select>
+          <button onclick="closeTicketReplyModal()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer;color:rgba(255,255,255,0.6);display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+      </div>
+      <div id="trm-thread" style="padding:20px 28px;display:flex;flex-direction:column;gap:12px;max-height:380px;overflow-y:auto"></div>
+      <div style="padding:20px 28px;border-top:1px solid rgba(255,255,255,0.07)">
+        <textarea id="trm-reply" rows="3" placeholder="Type your reply…" style="width:100%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(61,214,245,0.18);border-radius:10px;padding:11px 14px;color:#e8f0fe;font-size:0.88rem;font-family:'Poppins',sans-serif;outline:none;resize:none;margin-bottom:10px"></textarea>
+        <div style="display:flex;justify-content:flex-end">
+          <button id="trm-sendBtn" onclick="sendAdminReply()" style="background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-family:'Poppins',sans-serif;font-size:0.88rem;font-weight:800;padding:11px 26px;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:7px">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send Reply
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ══ SETTINGS TAB ══ -->
   <div class="tab-panel" id="tab-settings">
@@ -1619,6 +1673,7 @@ New Page & Section Additions</textarea>
       if (tab === 'portfolio' && !portfolioLoaded) loadPortfolioProjects();
       if (tab === 'contracts' && !contractsLoaded) { loadContracts(); loadSubscriptions(); }
       if (tab === 'quotes' && !quotesLoaded) loadQuotes();
+      if (tab === 'tickets' && !ticketsLoaded) loadTickets();
     });
   });
 
@@ -1986,6 +2041,123 @@ New Page & Section Additions</textarea>
 
   function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => showToast('Link copied ✓'));
+  }
+
+  // ── Tickets ──
+  let ticketsLoaded = false;
+  let allTickets = [];
+  let activeTicketFilter = 'all';
+  let currentTicketId = null;
+
+  const priorityColor = p => ({ low:'#4ade80', medium:'#f5c842', high:'#fb923c', urgent:'#f87171' }[p] || '#3dd6f5');
+  const statusLabel = s => ({ open:'Open', 'in-progress':'In Progress', resolved:'Resolved', closed:'Closed' }[s] || s);
+  const statusColor = s => ({ open:'#3dd6f5', 'in-progress':'#a78bfa', resolved:'#4ade80', closed:'rgba(255,255,255,0.3)' }[s] || '#3dd6f5');
+
+  function filterTickets(f) {
+    activeTicketFilter = f;
+    ['all','open','inprogress','resolved'].forEach(k => {
+      const el = document.getElementById(`tf-${k}`);
+      if (el) { el.style.background = ''; el.style.borderColor = ''; el.style.color = ''; }
+    });
+    const activeEl = document.getElementById(`tf-${f.replace('-','')}`);
+    if (activeEl) { activeEl.style.background = 'rgba(61,214,245,0.1)'; activeEl.style.borderColor = 'rgba(61,214,245,0.3)'; activeEl.style.color = '#3dd6f5'; }
+    renderTickets(allTickets);
+  }
+
+  function renderTickets(tickets) {
+    const filtered = activeTicketFilter === 'all' ? tickets : tickets.filter(t => t.status === activeTicketFilter);
+    const wrap = document.getElementById('ticketsTableWrap');
+    if (!filtered.length) {
+      wrap.innerHTML = `<div class="empty"><h3>No tickets</h3><p>${activeTicketFilter === 'all' ? 'No tickets submitted yet.' : `No ${statusLabel(activeTicketFilter).toLowerCase()} tickets.`}</p></div>`;
+      return;
+    }
+    const rows = filtered.map(t => `<tr style="cursor:pointer" onclick="openTicketReplyModal(${t.id})">
+      <td><div style="font-size:0.75rem;color:rgba(255,255,255,0.3);font-weight:600">#${t.id}</div></td>
+      <td><div class="lead-name">${t.client_name || '—'}</div><div class="lead-biz">${t.client_email}</div></td>
+      <td><div style="font-weight:600;color:#e8f0fe;font-size:0.88rem">${t.subject}</div><div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:2px">${(t.category||'general').replace(/-/g,' ')}</div></td>
+      <td><span style="font-size:0.7rem;font-weight:700;color:${priorityColor(t.priority)}">${(t.priority||'medium').toUpperCase()}</span></td>
+      <td><span style="font-size:0.72rem;font-weight:700;color:${statusColor(t.status)}">${statusLabel(t.status)}</span></td>
+      <td><div style="font-size:0.72rem;color:rgba(255,255,255,0.3)">${t.message_count} msg${t.message_count != 1 ? 's':''}</div></td>
+      <td><div class="lead-date">${formatDate(t.updated_at)}</div></td>
+    </tr>`).join('');
+    wrap.innerHTML = `<table><thead><tr><th>#</th><th>Client</th><th>Subject</th><th>Priority</th><th>Status</th><th>Messages</th><th>Updated</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  async function loadTickets() {
+    ticketsLoaded = true;
+    document.getElementById('ticketsTableWrap').innerHTML = '<div class="loading"><div class="spinner"></div>Loading tickets…</div>';
+    const res = await apiFetch('/api/tickets');
+    if (!res) return;
+    allTickets = await res.json();
+    renderTickets(allTickets);
+  }
+
+  async function openTicketReplyModal(id) {
+    currentTicketId = id;
+    const modal = document.getElementById('ticketReplyModal');
+    modal.style.display = 'flex';
+    document.getElementById('trm-thread').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    document.getElementById('trm-reply').value = '';
+
+    const res = await apiFetch(`/api/ticket-admin/${id}`);
+    if (!res) return;
+    const t = await res.json();
+
+    document.getElementById('trm-subject').textContent = `#${t.id}: ${t.subject}`;
+    document.getElementById('trm-meta').textContent = `${t.client_name || t.client_email} · ${(t.priority||'medium')} priority · ${(t.category||'general')}`;
+    document.getElementById('trm-status').value = t.status || 'open';
+
+    const thread = document.getElementById('trm-thread');
+    thread.innerHTML = (t.messages || []).map(m => `
+      <div style="border-radius:12px;padding:13px 16px;${m.sender==='admin'
+        ? 'background:rgba(61,214,245,0.07);border:1px solid rgba(61,214,245,0.15);margin-left:24px'
+        : 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);margin-right:24px'}">
+        <div style="font-size:0.7rem;font-weight:700;color:${m.sender==='admin'?'#3dd6f5':'rgba(255,255,255,0.4)'};margin-bottom:5px">${m.sender==='admin'?'You (Revamp Digital)':t.client_name||t.client_email}</div>
+        <div style="font-size:0.85rem;color:rgba(255,255,255,0.75);line-height:1.6;white-space:pre-wrap">${escHtml(m.message)}</div>
+        ${m.file_name?`<a href="/api/ticket-attachment/${m.id}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:0.72rem;color:#3dd6f5;text-decoration:none">📎 ${escHtml(m.file_name)}</a>`:''}
+        <div style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:6px">${formatDate(m.created_at)}</div>
+      </div>`).join('');
+    thread.scrollTop = thread.scrollHeight;
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function closeTicketReplyModal() {
+    document.getElementById('ticketReplyModal').style.display = 'none';
+    currentTicketId = null;
+    loadTickets();
+  }
+
+  async function updateTicketStatus() {
+    if (!currentTicketId) return;
+    const status = document.getElementById('trm-status').value;
+    await apiFetch(`/api/tickets/${currentTicketId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
+    showToast(`Status updated to ${statusLabel(status)}`);
+  }
+
+  async function sendAdminReply() {
+    if (!currentTicketId) return;
+    const message = document.getElementById('trm-reply').value.trim();
+    if (!message) { alert('Please enter a reply'); return; }
+    const btn = document.getElementById('trm-sendBtn');
+    btn.disabled = true; btn.innerHTML = 'Sending…';
+    try {
+      const fd = new FormData();
+      fd.append('message', message);
+      const res = await fetch(`/api/tickets/${currentTicketId}/reply`, { method: 'POST', body: fd, credentials: 'include' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send');
+      showToast('Reply sent ✓');
+      document.getElementById('trm-reply').value = '';
+      await openTicketReplyModal(currentTicketId);
+    } catch(e) {
+      alert(e.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Reply';
+    }
   }
 
   let uploadContractId = null;

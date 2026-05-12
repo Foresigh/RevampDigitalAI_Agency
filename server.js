@@ -435,6 +435,31 @@ async function initDb() {
     signer_ip TEXT
   )`);
 
+  await pool.query(`CREATE TABLE IF NOT EXISTS tickets (
+    id SERIAL PRIMARY KEY,
+    token TEXT UNIQUE NOT NULL,
+    contract_id INTEGER,
+    client_name TEXT,
+    client_email TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    category TEXT DEFAULT 'general',
+    priority TEXT DEFAULT 'medium',
+    status TEXT DEFAULT 'open',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+  )`);
+
+  await pool.query(`CREATE TABLE IF NOT EXISTS ticket_messages (
+    id SERIAL PRIMARY KEY,
+    ticket_id INTEGER REFERENCES tickets(id) ON DELETE CASCADE,
+    sender TEXT NOT NULL,
+    message TEXT NOT NULL,
+    file_data BYTEA,
+    file_name TEXT,
+    file_mime TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+  )`);
+
   await pool.query(`CREATE TABLE IF NOT EXISTS subscriptions (
     id SERIAL PRIMARY KEY,
     contract_id INTEGER,
@@ -1182,6 +1207,222 @@ app.post('/api/settings', requireAuth, async (req, res) => {
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
+
+// ════════════════════════════════════════════════
+// TICKET MANAGEMENT
+// ════════════════════════════════════════════════
+
+// ── Public: submit ticket (from contract page) ──
+app.post('/api/tickets', upload.single('file'), async (req, res) => {
+  try {
+    const { contract_token, client_name, client_email, subject, description, category, priority } = req.body;
+    if (!client_email || !subject || !description) return res.status(400).json({ error: 'Email, subject and description are required' });
+
+    // Verify contract token if provided
+    let contractId = null;
+    if (contract_token) {
+      const cr = await pool.query(`SELECT id, client_name, client_email FROM contracts WHERE token=$1`, [contract_token]);
+      if (cr.rows.length) contractId = cr.rows[0].id;
+    }
+
+    const token = crypto.randomBytes(20).toString('hex');
+    const ins = await pool.query(
+      `INSERT INTO tickets (token, contract_id, client_name, client_email, subject, category, priority)
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+      [token, contractId, client_name || null, client_email, subject, category || 'general', priority || 'medium']
+    );
+    const ticketId = ins.rows[0].id;
+
+    // Save opening message
+    await pool.query(
+      `INSERT INTO ticket_messages (ticket_id, sender, message, file_data, file_name, file_mime)
+       VALUES ($1,'client',$2,$3,$4,$5)`,
+      [ticketId, description,
+       req.file ? req.file.buffer : null,
+       req.file ? req.file.originalname : null,
+       req.file ? req.file.mimetype : null]
+    );
+
+    const baseUrl = process.env.BASE_URL || 'https://gorevamp.ai';
+    const ticketUrl = `${baseUrl}/ticket/${token}`;
+
+    // Email client their ticket link
+    await sendMail({
+      to: client_email,
+      subject: `[Ticket #${ticketId}] ${subject} — Revamp Digital LLC`,
+      html: `<div style="font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fb;padding:40px 20px">
+        <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+          <div style="background:#0b1220;padding:28px 32px;text-align:center">
+            <div style="font-size:20px;font-weight:800;color:#fff">Revamp Digital <span style="color:#3dd6f5">LLC</span></div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:4px">Support Ticket Created</div>
+          </div>
+          <div style="padding:32px">
+            <p style="margin:0 0 12px;font-size:15px;color:#374151">Hi ${client_name || client_email.split('@')[0]},</p>
+            <p style="margin:0 0 20px;font-size:15px;color:#374151;line-height:1.6">We've received your support request and will get back to you shortly.</p>
+            <div style="background:#f8fafc;border-radius:10px;padding:16px 20px;margin-bottom:24px;font-size:14px;color:#374151">
+              <strong>Ticket #${ticketId}:</strong> ${subject}
+            </div>
+            <div style="text-align:center">
+              <a href="${ticketUrl}" style="display:inline-block;background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-weight:800;font-size:15px;padding:14px 36px;border-radius:12px;text-decoration:none">View Ticket →</a>
+            </div>
+          </div>
+        </div>
+      </div>`,
+    }).catch(() => {});
+
+    // Notify admin
+    const adminEmail = process.env.ADMIN_EMAIL || await getSetting('admin_email');
+    if (adminEmail) {
+      await sendMail({
+        to: adminEmail,
+        subject: `[Ticket #${ticketId}] New ticket — ${subject}`,
+        html: `<div style="font-family:Arial,sans-serif;padding:28px;max-width:500px">
+          <h2 style="color:#0fa3b1">New Support Ticket #${ticketId}</h2>
+          <p><strong>From:</strong> ${client_name || ''} &lt;${client_email}&gt;</p>
+          <p><strong>Subject:</strong> ${subject}</p>
+          <p><strong>Priority:</strong> ${priority || 'medium'} &nbsp;|&nbsp; <strong>Category:</strong> ${category || 'general'}</p>
+          <p><strong>Message:</strong></p>
+          <div style="background:#f8fafc;border-radius:8px;padding:14px;margin-top:8px;font-size:14px;color:#374151">${description}</div>
+          <div style="margin-top:20px"><a href="${ticketUrl}" style="color:#0fa3b1">View Ticket →</a></div>
+        </div>`,
+      }).catch(() => {});
+    }
+
+    res.json({ ok: true, token, id: ticketId });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Admin: get single ticket with messages ──
+app.get('/api/ticket-admin/:id', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(`SELECT * FROM tickets WHERE id=$1`, [req.params.id]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+    const ticket = r.rows[0];
+    const msgs = await pool.query(`SELECT id, sender, message, file_name, created_at FROM ticket_messages WHERE ticket_id=$1 ORDER BY created_at ASC`, [ticket.id]);
+    res.json({ ...ticket, messages: msgs.rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Admin: list all tickets ──
+app.get('/api/tickets', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(`
+      SELECT t.*, (SELECT COUNT(*) FROM ticket_messages WHERE ticket_id=t.id) AS message_count
+      FROM tickets t ORDER BY t.updated_at DESC
+    `);
+    res.json(r.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Admin: update ticket status ──
+app.patch('/api/tickets/:id/status', requireAuth, async (req, res) => {
+  try {
+    const { status } = req.body;
+    await pool.query(`UPDATE tickets SET status=$1, updated_at=NOW() WHERE id=$2`, [status, req.params.id]);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Public: get ticket thread ──
+app.get('/api/ticket/:token', async (req, res) => {
+  try {
+    const r = await pool.query(`SELECT id, token, client_name, client_email, subject, category, priority, status, created_at, updated_at FROM tickets WHERE token=$1`, [req.params.token]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Ticket not found' });
+    const ticket = r.rows[0];
+    const msgs = await pool.query(`SELECT id, sender, message, file_name, created_at FROM ticket_messages WHERE ticket_id=$1 ORDER BY created_at ASC`, [ticket.id]);
+    res.json({ ...ticket, messages: msgs.rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Public: client reply ──
+app.post('/api/ticket/:token/reply', upload.single('file'), async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message) return res.status(400).json({ error: 'Message is required' });
+    const r = await pool.query(`SELECT id, client_email, client_name, subject FROM tickets WHERE token=$1`, [req.params.token]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Ticket not found' });
+    const ticket = r.rows[0];
+
+    await pool.query(
+      `INSERT INTO ticket_messages (ticket_id, sender, message, file_data, file_name, file_mime) VALUES ($1,'client',$2,$3,$4,$5)`,
+      [ticket.id, message, req.file?.buffer || null, req.file?.originalname || null, req.file?.mimetype || null]
+    );
+    await pool.query(`UPDATE tickets SET status='open', updated_at=NOW() WHERE id=$1`, [ticket.id]);
+
+    // Notify admin
+    const adminEmail = process.env.ADMIN_EMAIL || await getSetting('admin_email');
+    if (adminEmail) {
+      const baseUrl = process.env.BASE_URL || 'https://gorevamp.ai';
+      await sendMail({
+        to: adminEmail,
+        subject: `[Ticket #${ticket.id}] Reply from ${ticket.client_name || ticket.client_email}`,
+        html: `<div style="font-family:Arial,sans-serif;padding:28px;max-width:500px">
+          <h3 style="color:#0fa3b1">New reply on Ticket #${ticket.id}</h3>
+          <p><strong>${ticket.client_name || ticket.client_email}:</strong></p>
+          <div style="background:#f8fafc;border-radius:8px;padding:14px;font-size:14px;color:#374151">${message}</div>
+          <div style="margin-top:16px"><a href="${baseUrl}/ticket/${req.params.token}" style="color:#0fa3b1">View Ticket →</a></div>
+        </div>`,
+      }).catch(() => {});
+    }
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Admin: reply to ticket ──
+app.post('/api/tickets/:id/reply', requireAuth, upload.single('file'), async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message) return res.status(400).json({ error: 'Message is required' });
+    const r = await pool.query(`SELECT * FROM tickets WHERE id=$1`, [req.params.id]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Ticket not found' });
+    const ticket = r.rows[0];
+
+    await pool.query(
+      `INSERT INTO ticket_messages (ticket_id, sender, message, file_data, file_name, file_mime) VALUES ($1,'admin',$2,$3,$4,$5)`,
+      [ticket.id, message, req.file?.buffer || null, req.file?.originalname || null, req.file?.mimetype || null]
+    );
+    await pool.query(`UPDATE tickets SET status='in-progress', updated_at=NOW() WHERE id=$1`, [ticket.id]);
+
+    // Email client
+    const baseUrl = process.env.BASE_URL || 'https://gorevamp.ai';
+    await sendMail({
+      to: ticket.client_email,
+      subject: `[Ticket #${ticket.id}] Reply from Revamp Digital LLC`,
+      html: `<div style="font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fb;padding:40px 20px">
+        <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+          <div style="background:#0b1220;padding:28px 32px;text-align:center">
+            <div style="font-size:20px;font-weight:800;color:#fff">Revamp Digital <span style="color:#3dd6f5">LLC</span></div>
+          </div>
+          <div style="padding:32px">
+            <p style="margin:0 0 12px;font-size:15px;color:#374151">Hi ${ticket.client_name || ticket.client_email.split('@')[0]},</p>
+            <p style="margin:0 0 16px;font-size:15px;color:#374151">We've replied to your support ticket:</p>
+            <div style="background:#f8fafc;border-radius:10px;padding:16px 20px;margin-bottom:24px;font-size:14px;color:#374151;line-height:1.6">${message}</div>
+            <div style="text-align:center">
+              <a href="${baseUrl}/ticket/${ticket.token}" style="display:inline-block;background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-weight:800;font-size:15px;padding:14px 36px;border-radius:12px;text-decoration:none">View Full Thread →</a>
+            </div>
+          </div>
+        </div>
+      </div>`,
+    }).catch(() => {});
+
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Public: download ticket message attachment ──
+app.get('/api/ticket-attachment/:messageId', async (req, res) => {
+  try {
+    const r = await pool.query(`SELECT file_data, file_name, file_mime FROM ticket_messages WHERE id=$1`, [req.params.messageId]);
+    if (!r.rows.length || !r.rows[0].file_data) return res.status(404).json({ error: 'Attachment not found' });
+    const m = r.rows[0];
+    res.setHeader('Content-Disposition', `attachment; filename="${m.file_name}"`);
+    res.setHeader('Content-Type', m.file_mime || 'application/octet-stream');
+    res.send(m.file_data);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Public: serve ticket page ──
+app.get('/ticket/:token', (req, res) => res.sendFile(path.join(__dirname, 'ticket.html')));
 
 // ── API: send quote (admin) ──
 app.post('/api/quotes', requireAuth, upload.single('file'), async (req, res) => {

@@ -238,6 +238,9 @@
       </div>
       <h3>Agreement Signed</h3>
       <p id="signedByText">This agreement has been signed. A copy was emailed to you.</p>
+      <button onclick="openTicketModal()" style="margin-top:18px;background:rgba(61,214,245,0.08);border:1px solid rgba(61,214,245,0.25);border-radius:10px;padding:10px 22px;color:#3dd6f5;font-family:'Poppins',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">
+        🎫 Submit a Support Ticket
+      </button>
     </div>
 
   </div>
@@ -257,6 +260,51 @@
     <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="rgba(248,113,113,0.5)" stroke-width="1.5" style="margin:0 auto 20px;display:block"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     <h2 id="errorTitle">Contract Not Found</h2>
     <p id="errorMsg">This link may be invalid or expired. Please contact us at <a href="mailto:hello@gorevamp.ai" style="color:#3dd6f5">hello@gorevamp.ai</a>.</p>
+  </div>
+</div>
+
+<!-- Ticket Modal -->
+<div id="ticketModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.72);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:#0b1220;border:1px solid rgba(61,214,245,0.18);border-radius:20px;width:100%;max-width:520px;margin:16px;max-height:92vh;overflow-y:auto;position:relative;padding:32px;">
+    <button onclick="closeTicketModal()" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer;color:rgba(255,255,255,0.6);display:flex;align-items:center;justify-content:center">✕</button>
+    <div style="font-size:1rem;font-weight:800;margin-bottom:4px">Submit a Support Ticket</div>
+    <div style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-bottom:22px">We'll respond as soon as possible and email you a link to track your ticket.</div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label style="display:block;font-size:0.72rem;color:rgba(255,255,255,0.4);font-weight:600;margin-bottom:5px">Subject *</label>
+        <input id="tk-subject" type="text" placeholder="Brief summary of your issue" style="width:100%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(61,214,245,0.2);border-radius:10px;padding:11px 14px;color:#e8f0fe;font-size:0.88rem;font-family:'Poppins',sans-serif;outline:none"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label style="display:block;font-size:0.72rem;color:rgba(255,255,255,0.4);font-weight:600;margin-bottom:5px">Category</label>
+          <select id="tk-category" style="width:100%;background:#0d1a2d;border:1.5px solid rgba(61,214,245,0.2);border-radius:10px;padding:11px 14px;color:#e8f0fe;font-size:0.85rem;font-family:'Poppins',sans-serif;outline:none">
+            <option value="general">General</option>
+            <option value="bug">Bug / Issue</option>
+            <option value="feature-request">Feature Request</option>
+            <option value="billing">Billing</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.72rem;color:rgba(255,255,255,0.4);font-weight:600;margin-bottom:5px">Priority</label>
+          <select id="tk-priority" style="width:100%;background:#0d1a2d;border:1.5px solid rgba(61,214,245,0.2);border-radius:10px;padding:11px 14px;color:#e8f0fe;font-size:0.85rem;font-family:'Poppins',sans-serif;outline:none">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label style="display:block;font-size:0.72rem;color:rgba(255,255,255,0.4);font-weight:600;margin-bottom:5px">Description *</label>
+        <textarea id="tk-description" rows="4" placeholder="Describe your issue in detail…" style="width:100%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(61,214,245,0.2);border-radius:10px;padding:11px 14px;color:#e8f0fe;font-size:0.88rem;font-family:'Poppins',sans-serif;outline:none;resize:vertical"></textarea>
+      </div>
+      <div>
+        <label style="display:block;font-size:0.72rem;color:rgba(255,255,255,0.4);font-weight:600;margin-bottom:5px">Attachment (optional)</label>
+        <input id="tk-file" type="file" style="font-size:0.8rem;color:rgba(255,255,255,0.5)"/>
+      </div>
+      <button id="tkSubmitBtn" onclick="submitTicket()" style="width:100%;background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-family:'Poppins',sans-serif;font-size:0.95rem;font-weight:800;padding:14px;border:none;border-radius:12px;cursor:pointer;margin-top:4px">Submit Ticket →</button>
+    </div>
   </div>
 </div>
 
@@ -572,6 +620,54 @@
   }
 
   load();
+
+  function openTicketModal() {
+    document.getElementById('ticketModal').style.display = 'flex';
+    document.getElementById('tk-subject').value = '';
+    document.getElementById('tk-description').value = '';
+    document.getElementById('tk-file').value = '';
+    document.getElementById('tk-priority').value = 'medium';
+    document.getElementById('tk-category').value = 'general';
+  }
+
+  function closeTicketModal() {
+    document.getElementById('ticketModal').style.display = 'none';
+  }
+
+  async function submitTicket() {
+    const subject = document.getElementById('tk-subject').value.trim();
+    const description = document.getElementById('tk-description').value.trim();
+    if (!subject || !description) { alert('Subject and description are required'); return; }
+
+    const btn = document.getElementById('tkSubmitBtn');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+
+    try {
+      const fd = new FormData();
+      fd.append('contract_token', token);
+      if (contractData) {
+        fd.append('client_name', contractData.client_name || '');
+        fd.append('client_email', contractData.client_email || '');
+      }
+      fd.append('subject', subject);
+      fd.append('description', description);
+      fd.append('category', document.getElementById('tk-category').value);
+      fd.append('priority', document.getElementById('tk-priority').value);
+      const file = document.getElementById('tk-file').files[0];
+      if (file) fd.append('file', file);
+
+      const res = await fetch('/api/tickets', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to submit');
+
+      closeTicketModal();
+      alert(`Ticket submitted! Check your email for a link to track your ticket (#${data.id}).`);
+    } catch(e) {
+      alert(e.message || 'Something went wrong. Please try again.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Submit Ticket →';
+    }
+  }
 </script>
 </body>
 </html>

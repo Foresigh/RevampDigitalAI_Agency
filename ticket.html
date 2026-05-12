@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Support Ticket | Revamp Digital LLC</title>
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#05080f;color:#e8f0fe;font-family:'Poppins',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px 120px}
+    .topbar{width:100%;max-width:700px;display:flex;align-items:center;justify-content:space-between;margin-bottom:36px}
+    .topbar-logo{font-size:0.95rem;font-weight:700;color:#e8f0fe;text-decoration:none}
+    .topbar-logo span{color:#3dd6f5}
+    .card{width:100%;max-width:700px;background:linear-gradient(135deg,rgba(31,122,140,0.07),rgba(255,255,255,0.01));border:1px solid rgba(61,214,245,0.13);border-radius:20px;overflow:hidden;position:relative}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(61,214,245,0.45),transparent)}
+    .card-header{background:linear-gradient(135deg,#0b1220,#0d1a2d);padding:28px 32px;border-bottom:1px solid rgba(61,214,245,0.1)}
+    .card-body{padding:28px 32px;display:flex;flex-direction:column;gap:24px}
+    .section-label{font-size:0.65rem;font-weight:700;color:#3dd6f5;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+
+    /* Status badges */
+    .badge{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:4px 12px;font-size:0.7rem;font-weight:700}
+    .badge-open{background:rgba(61,214,245,0.1);border:1px solid rgba(61,214,245,0.25);color:#3dd6f5}
+    .badge-inprogress{background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.25);color:#a78bfa}
+    .badge-resolved{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);color:#4ade80}
+    .badge-closed{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.35)}
+    .badge-priority-low{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:#4ade80}
+    .badge-priority-medium{background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.2);color:#f5c842}
+    .badge-priority-high{background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.2);color:#fb923c}
+    .badge-priority-urgent{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);color:#f87171}
+
+    /* Thread */
+    .thread{display:flex;flex-direction:column;gap:14px}
+    .msg{border-radius:14px;padding:16px 20px}
+    .msg-client{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);margin-right:32px}
+    .msg-admin{background:linear-gradient(135deg,rgba(61,214,245,0.08),rgba(61,214,245,0.03));border:1px solid rgba(61,214,245,0.15);margin-left:32px}
+    .msg-sender{font-size:0.72rem;font-weight:700;margin-bottom:6px}
+    .msg-client .msg-sender{color:rgba(255,255,255,0.45)}
+    .msg-admin .msg-sender{color:#3dd6f5}
+    .msg-text{font-size:0.88rem;color:rgba(255,255,255,0.75);line-height:1.65;white-space:pre-wrap}
+    .msg-time{font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:8px}
+    .msg-attach{display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:0.75rem;color:#3dd6f5;text-decoration:none}
+
+    /* Reply form */
+    .reply-box{background:linear-gradient(135deg,rgba(31,122,140,0.1),rgba(31,122,140,0.03));border:1px solid rgba(61,214,245,0.18);border-radius:16px;padding:22px 24px}
+    textarea{width:100%;background:rgba(255,255,255,0.04);border:1.5px solid rgba(61,214,245,0.18);border-radius:10px;padding:12px 14px;color:#e8f0fe;font-size:0.88rem;font-family:'Poppins',sans-serif;outline:none;resize:vertical;min-height:100px;transition:border 0.2s}
+    textarea:focus{border-color:rgba(61,214,245,0.45)}
+    textarea::placeholder{color:rgba(255,255,255,0.2)}
+    .file-label{display:inline-flex;align-items:center;gap:7px;font-size:0.78rem;color:rgba(255,255,255,0.45);cursor:pointer;padding:8px 0}
+    .file-label input{display:none}
+    #fileNameDisplay{font-size:0.75rem;color:#3dd6f5;margin-left:4px}
+    .reply-btn{background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-family:'Poppins',sans-serif;font-size:0.9rem;font-weight:800;padding:12px 28px;border:none;border-radius:10px;cursor:pointer;transition:opacity 0.2s;display:flex;align-items:center;gap:7px}
+    .reply-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+    /* Resolved banner */
+    .resolved-banner{background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:16px 20px;text-align:center;font-size:0.85rem;color:rgba(255,255,255,0.5)}
+
+    /* Loading / error */
+    .spinner{width:40px;height:40px;border:3px solid rgba(61,214,245,0.15);border-top-color:#3dd6f5;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 20px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .state-center{text-align:center;padding:60px 20px}
+
+    /* Toast */
+    #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e2d3d;border:1px solid rgba(61,214,245,0.25);border-radius:10px;padding:12px 24px;font-size:0.85rem;color:#e8f0fe;z-index:200;opacity:0;transition:opacity 0.3s;pointer-events:none}
+    #toast.show{opacity:1}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/" class="topbar-logo">Revamp <span>Digital</span> LLC</a>
+  <div style="font-size:0.72rem;color:rgba(255,255,255,0.3);font-weight:600">Support Ticket</div>
+</div>
+
+<div id="loadingCard" class="card">
+  <div class="state-center"><div class="spinner"></div><p style="color:rgba(255,255,255,0.4)">Loading ticket…</p></div>
+</div>
+
+<div id="mainCard" class="card" style="display:none">
+  <div class="card-header">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>
+        <div id="ticketSubject" style="font-size:1.1rem;font-weight:800;color:#e8f0fe;margin-bottom:8px"></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span id="statusBadge" class="badge badge-open">Open</span>
+          <span id="priorityBadge" class="badge badge-priority-medium">Medium</span>
+          <span id="categoryBadge" style="font-size:0.7rem;color:rgba(255,255,255,0.35);font-weight:600"></span>
+        </div>
+      </div>
+      <div id="ticketMeta" style="font-size:0.72rem;color:rgba(255,255,255,0.3);text-align:right;line-height:1.7"></div>
+    </div>
+  </div>
+
+  <div class="card-body">
+
+    <!-- Thread -->
+    <div>
+      <div class="section-label">Conversation</div>
+      <div class="thread" id="thread"></div>
+    </div>
+
+    <!-- Reply form -->
+    <div id="replySection" class="reply-box">
+      <div style="font-size:0.9rem;font-weight:700;margin-bottom:12px">Reply</div>
+      <textarea id="replyText" placeholder="Type your message…"></textarea>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:10px">
+        <label class="file-label">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+          Attach file
+          <input type="file" id="replyFile" onchange="showFileName()"/>
+          <span id="fileNameDisplay"></span>
+        </label>
+        <button class="reply-btn" id="replyBtn" onclick="submitReply()">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Send Reply
+        </button>
+      </div>
+    </div>
+
+    <!-- Resolved notice -->
+    <div id="resolvedSection" class="resolved-banner" style="display:none">
+      ✓ This ticket has been resolved. Reply below to reopen it.
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const token = window.location.pathname.split('/').pop();
+  let ticketData = null;
+
+  function showFileName() {
+    const f = document.getElementById('replyFile').files[0];
+    document.getElementById('fileNameDisplay').textContent = f ? f.name : '';
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  function formatDate(d) {
+    return new Date(d).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' });
+  }
+
+  function statusBadgeClass(s) {
+    if (s === 'open') return 'badge-open';
+    if (s === 'in-progress') return 'badge-inprogress';
+    if (s === 'resolved' || s === 'closed') return 'badge-resolved';
+    return 'badge-open';
+  }
+
+  function priorityBadgeClass(p) {
+    return `badge-priority-${p || 'medium'}`;
+  }
+
+  function renderThread(messages) {
+    const thread = document.getElementById('thread');
+    thread.innerHTML = messages.map(m => `
+      <div class="msg msg-${m.sender}">
+        <div class="msg-sender">${m.sender === 'admin' ? 'Revamp Digital LLC' : (ticketData.client_name || 'You')}</div>
+        <div class="msg-text">${escHtml(m.message)}</div>
+        ${m.file_name ? `<a class="msg-attach" href="/api/ticket-attachment/${m.id}" target="_blank">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+          ${escHtml(m.file_name)}
+        </a>` : ''}
+        <div class="msg-time">${formatDate(m.created_at)}</div>
+      </div>
+    `).join('');
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  async function load() {
+    try {
+      const res = await fetch(`/api/ticket/${token}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Ticket not found');
+      ticketData = data;
+
+      document.getElementById('loadingCard').style.display = 'none';
+      document.getElementById('mainCard').style.display = 'block';
+
+      document.getElementById('ticketSubject').textContent = `Ticket #${data.id}: ${data.subject}`;
+
+      const sb = document.getElementById('statusBadge');
+      sb.textContent = data.status === 'in-progress' ? 'In Progress' : data.status.charAt(0).toUpperCase() + data.status.slice(1);
+      sb.className = `badge ${statusBadgeClass(data.status)}`;
+
+      const pb = document.getElementById('priorityBadge');
+      pb.textContent = (data.priority || 'medium').charAt(0).toUpperCase() + (data.priority || 'medium').slice(1);
+      pb.className = `badge ${priorityBadgeClass(data.priority)}`;
+
+      document.getElementById('categoryBadge').textContent = (data.category || 'general').replace(/-/g,' ').replace(/\b\w/g, l => l.toUpperCase());
+
+      document.getElementById('ticketMeta').innerHTML = `
+        <div>${data.client_name || data.client_email}</div>
+        <div>Opened ${formatDate(data.created_at)}</div>
+      `;
+
+      renderThread(data.messages);
+
+      if (data.status === 'resolved' || data.status === 'closed') {
+        document.getElementById('resolvedSection').style.display = 'block';
+      }
+    } catch(e) {
+      document.getElementById('loadingCard').innerHTML = `<div class="state-center"><h2 style="color:#f87171">Ticket Not Found</h2><p style="color:rgba(255,255,255,0.4);margin-top:8px">${e.message}</p></div>`;
+    }
+  }
+
+  async function submitReply() {
+    const message = document.getElementById('replyText').value.trim();
+    if (!message) { alert('Please enter a message'); return; }
+    const btn = document.getElementById('replyBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<div style="width:14px;height:14px;border:2px solid rgba(0,0,0,0.2);border-top-color:#05080f;border-radius:50%;animation:spin 0.6s linear infinite"></div> Sending…';
+
+    try {
+      const fd = new FormData();
+      fd.append('message', message);
+      const file = document.getElementById('replyFile').files[0];
+      if (file) fd.append('file', file);
+
+      const res = await fetch(`/api/ticket/${token}/reply`, { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send');
+
+      document.getElementById('replyText').value = '';
+      document.getElementById('replyFile').value = '';
+      document.getElementById('fileNameDisplay').textContent = '';
+      showToast('Reply sent ✓');
+      await load();
+    } catch(e) {
+      alert(e.message || 'Something went wrong');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Reply';
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
