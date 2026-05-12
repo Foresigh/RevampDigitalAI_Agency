@@ -1217,11 +1217,10 @@ app.post('/api/quotes', requireAuth, upload.single('file'), async (req, res) => 
               <div style="text-align:center;margin-bottom:28px">
                 <a href="${signingLink}" style="display:inline-block;background:linear-gradient(135deg,#3dd6f5,#0fa3b1);color:#05080f;font-weight:800;font-size:16px;padding:16px 40px;border-radius:12px;text-decoration:none">Review & Sign Quote →</a>
               </div>
-              <p style="margin:0;font-size:12px;color:#9ca3af;text-align:center">The quote PDF is attached to this email for your records.</p>
+              <p style="margin:0;font-size:12px;color:#9ca3af;text-align:center">Click the button above to view the full quote and sign online.</p>
             </div>
           </div>
         </div>`,
-      attachments: [{ filename: req.file.originalname, content: req.file.buffer }],
     });
 
     res.json({ ok: true, id: ins.rows[0].id, token });
