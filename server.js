@@ -750,7 +750,7 @@ app.get('/api/client/me', requireClientAuth, async (req, res) => {
   try {
     const email = req.session.clientEmail;
     const [contracts, quotes, tickets] = await Promise.all([
-      pool.query(`SELECT id, token, title, amount, status, payment_status, created_at, signed_at, signer_name FROM contracts WHERE LOWER(client_email)=$1 ORDER BY created_at DESC`, [email]),
+      pool.query(`SELECT id, token, amount, services, status, payment_status, created_at, signed_at, signer_name FROM contracts WHERE LOWER(client_email)=$1 ORDER BY created_at DESC`, [email]),
       pool.query(`SELECT id, token, notes, file_name, status, created_at, signed_at FROM quotes WHERE LOWER(client_email)=$1 ORDER BY created_at DESC`, [email]),
       pool.query(`SELECT id, token, subject, category, priority, status, created_at, updated_at, (SELECT COUNT(*) FROM ticket_messages WHERE ticket_id=tickets.id) AS message_count FROM tickets WHERE LOWER(client_email)=$1 ORDER BY updated_at DESC`, [email]),
     ]);

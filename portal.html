@@ -243,15 +243,16 @@
   }
 
   async function loadPortal() {
+    try {
     const res = await fetch('/api/client/me');
     if (res.status === 401) {
-      // Not logged in — show login screen
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('portalScreen').style.display = 'none';
       document.getElementById('logoutBtn').style.display = 'none';
       return;
     }
     const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to load portal');
 
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('portalScreen').style.display = 'block';
@@ -264,7 +265,7 @@
       ? data.contracts.map(c => `
         <a class="item-card" href="/contract/${c.token}" target="_blank" style="display:flex;margin-bottom:8px">
           <div class="item-main">
-            <div class="item-title">${c.title || 'Service Agreement'}</div>
+            <div class="item-title">${c.services ? c.services.split('\n')[0].trim() || 'Service Agreement' : 'Service Agreement'}</div>
             <div class="item-sub">${fmt(c.amount)} · Created ${formatDate(c.created_at)}</div>
           </div>
           <div style="display:flex;align-items:center;gap:10px">
@@ -305,6 +306,11 @@
           </div>
         </a>`).join('')
       : '<div class="empty-state">No support tickets yet</div>';
+    } catch(e) {
+      ['contractsList','quotesList','ticketsList'].forEach(id => {
+        document.getElementById(id).innerHTML = `<div class="empty-state" style="color:#f87171">Failed to load: ${e.message}</div>`;
+      });
+    }
   }
 
   async function logout() {
