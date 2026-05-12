@@ -500,6 +500,8 @@
       <div class="stat-card"><div class="stat-label">Sent / Pending</div><div class="stat-value yellow" id="statCtSent">—</div></div>
       <div class="stat-card"><div class="stat-label">Signed</div><div class="stat-value green" id="statCtSigned">—</div></div>
       <div class="stat-card"><div class="stat-label">Total Value (Signed)</div><div class="stat-value green" id="statCtValue">—</div></div>
+      <div class="stat-card"><div class="stat-label">Monthly Recurring (Active)</div><div class="stat-value" style="color:#a78bfa" id="statSubMRR">—</div></div>
+      <div class="stat-card"><div class="stat-label">Active Subscriptions</div><div class="stat-value" style="color:#a78bfa" id="statSubCount">—</div></div>
     </div>
 
     <div class="controls">
@@ -1868,6 +1870,13 @@ New Page & Section Additions</textarea>
     if (!res) return;
     const subs = await res.json();
     const el = document.getElementById('subscriptionsTableContent');
+
+    // Update subscription stats
+    const activeSubs = subs.filter(s => s.status === 'active');
+    const mrr = activeSubs.reduce((sum, s) => sum + parseFloat(s.amount || 0), 0);
+    document.getElementById('statSubMRR').textContent = '$' + mrr.toLocaleString('en-US', { minimumFractionDigits: 2 }) + '/mo';
+    document.getElementById('statSubCount').textContent = activeSubs.length;
+
     if (!subs.length) { el.innerHTML = `<div class="empty"><h3>No subscriptions yet</h3><p>Click "∞ Subscription" on a signed contract to set one up.</p></div>`; return; }
 
     const statusBadge = s => {
