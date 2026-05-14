@@ -1818,7 +1818,7 @@ app.post('/api/subscriptions', requireAuth, async (req, res) => {
         </div>`,
     });
 
-    res.json({ ok: true, id: subId });
+    res.json({ ok: true, id: subId, checkoutUrl: session.url });
   } catch (e) {
     console.error('[subscription create error]', e.message);
     res.status(500).json({ error: e.message });

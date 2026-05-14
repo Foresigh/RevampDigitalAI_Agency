@@ -943,6 +943,16 @@
         <textarea class="settings-input" id="subDescription" rows="3" placeholder="Hosting, monthly updates, support, new features…" style="resize:vertical"></textarea>
       </div>
       <button onclick="submitSubModal()" id="subSubmitBtn" style="width:100%;background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;font-weight:800;font-size:0.95rem;padding:13px;border:none;border-radius:10px;cursor:pointer">Send Subscription Request →</button>
+
+      <!-- Link shown after sending -->
+      <div id="subLinkBox" style="display:none;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:10px;padding:14px 16px">
+        <div style="font-size:0.72rem;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">✓ Sent — Payment Link</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input id="subLinkInput" type="text" readonly style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:8px 12px;color:#e8f0fe;font-size:0.78rem;font-family:'Poppins',sans-serif;outline:none;min-width:0"/>
+          <button onclick="copySubLink()" style="background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);border-radius:8px;padding:8px 14px;color:#a78bfa;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap">Copy Link</button>
+        </div>
+        <div style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-top:6px">Share this link with the client if they didn't receive the email</div>
+      </div>
     </div>
   </div>
 </div>
@@ -1855,7 +1865,14 @@ New Page & Section Additions</textarea>
 
   function closeSubModal() {
     document.getElementById('subModal').style.display = 'none';
+    document.getElementById('subLinkBox').style.display = 'none';
+    document.getElementById('subSubmitBtn').style.display = 'block';
     subContractId = null;
+  }
+
+  function copySubLink() {
+    const url = document.getElementById('subLinkInput').value;
+    navigator.clipboard.writeText(url).then(() => showToast('Link copied ✓'));
   }
 
   async function submitSubModal() {
@@ -1872,10 +1889,22 @@ New Page & Section Additions</textarea>
     try {
       const res = await apiFetch('/api/subscriptions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       if (!res) return;
-      if (res.ok) { showToast('Subscription request sent ✓'); closeSubModal(); loadSubscriptions(); }
-      else { const d = await res.json(); alert(d.error || 'Failed to create subscription'); }
-    } catch(e) { alert(e.message); }
-    finally { btn.textContent = 'Send Subscription Request →'; btn.disabled = false; }
+      const d = await res.json();
+      if (res.ok) {
+        showToast('Subscription request sent ✓');
+        loadSubscriptions();
+        if (d.checkoutUrl) {
+          document.getElementById('subLinkInput').value = d.checkoutUrl;
+          document.getElementById('subLinkBox').style.display = 'block';
+          btn.style.display = 'none';
+        } else {
+          closeSubModal();
+        }
+      } else {
+        alert(d.error || 'Failed to create subscription');
+        btn.textContent = 'Send Subscription Request →'; btn.disabled = false;
+      }
+    } catch(e) { alert(e.message); btn.textContent = 'Send Subscription Request →'; btn.disabled = false; }
   }
 
   let pauseSubId = null;
