@@ -1978,6 +1978,7 @@ New Page & Section Additions</textarea>
       <td>${statusBadge(s.status)}${s.paused_until ? `<div class="lead-date" style="color:#f5c842;margin-top:3px">Resumes ${formatDate(s.paused_until)}</div>` : ''}</td>
       <td><div class="lead-date">${formatDate(s.created_at)}</div>${s.next_billing_date ? `<div class="lead-date" style="color:#a78bfa">Next: ${formatDate(s.next_billing_date)}</div>` : ''}</td>
       <td style="white-space:nowrap">
+        ${s.checkout_url && s.status === 'pending' ? `<button class="cact-btn cact-send" onclick="copyToClipboard('${s.checkout_url}')">Copy Link</button>` : ''}
         ${s.status === 'active' ? `<button class="cact-btn" style="background:rgba(245,200,66,0.08);border-color:rgba(245,200,66,0.25);color:#f5c842" onclick="openPauseModal(${s.id})">⏸ Pause</button>` : ''}
         ${s.status === 'paused' ? `<button class="cact-btn" style="background:rgba(74,222,128,0.08);border-color:rgba(74,222,128,0.25);color:#4ade80" onclick="resumeSubscription(${s.id})">▶ Resume</button>` : ''}
         ${s.status !== 'cancelled' ? `<button class="cact-btn cact-void" onclick="cancelSubscription(${s.id})">Cancel</button>` : ''}

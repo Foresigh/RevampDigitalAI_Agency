@@ -470,12 +470,14 @@ async function initDb() {
     status TEXT DEFAULT 'pending',
     stripe_checkout_id TEXT,
     stripe_subscription_id TEXT,
+    checkout_url TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     activated_at TIMESTAMPTZ,
     cancelled_at TIMESTAMPTZ,
     next_billing_date TIMESTAMPTZ,
     paused_until TIMESTAMPTZ
   )`);
+  await pool.query(`ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS checkout_url TEXT`);
 
   await pool.query(`CREATE TABLE IF NOT EXISTS client_magic_links (
     id SERIAL PRIMARY KEY,
@@ -1787,7 +1789,7 @@ app.post('/api/subscriptions', requireAuth, async (req, res) => {
       billing_address_collection: 'auto',
     });
 
-    await pool.query(`UPDATE subscriptions SET stripe_checkout_id=$1 WHERE id=$2`, [session.id, subId]);
+    await pool.query(`UPDATE subscriptions SET stripe_checkout_id=$1, checkout_url=$2 WHERE id=$3`, [session.id, session.url, subId]);
 
     // Email client the payment link
     const fmt = n => `$${parseFloat(n).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
