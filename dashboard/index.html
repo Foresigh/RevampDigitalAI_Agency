@@ -1866,7 +1866,10 @@ New Page & Section Additions</textarea>
   function closeSubModal() {
     document.getElementById('subModal').style.display = 'none';
     document.getElementById('subLinkBox').style.display = 'none';
-    document.getElementById('subSubmitBtn').style.display = 'block';
+    const btn = document.getElementById('subSubmitBtn');
+    btn.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Send Subscription Request →';
     subContractId = null;
   }
 
@@ -1886,9 +1889,17 @@ New Page & Section Additions</textarea>
     };
     if (!body.client_email || !body.amount) { alert('Email and amount are required'); return; }
     btn.textContent = 'Sending…'; btn.disabled = true;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
     try {
-      const res = await apiFetch('/api/subscriptions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      if (!res) return;
+      const res = await fetch('/api/subscriptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+        credentials: 'include',
+      });
+      clearTimeout(timeout);
       const d = await res.json();
       if (res.ok) {
         showToast('Subscription request sent ✓');
@@ -1902,9 +1913,13 @@ New Page & Section Additions</textarea>
         }
       } else {
         alert(d.error || 'Failed to create subscription');
-        btn.textContent = 'Send Subscription Request →'; btn.disabled = false;
       }
-    } catch(e) { alert(e.message); btn.textContent = 'Send Subscription Request →'; btn.disabled = false; }
+    } catch(e) {
+      clearTimeout(timeout);
+      alert(e.name === 'AbortError' ? 'Request timed out — check Railway logs for errors' : (e.message || 'Something went wrong'));
+    } finally {
+      if (btn.style.display !== 'none') { btn.textContent = 'Send Subscription Request →'; btn.disabled = false; }
+    }
   }
 
   let pauseSubId = null;
