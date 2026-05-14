@@ -524,7 +524,13 @@
     <div style="margin-top:36px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <div style="font-size:1rem;font-weight:700;color:#a78bfa">∞ Active Subscriptions</div>
-        <button onclick="loadSubscriptions()" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);color:#a78bfa;border-radius:8px;padding:6px 14px;font-size:0.78rem;cursor:pointer;font-weight:600">↺ Refresh</button>
+        <div style="display:flex;gap:8px">
+          <button onclick="loadSubscriptions()" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);color:#a78bfa;border-radius:8px;padding:6px 14px;font-size:0.78rem;cursor:pointer;font-weight:600">↺ Refresh</button>
+          <button onclick="openSubModal(null,'','')" style="background:linear-gradient(135deg,rgba(167,139,250,0.2),rgba(124,58,237,0.2));border:1px solid rgba(167,139,250,0.4);color:#a78bfa;border-radius:8px;padding:6px 14px;font-size:0.78rem;cursor:pointer;font-weight:700;display:flex;align-items:center;gap:5px">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Subscription
+          </button>
+        </div>
       </div>
       <div class="table-wrap">
         <div id="subscriptionsTableContent">
