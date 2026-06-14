@@ -2302,6 +2302,46 @@ const errorPage = (code, title, message) => `<!DOCTYPE html>
 </body>
 </html>`;
 
+// ── Rebuild site contact form ──
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+app.post('/api/contact-rebuild', async (req, res) => {
+  try {
+    const { name, email, interest, message } = req.body || {};
+    if (!name || !email || !message) return res.status(400).json({ error: 'Missing fields' });
+    const interestLabels = {
+      caregeo: 'CareGeo — Homecare Platform',
+      bajajgo: 'BajajGo — Ride Hailing',
+      harborgrove: 'HarborGrove — NEMT',
+      custom: 'Custom Software Build',
+      other: 'Something else',
+    };
+    const interestLabel = interestLabels[interest] || interest || 'Not specified';
+    await transporter.sendMail({
+      from: `"Revamp Digital" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_USER,
+      replyTo: email,
+      subject: `New Inquiry from ${name} — ${interestLabel}`,
+      html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;background:#05080f;color:#e8f0fe;padding:32px;border-radius:12px">
+        <h2 style="color:#3dd6f5;margin-bottom:24px">New Website Inquiry</h2>
+        <table style="width:100%;border-collapse:collapse">
+          <tr><td style="padding:8px 0;color:#888;width:120px">Name</td><td style="padding:8px 0;font-weight:600">${esc(name)}</td></tr>
+          <tr><td style="padding:8px 0;color:#888">Email</td><td style="padding:8px 0"><a href="mailto:${esc(email)}" style="color:#3dd6f5">${esc(email)}</a></td></tr>
+          <tr><td style="padding:8px 0;color:#888">Interest</td><td style="padding:8px 0">${esc(interestLabel)}</td></tr>
+        </table>
+        <div style="margin-top:24px;padding:20px;background:rgba(255,255,255,0.04);border-radius:8px;border-left:3px solid #3dd6f5">
+          <div style="font-size:12px;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Message</div>
+          <p style="margin:0;line-height:1.7">${esc(message).replace(/\n/g,'<br/>')}</p>
+        </div>
+        <p style="margin-top:20px;font-size:12px;color:#555">Submitted from gorevamp.ai/rebuild</p>
+      </div>`,
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[contact-rebuild]', err);
+    res.status(500).json({ error: 'Failed to send' });
+  }
+});
+
 app.use((req, res) => {
   res.status(404).send(errorPage(404, 'Page Not Found', "The page you're looking for doesn't exist. It may have moved or the URL might be incorrect."));
 });

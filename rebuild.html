@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Revamp Digital — Software Studio</title>
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@700;800&display=swap"/>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --bg:       #05080f;
+      --bg2:      #0a0f1a;
+      --bg3:      #0d1525;
+      --teal:     #3dd6f5;
+      --teal2:    #0fa3b1;
+      --white:    #e8f0fe;
+      --muted:    rgba(232,240,254,0.45);
+      --border:   rgba(61,214,245,0.12);
+      --border2:  rgba(255,255,255,0.07);
+    }
+    html { scroll-behavior:smooth; }
+    body { background:var(--bg); color:var(--white); font-family:'Inter',sans-serif; overflow-x:hidden; }
+
+    /* ── NAV ── */
+    nav {
+      position:fixed; top:0; left:0; right:0; z-index:100;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 40px; height:64px;
+      background:rgba(5,8,15,0.85); backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+    }
+    .nav-logo { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:800; color:var(--white); text-decoration:none; letter-spacing:-0.3px; }
+    .nav-logo span { color:var(--teal); }
+    .nav-links { display:flex; align-items:center; gap:32px; }
+    .nav-links a { font-size:0.85rem; color:var(--muted); text-decoration:none; font-weight:500; transition:color 0.2s; }
+    .nav-links a:hover { color:var(--white); }
+    .nav-cta { background:linear-gradient(135deg,var(--teal),var(--teal2)); color:#05080f; font-size:0.82rem; font-weight:700; padding:9px 20px; border-radius:8px; text-decoration:none; transition:opacity 0.2s; }
+    .nav-cta:hover { opacity:0.85; }
+    @media(max-width:768px){
+      nav { padding:0 20px; }
+      .nav-links { display:none; }
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      text-align:center; padding:120px 24px 80px; position:relative; overflow:hidden;
+    }
+    .hero::before {
+      content:''; position:absolute; top:-20%; left:50%; transform:translateX(-50%);
+      width:800px; height:800px; border-radius:50%;
+      background:radial-gradient(circle, rgba(61,214,245,0.07) 0%, transparent 70%);
+      pointer-events:none;
+    }
+    .hero-eyebrow {
+      display:inline-flex; align-items:center; gap:8px;
+      background:rgba(61,214,245,0.06); border:1px solid rgba(61,214,245,0.2);
+      border-radius:20px; padding:6px 16px; font-size:0.75rem; font-weight:600;
+      color:var(--teal); letter-spacing:0.5px; margin-bottom:28px; text-transform:uppercase;
+    }
+    .hero-eyebrow span { width:6px; height:6px; border-radius:50%; background:var(--teal); display:inline-block; animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .hero h1 {
+      font-family:'Syne',sans-serif; font-size:clamp(2.4rem,6vw,5rem);
+      font-weight:800; line-height:1.08; letter-spacing:-2px; margin-bottom:24px; max-width:860px;
+    }
+    .hero h1 em { font-style:normal; color:var(--teal); }
+    .hero p { font-size:clamp(1rem,2vw,1.2rem); color:var(--muted); max-width:560px; line-height:1.7; margin-bottom:40px; font-weight:400; }
+    .hero-actions { display:flex; align-items:center; gap:14px; flex-wrap:wrap; justify-content:center; }
+    .btn-primary { background:linear-gradient(135deg,var(--teal),var(--teal2)); color:#05080f; font-size:0.95rem; font-weight:700; padding:14px 32px; border-radius:10px; text-decoration:none; transition:opacity 0.2s; }
+    .btn-primary:hover { opacity:0.88; }
+    .btn-ghost { background:rgba(255,255,255,0.05); border:1px solid var(--border2); color:var(--white); font-size:0.95rem; font-weight:600; padding:14px 32px; border-radius:10px; text-decoration:none; transition:all 0.2s; }
+    .btn-ghost:hover { background:rgba(255,255,255,0.09); }
+    .hero-stats { display:flex; gap:48px; margin-top:72px; padding-top:48px; border-top:1px solid var(--border2); flex-wrap:wrap; justify-content:center; }
+    .hero-stat-num { font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; color:var(--white); }
+    .hero-stat-label { font-size:0.78rem; color:var(--muted); margin-top:4px; font-weight:500; }
+
+    /* ── SECTION SHARED ── */
+    section { padding:100px 24px; }
+    .container { max-width:1100px; margin:0 auto; }
+    .section-tag { font-size:0.7rem; font-weight:700; color:var(--teal); text-transform:uppercase; letter-spacing:2px; margin-bottom:16px; }
+    .section-title { font-family:'Syne',sans-serif; font-size:clamp(1.8rem,4vw,3rem); font-weight:800; letter-spacing:-1px; line-height:1.15; margin-bottom:16px; }
+    .section-sub { font-size:1rem; color:var(--muted); line-height:1.7; max-width:520px; }
+
+    /* ── PRODUCTS ── */
+    .products { background:var(--bg2); }
+    .products-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:24px; margin-top:56px; }
+    .product-card {
+      background:var(--bg3); border:1px solid var(--border2); border-radius:20px;
+      padding:32px; display:flex; flex-direction:column; gap:16px;
+      transition:border-color 0.25s, transform 0.25s; position:relative; overflow:hidden;
+    }
+    .product-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; opacity:0; transition:opacity 0.25s; }
+    .product-card:hover { border-color:rgba(61,214,245,0.3); transform:translateY(-4px); }
+    .product-card:hover::before { opacity:1; }
+    .product-card.caregeo::before { background:linear-gradient(90deg,#10b981,#059669); }
+    .product-card.bajajgo::before { background:linear-gradient(90deg,#f5a623,#d4891a); }
+    .product-card.harborgrove::before { background:linear-gradient(90deg,#42a5f5,#0d2b4e); }
+    .product-card.coming::before { background:linear-gradient(90deg,var(--teal),var(--teal2)); }
+    .product-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; }
+    .product-icon.green { background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.2); }
+    .product-icon.orange { background:rgba(245,166,35,0.12); border:1px solid rgba(245,166,35,0.2); }
+    .product-icon.blue { background:rgba(66,165,245,0.12); border:1px solid rgba(66,165,245,0.2); }
+    .product-icon.teal { background:rgba(61,214,245,0.08); border:1px solid var(--border); }
+    .product-name { font-family:'Syne',sans-serif; font-size:1.3rem; font-weight:800; }
+    .product-tagline { font-size:0.82rem; color:var(--muted); line-height:1.6; flex:1; }
+    .product-tags { display:flex; gap:6px; flex-wrap:wrap; }
+    .tag { font-size:0.65rem; font-weight:600; padding:3px 10px; border-radius:20px; }
+    .tag-green { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); color:#10b981; }
+    .tag-orange { background:rgba(245,166,35,0.1); border:1px solid rgba(245,166,35,0.2); color:#f5a623; }
+    .tag-blue { background:rgba(66,165,245,0.1); border:1px solid rgba(66,165,245,0.2); color:#42a5f5; }
+    .tag-teal { background:rgba(61,214,245,0.08); border:1px solid var(--border); color:var(--teal); }
+    .product-link { display:inline-flex; align-items:center; gap:6px; font-size:0.8rem; font-weight:600; text-decoration:none; margin-top:4px; transition:gap 0.2s; }
+    .product-link:hover { gap:10px; }
+    .product-link.green { color:#10b981; }
+    .product-link.orange { color:#f5a623; }
+    .product-link.blue { color:#42a5f5; }
+    .product-link.teal { color:var(--teal); }
+    .coming-soon-badge { font-size:0.68rem; font-weight:700; background:rgba(61,214,245,0.08); border:1px solid var(--border); color:var(--teal); padding:3px 10px; border-radius:20px; display:inline-block; }
+
+    /* ── WHAT WE BUILD ── */
+    .industries-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-top:48px; }
+    .industry-card { background:var(--bg3); border:1px solid var(--border2); border-radius:16px; padding:24px 20px; }
+    .industry-icon { font-size:1.6rem; margin-bottom:12px; }
+    .industry-name { font-size:0.9rem; font-weight:700; margin-bottom:6px; }
+    .industry-desc { font-size:0.75rem; color:var(--muted); line-height:1.6; }
+
+    /* ── HOW WE WORK ── */
+    .how { background:var(--bg2); }
+    .steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:24px; margin-top:56px; counter-reset:steps; }
+    .step { position:relative; padding:28px; background:var(--bg3); border:1px solid var(--border2); border-radius:16px; counter-increment:steps; }
+    .step::before { content:counter(steps,'0'counter(steps)); font-family:'Syne',sans-serif; font-size:2.5rem; font-weight:800; color:rgba(61,214,245,0.08); position:absolute; top:16px; right:20px; }
+    .step-icon { width:40px; height:40px; background:rgba(61,214,245,0.08); border:1px solid var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
+    .step h3 { font-size:0.95rem; font-weight:700; margin-bottom:8px; }
+    .step p { font-size:0.8rem; color:var(--muted); line-height:1.65; }
+
+    /* ── FOUNDER ── */
+    .founder-grid { display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center; margin-top:56px; }
+    @media(max-width:768px){ .founder-grid { grid-template-columns:1fr; gap:36px; } }
+    .founder-img-wrap { position:relative; }
+    .founder-img-bg { width:100%; aspect-ratio:1; border-radius:24px; background:linear-gradient(135deg,rgba(61,214,245,0.08),rgba(15,163,177,0.04)); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; }
+    .founder-initials { font-family:'Syne',sans-serif; font-size:5rem; font-weight:800; color:rgba(61,214,245,0.2); }
+    .founder-badge { position:absolute; bottom:-16px; left:50%; transform:translateX(-50%); background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:12px 20px; display:flex; align-items:center; gap:10px; white-space:nowrap; }
+    .founder-badge-dot { width:8px; height:8px; border-radius:50%; background:#4ade80; }
+    .founder-badge-text { font-size:0.78rem; font-weight:600; color:var(--white); }
+    .founder-content h2 { font-family:'Syne',sans-serif; font-size:clamp(1.6rem,3vw,2.4rem); font-weight:800; letter-spacing:-1px; margin-bottom:16px; }
+    .founder-content p { font-size:0.9rem; color:var(--muted); line-height:1.8; margin-bottom:16px; }
+    .founder-skills { display:flex; flex-wrap:wrap; gap:8px; margin-top:24px; }
+    .skill-tag { font-size:0.72rem; font-weight:600; padding:5px 12px; background:rgba(61,214,245,0.06); border:1px solid var(--border); border-radius:20px; color:var(--teal); }
+
+    /* ── CTA ── */
+    .cta-section { background:linear-gradient(135deg,rgba(61,214,245,0.06),rgba(15,163,177,0.03)); border-top:1px solid var(--border); border-bottom:1px solid var(--border); text-align:center; }
+    .cta-section h2 { font-family:'Syne',sans-serif; font-size:clamp(1.8rem,4vw,3rem); font-weight:800; letter-spacing:-1px; margin-bottom:16px; }
+    .cta-section p { color:var(--muted); font-size:1rem; line-height:1.7; max-width:500px; margin:0 auto 36px; }
+
+    /* ── CONTACT ── */
+    .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:start; }
+    @media(max-width:768px){ .contact-grid { grid-template-columns:1fr; } }
+    .contact-form { display:flex; flex-direction:column; gap:14px; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    @media(max-width:500px){ .form-row { grid-template-columns:1fr; } }
+    .field-label { display:block; font-size:0.72rem; font-weight:600; color:var(--muted); margin-bottom:6px; }
+    .field-input { width:100%; background:rgba(255,255,255,0.04); border:1.5px solid var(--border2); border-radius:10px; padding:12px 14px; color:var(--white); font-size:0.88rem; font-family:'Inter',sans-serif; outline:none; transition:border-color 0.2s; }
+    .field-input:focus { border-color:rgba(61,214,245,0.4); }
+    .field-input::placeholder { color:rgba(255,255,255,0.2); }
+    select.field-input { cursor:pointer; background-color:#0a0f1a; }
+    textarea.field-input { resize:vertical; min-height:120px; }
+    .submit-btn { background:linear-gradient(135deg,var(--teal),var(--teal2)); color:#05080f; font-family:'Inter',sans-serif; font-size:0.95rem; font-weight:700; padding:14px; border:none; border-radius:10px; cursor:pointer; transition:opacity 0.2s; }
+    .submit-btn:hover { opacity:0.88; }
+    .contact-info { display:flex; flex-direction:column; gap:28px; }
+    .contact-info-item { display:flex; gap:16px; align-items:flex-start; }
+    .contact-info-icon { width:40px; height:40px; background:rgba(61,214,245,0.08); border:1px solid var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .contact-info-label { font-size:0.72rem; color:var(--muted); font-weight:600; margin-bottom:4px; }
+    .contact-info-value { font-size:0.88rem; font-weight:600; color:var(--white); }
+
+    /* ── FOOTER ── */
+    footer { background:var(--bg2); border-top:1px solid var(--border2); padding:40px 24px; }
+    .footer-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+    .footer-logo { font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:800; color:var(--white); }
+    .footer-logo span { color:var(--teal); }
+    .footer-links { display:flex; gap:24px; }
+    .footer-links a { font-size:0.78rem; color:var(--muted); text-decoration:none; }
+    .footer-links a:hover { color:var(--white); }
+    .footer-copy { font-size:0.75rem; color:rgba(255,255,255,0.2); }
+
+    /* ── TOAST ── */
+    #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#1e2d3d; border:1px solid var(--border); border-radius:10px; padding:12px 24px; font-size:0.85rem; color:var(--white); z-index:200; opacity:0; transition:opacity 0.3s; pointer-events:none; white-space:nowrap; }
+    #toast.show { opacity:1; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/rebuild" class="nav-logo">Revamp <span>Digital</span></a>
+  <div class="nav-links">
+    <a href="#products">Products</a>
+    <a href="#build">What We Build</a>
+    <a href="#founder">About</a>
+    <a href="#contact">Contact</a>
+    <a href="#contact" class="nav-cta">Book a Demo</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow"><span></span> Software Studio — Boise, Idaho</div>
+  <h1>We Build Software<br/>for the <em>Real World</em></h1>
+  <p>From ride-hailing in Ethiopia to homecare management in Idaho — we design and ship software products for industries that have been underserved by technology.</p>
+  <div class="hero-actions">
+    <a href="#products" class="btn-primary">See Our Products</a>
+    <a href="#contact" class="btn-ghost">Work With Us</a>
+  </div>
+  <div class="hero-stats">
+    <div>
+      <div class="hero-stat-num">3+</div>
+      <div class="hero-stat-label">Products Shipped</div>
+    </div>
+    <div>
+      <div class="hero-stat-num">4</div>
+      <div class="hero-stat-label">Industries Served</div>
+    </div>
+    <div>
+      <div class="hero-stat-num">2</div>
+      <div class="hero-stat-label">Countries</div>
+    </div>
+    <div>
+      <div class="hero-stat-num">100%</div>
+      <div class="hero-stat-label">Custom Built</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="products" id="products">
+  <div class="container">
+    <div class="section-tag">Our Products</div>
+    <h2 class="section-title">Software We've Built &amp; Operate</h2>
+    <p class="section-sub">Each product solves a real problem in a specific industry — designed, built, and run by us.</p>
+
+    <div class="products-grid">
+
+      <!-- CareGeo -->
+      <div class="product-card caregeo">
+        <div class="product-icon green">🏠</div>
+        <div>
+          <div class="product-name">CareGeo</div>
+          <div style="font-size:0.72rem;color:rgba(16,185,129,0.7);font-weight:600;margin-top:2px">caregeo.app</div>
+        </div>
+        <p class="product-tagline">End-to-end homecare management with real-time geofencing. Clock-in verification, caregiver tracking, shift management and compliance — all in one platform.</p>
+        <div class="product-tags">
+          <span class="tag tag-green">Homecare</span>
+          <span class="tag tag-green">Geofence</span>
+          <span class="tag tag-green">Live</span>
+        </div>
+        <a href="https://caregeo.app" target="_blank" class="product-link green">
+          Visit caregeo.app
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></a>
+        </a>
+      </div>
+
+      <!-- BajajGo -->
+      <div class="product-card bajajgo">
+        <div class="product-icon orange">🛺</div>
+        <div>
+          <div class="product-name">BajajGo</div>
+          <div style="font-size:0.72rem;color:rgba(245,166,35,0.7);font-weight:600;margin-top:2px">Ethiopia's First Bajaj App</div>
+        </div>
+        <p class="product-tagline">Fixed-price bajaj (auto-rickshaw) hailing for Ethiopia. No haggling — upfront pricing, live driver tracking, and verified drivers across Addis Ababa and beyond.</p>
+        <div class="product-tags">
+          <span class="tag tag-orange">Ride Hailing</span>
+          <span class="tag tag-orange">Ethiopia</span>
+          <span class="tag tag-orange">In Development</span>
+        </div>
+        <a href="#contact" class="product-link orange">
+          Get Early Access
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+
+      <!-- HarborGrove -->
+      <div class="product-card harborgrove">
+        <div class="product-icon blue">🚐</div>
+        <div>
+          <div class="product-name">HarborGrove</div>
+          <div style="font-size:0.72rem;color:rgba(66,165,245,0.7);font-weight:600;margin-top:2px">Care &amp; Mobility</div>
+        </div>
+        <p class="product-tagline">Non-emergency medical transportation for Idaho. Wheelchair-accessible vehicles, dialysis transport, hospital discharge coordination — compassionate care, dependable service.</p>
+        <div class="product-tags">
+          <span class="tag tag-blue">NEMT</span>
+          <span class="tag tag-blue">Idaho</span>
+          <span class="tag tag-blue">Live</span>
+        </div>
+        <a href="tel:+12082973601" class="product-link blue">
+          (208) 297-3601
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        </a>
+      </div>
+
+      <!-- Coming Soon -->
+      <div class="product-card coming" style="border-style:dashed;opacity:0.7">
+        <div class="product-icon teal">⚡</div>
+        <div>
+          <div class="product-name" style="color:var(--muted)">Next Product</div>
+          <span class="coming-soon-badge">Coming Soon</span>
+        </div>
+        <p class="product-tagline">We're always building. Booking software, ecommerce platforms, and more products are in development. Follow along or reach out to get early access.</p>
+        <div class="product-tags">
+          <span class="tag tag-teal">Booking</span>
+          <span class="tag tag-teal">Ecommerce</span>
+          <span class="tag tag-teal">More</span>
+        </div>
+        <a href="#contact" class="product-link teal">
+          Join the waitlist
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- WHAT WE BUILD -->
+<section id="build">
+  <div class="container">
+    <div class="section-tag">What We Build</div>
+    <h2 class="section-title">Industries We Specialize In</h2>
+    <p class="section-sub">We go deep in specific verticals — not generalist software for everyone, but purpose-built tools for real operators.</p>
+    <div class="industries-grid">
+      <div class="industry-card">
+        <div class="industry-icon">🏥</div>
+        <div class="industry-name">Homecare &amp; Healthcare</div>
+        <div class="industry-desc">Geofencing, caregiver management, shift tracking, EVV compliance, client portals.</div>
+      </div>
+      <div class="industry-card">
+        <div class="industry-icon">🚐</div>
+        <div class="industry-name">NEMT &amp; Medical Transport</div>
+        <div class="industry-desc">Dispatch, scheduling, driver apps, Medicaid billing integration, route optimization.</div>
+      </div>
+      <div class="industry-card">
+        <div class="industry-icon">🛺</div>
+        <div class="industry-name">Ride Hailing &amp; Mobility</div>
+        <div class="industry-desc">Driver &amp; rider apps, live tracking, fixed-price dispatch, payments, SMS integration.</div>
+      </div>
+      <div class="industry-card">
+        <div class="industry-icon">📅</div>
+        <div class="industry-name">Booking &amp; Scheduling</div>
+        <div class="industry-desc">Appointment booking, automated reminders, staff scheduling, payment collection.</div>
+      </div>
+      <div class="industry-card">
+        <div class="industry-icon">🛒</div>
+        <div class="industry-name">Ecommerce &amp; Retail</div>
+        <div class="industry-desc">Custom storefronts, inventory management, POS integration, order tracking.</div>
+      </div>
+      <div class="industry-card">
+        <div class="industry-icon">🌍</div>
+        <div class="industry-name">African Markets</div>
+        <div class="industry-desc">Mobile-first, SMS-based, offline-capable software built for Ethiopian and East African users.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW WE WORK -->
+<section class="how">
+  <div class="container">
+    <div class="section-tag">How We Work</div>
+    <h2 class="section-title">From Idea to Live Product</h2>
+    <p class="section-sub">We don't do templates or shortcuts. Every product is built from scratch for the problem at hand.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--teal)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <h3>Discovery</h3>
+        <p>We learn your industry, your users, and the exact problem you're solving. No assumptions, no generic solutions.</p>
+      </div>
+      <div class="step">
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--teal)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <h3>Design</h3>
+        <p>Clean, functional UI built for real operators — not tech-savvy users. Fast, mobile-first, and dead simple to use.</p>
+      </div>
+      <div class="step">
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--teal)" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <h3>Build</h3>
+        <p>Full-stack development — web, mobile, APIs, databases. We ship fast and iterate based on real feedback.</p>
+      </div>
+      <div class="step">
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h3>Launch &amp; Support</h3>
+        <p>We deploy, monitor, and maintain. You get ongoing support — not a handoff and goodbye.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOUNDER -->
+<section id="founder">
+  <div class="container">
+    <div class="founder-grid">
+      <div class="founder-img-wrap">
+        <div class="founder-img-bg">
+          <div class="founder-initials">FB</div>
+        </div>
+        <div class="founder-badge">
+          <div class="founder-badge-dot"></div>
+          <div class="founder-badge-text">Founder &amp; Builder — Boise, Idaho</div>
+        </div>
+      </div>
+      <div class="founder-content">
+        <div class="section-tag">About</div>
+        <h2>Built by an Engineer,<br/>Driven by Real Problems</h2>
+        <p>I'm Feyisa Berisa — software engineer, product builder, and founder of Revamp Digital. My background is in computer engineering with hands-on experience in autonomous vehicle systems and AI tooling.</p>
+        <p>I started building software for businesses that had no good options — homecare agencies running on spreadsheets, bajaj drivers haggling over every fare, NEMT operators dispatching by phone. These aren't edge cases. They're whole industries waiting for the right tools.</p>
+        <p>Every product we ship is something I'd use myself if I were running that business.</p>
+        <div class="founder-skills">
+          <span class="skill-tag">Software Engineering</span>
+          <span class="skill-tag">Product Design</span>
+          <span class="skill-tag">AI &amp; Automation</span>
+          <span class="skill-tag">Systems Thinking</span>
+          <span class="skill-tag">Autonomous Vehicles</span>
+          <span class="skill-tag">Full Stack</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container">
+    <h2>Have a Software Problem?<br/>Let's Talk.</h2>
+    <p>Whether you need a custom platform built from scratch or want to use one of our existing products — reach out and we'll figure out the right path together.</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <a href="#contact" class="btn-primary">Book a Free Call</a>
+      <a href="mailto:hello@gorevamp.ai" class="btn-ghost">hello@gorevamp.ai</a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <div class="contact-grid">
+      <div>
+        <div class="section-tag">Contact</div>
+        <h2 class="section-title">Start a Conversation</h2>
+        <p class="section-sub" style="margin-bottom:36px">Tell us what you're building or what problem you're trying to solve. We'll respond within 24 hours.</p>
+        <div class="contact-info">
+          <div class="contact-info-item">
+            <div class="contact-info-icon">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div>
+              <div class="contact-info-label">Email</div>
+              <div class="contact-info-value">hello@gorevamp.ai</div>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            </div>
+            <div>
+              <div class="contact-info-label">Phone</div>
+              <div class="contact-info-value">(385) 253-2318</div>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div>
+              <div class="contact-info-label">Location</div>
+              <div class="contact-info-value">Boise, Idaho — serving clients worldwide</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <form class="contact-form" onsubmit="submitContact(event)">
+        <div class="form-row">
+          <div>
+            <label class="field-label">Name *</label>
+            <input class="field-input" type="text" name="name" placeholder="Your name" required/>
+          </div>
+          <div>
+            <label class="field-label">Email *</label>
+            <input class="field-input" type="email" name="email" placeholder="your@email.com" required/>
+          </div>
+        </div>
+        <div>
+          <label class="field-label">I'm interested in</label>
+          <select class="field-input" name="interest">
+            <option value="">Select one…</option>
+            <option value="caregeo">CareGeo — Homecare Platform</option>
+            <option value="bajajgo">BajajGo — Ride Hailing</option>
+            <option value="harborgrove">HarborGrove — NEMT</option>
+            <option value="custom">Custom Software Build</option>
+            <option value="other">Something else</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Message *</label>
+          <textarea class="field-input" name="message" placeholder="Tell us about your project or what you're trying to solve…" required></textarea>
+        </div>
+        <button type="submit" class="submit-btn" id="contactSubmitBtn">Send Message →</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Revamp <span>Digital</span> LLC</div>
+    <div class="footer-links">
+      <a href="#products">Products</a>
+      <a href="#contact">Contact</a>
+      <a href="https://caregeo.app" target="_blank">CareGeo</a>
+      <a href="/client">Client Portal</a>
+    </div>
+    <div class="footer-copy">© 2026 Revamp Digital LLC — Boise, Idaho</div>
+  </div>
+</footer>
+
+<div id="toast"></div>
+
+<script>
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  async function submitContact(e) {
+    e.preventDefault();
+    const btn = document.getElementById('contactSubmitBtn');
+    const form = e.target;
+    btn.disabled = true; btn.textContent = 'Sending…';
+    try {
+      const body = {
+        name: form.name.value,
+        email: form.email.value,
+        interest: form.interest.value,
+        message: form.message.value,
+      };
+      const res = await fetch('/api/contact-rebuild', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        showToast('Message sent ✓ We\'ll be in touch within 24 hours');
+        form.reset();
+      } else {
+        showToast('Failed to send — please email hello@gorevamp.ai directly');
+      }
+    } catch(e) {
+      showToast('Failed to send — please email hello@gorevamp.ai directly');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Send Message →';
+    }
+  }
+
+  // Smooth active nav highlight
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.id; });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--white)' : '';
+    });
+  });
+</script>
+</body>
+</html>
