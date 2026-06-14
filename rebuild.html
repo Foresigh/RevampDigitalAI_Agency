@@ -99,6 +99,14 @@
     .product-card.bajajgo::before { background:linear-gradient(90deg,#f5a623,#d4891a); }
     .product-card.harborgrove::before { background:linear-gradient(90deg,#42a5f5,#0d2b4e); }
     .product-card.coming::before { background:linear-gradient(90deg,var(--teal),var(--teal2)); }
+    .product-card.chaltu::before { background:linear-gradient(90deg,#e879a0,#be185d); }
+    .product-card.thryve::before { background:linear-gradient(90deg,#a78bfa,#7c3aed); }
+    .product-icon.pink { background:rgba(232,121,160,0.12); border:1px solid rgba(232,121,160,0.2); }
+    .product-icon.purple { background:rgba(167,139,250,0.12); border:1px solid rgba(167,139,250,0.2); }
+    .tag-pink { background:rgba(232,121,160,0.1); border:1px solid rgba(232,121,160,0.2); color:#e879a0; }
+    .tag-purple { background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.2); color:#a78bfa; }
+    .product-link.pink { color:#e879a0; }
+    .product-link.purple { color:#a78bfa; }
     .product-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; }
     .product-icon.green { background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.2); }
     .product-icon.orange { background:rgba(245,166,35,0.12); border:1px solid rgba(245,166,35,0.2); }
@@ -215,11 +223,11 @@
   </div>
   <div class="hero-stats">
     <div>
-      <div class="hero-stat-num">3+</div>
+      <div class="hero-stat-num">5+</div>
       <div class="hero-stat-label">Products Shipped</div>
     </div>
     <div>
-      <div class="hero-stat-num">4</div>
+      <div class="hero-stat-num">6+</div>
       <div class="hero-stat-label">Industries Served</div>
     </div>
     <div>
@@ -299,6 +307,44 @@
         </a>
       </div>
 
+      <!-- ChaltuSalon -->
+      <div class="product-card chaltu">
+        <div class="product-icon pink">✂️</div>
+        <div>
+          <div class="product-name">Chaltu's Salon</div>
+          <div style="font-size:0.72rem;color:rgba(232,121,160,0.7);font-weight:600;margin-top:2px">chaltusalon.com</div>
+        </div>
+        <p class="product-tagline">Full-stack booking platform for a hair braiding salon in Salt Lake City. Clients book online, pay deposits, get SMS &amp; email reminders — stylists manage availability from an admin dashboard.</p>
+        <div class="product-tags">
+          <span class="tag tag-pink">Salon Booking</span>
+          <span class="tag tag-pink">Square Payments</span>
+          <span class="tag tag-pink">Live</span>
+        </div>
+        <a href="https://www.chaltusalon.com" target="_blank" class="product-link pink">
+          Visit chaltusalon.com
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+
+      <!-- Thryve.AI -->
+      <div class="product-card thryve">
+        <div class="product-icon purple">🧠</div>
+        <div>
+          <div class="product-name">Thryve.AI</div>
+          <div style="font-size:0.72rem;color:rgba(167,139,250,0.7);font-weight:600;margin-top:2px">Therapist Practice Management</div>
+        </div>
+        <p class="product-tagline">End-to-end platform for independent therapists. Session scheduling, goal &amp; habit tracking, client check-ins, secure messaging, and Stripe billing — web dashboard + mobile client app.</p>
+        <div class="product-tags">
+          <span class="tag tag-purple">Mental Health</span>
+          <span class="tag tag-purple">React Native</span>
+          <span class="tag tag-purple">In Development</span>
+        </div>
+        <a href="#contact" class="product-link purple">
+          Request Early Access
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+
       <!-- Coming Soon -->
       <div class="product-card coming" style="border-style:dashed;opacity:0.7">
         <div class="product-icon teal">⚡</div>
@@ -348,6 +394,16 @@
         <div class="industry-icon">📅</div>
         <div class="industry-name">Booking &amp; Scheduling</div>
         <div class="industry-desc">Appointment booking, automated reminders, staff scheduling, payment collection.</div>
+      </div>
+      <div class="industry-card">
+        <div class="industry-icon">💇</div>
+        <div class="industry-name">Salon &amp; Beauty</div>
+        <div class="industry-desc">Online booking, deposit collection, stylist management, SMS reminders, Square payments.</div>
+      </div>
+      <div class="industry-card">
+        <div class="industry-icon">🧠</div>
+        <div class="industry-name">Mental Health &amp; Therapy</div>
+        <div class="industry-desc">Session scheduling, goal tracking, secure messaging, Stripe billing, mobile client apps.</div>
       </div>
       <div class="industry-card">
         <div class="industry-icon">🛒</div>
