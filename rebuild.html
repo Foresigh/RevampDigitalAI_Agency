@@ -1059,6 +1059,12 @@
     let t=0;
     function resize(){cv.width=W();cv.height=H();}
     resize();window.addEventListener('resize',resize);
+    function glowOf(c){
+      if(c===GOLD||c.indexOf('255,182,0')>-1)return 'rgba(255,182,0,0.18)';
+      if(c===SKY||c.indexOf('56,182,255')>-1)return 'rgba(56,182,255,0.18)';
+      if(c.indexOf('0,212,176')>-1||c.indexOf('00d4b0')>-1||c.indexOf('d4b0')>-1)return 'rgba(0,212,176,0.18)';
+      return 'rgba(5,150,245,0.18)';
+    }
     // service nodes on 3 concentric orbits
     const NODES=[
       // orbit 0 (inner) — 4 service hubs
@@ -1159,7 +1165,7 @@
         const pulse=.85+.15*Math.sin(t*.04+(n.slot+n.orbit)*1.1);
         // glow
         const gd=ctx.createRadialGradient(pos.x,pos.y,0,pos.x,pos.y,r*2.4);
-        gd.addColorStop(0,n.color.replace('rgba(','rgba(').replace(',0.',',0.18)').replace(')','').split(',').slice(0,3).join(',')+',0.18)');
+        gd.addColorStop(0,glowOf(n.color));
         gd.addColorStop(1,'transparent');
         ctx.fillStyle=gd;ctx.fillRect(pos.x-r*2.4,pos.y-r*2.4,r*4.8,r*4.8);
         // ring
