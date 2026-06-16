@@ -3,319 +3,326 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Revamp Digital — Software Studio</title>
+  <title>Revamp Digital LLC — Software Studio</title>
+  <meta name="description" content="Revamp Digital builds production software for real businesses — homecare, medical transport, ride-hailing, booking, and more. Based in Smithfield, Utah."/>
   <link rel="icon" href="/images/favicon.ico"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=JetBrains+Mono:wght@400;500&display=swap"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"/>
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
     :root {
-      --bg:        #030712;
-      --bg2:       #060d1f;
-      --bg3:       #0a1628;
-      --bg4:       #0e1d35;
-      --cyan:      #22d3ee;
-      --cyan2:     #0891b2;
-      --cyan-dim:  rgba(34,211,238,0.08);
-      --cyan-glow: rgba(34,211,238,0.15);
-      --gold:      #f59e0b;
-      --white:     #f0f6ff;
-      --muted:     rgba(240,246,255,0.4);
-      --muted2:    rgba(240,246,255,0.65);
-      --border:    rgba(34,211,238,0.1);
-      --border2:   rgba(255,255,255,0.06);
-      --border3:   rgba(255,255,255,0.1);
+      --dark:   #020B18;
+      --navy:   #061A2E;
+      --navy2:  #0A2240;
+      --blue:   #0596F5;
+      --sky:    #38B6FF;
+      --gold:   #FFB600;
+      --amber:  #E87C00;
+      --white:  #FFFFFF;
+      --silver: #A8C4DC;
+      --light:  #D0E8FF;
+      --muted:  rgba(168,196,220,0.6);
+      --muted2: rgba(208,232,255,0.75);
+      --b-blue: rgba(5,150,245,0.12);
+      --b-blue2:rgba(5,150,245,0.22);
+      --b-gold: rgba(255,182,0,0.15);
+      --b-dark: rgba(255,255,255,0.06);
+      --b-dark2:rgba(255,255,255,0.1);
     }
-    html { scroll-behavior:smooth; font-size:16px; }
-    body { background:var(--bg); color:var(--white); font-family:'Inter',sans-serif; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+    html { scroll-behavior:smooth; }
+    body { background:var(--dark); color:var(--white); font-family:'Inter',sans-serif; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
 
-    /* ══════════════════════════ GRID BG ══════════════════════════ */
+    /* ── GRID OVERLAY ── */
     .grid-bg {
       position:fixed; inset:0; z-index:0; pointer-events:none;
       background-image:
-        linear-gradient(rgba(34,211,238,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(34,211,238,0.025) 1px, transparent 1px);
-      background-size:60px 60px;
-      mask-image:radial-gradient(ellipse 80% 80% at 50% 0%, black 30%, transparent 100%);
+        linear-gradient(rgba(5,150,245,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(5,150,245,0.03) 1px, transparent 1px);
+      background-size:64px 64px;
+      mask-image:radial-gradient(ellipse 90% 70% at 50% 0%, black 20%, transparent 100%);
     }
 
-    /* ══════════════════════════ NAV ══════════════════════════ */
+    /* ── TOP BAR ACCENT ── */
+    .top-bar { position:fixed; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--blue),var(--gold),var(--blue)); z-index:200; }
+
+    /* ── NAV ── */
     nav {
-      position:fixed; top:0; left:0; right:0; z-index:100;
+      position:fixed; top:3px; left:0; right:0; z-index:100;
       display:flex; align-items:center; justify-content:space-between;
-      padding:0 48px; height:68px;
-      background:rgba(3,7,18,0.8);
-      backdrop-filter:blur(20px) saturate(180%);
-      border-bottom:1px solid var(--border2);
+      padding:0 52px; height:66px;
+      background:rgba(2,11,24,0.88); backdrop-filter:blur(20px) saturate(160%);
+      border-bottom:1px solid rgba(5,150,245,0.12);
     }
-    .nav-logo img { height:36px; width:auto; display:block; }
-    .nav-links { display:flex; align-items:center; gap:36px; }
-    .nav-links a { font-size:0.82rem; color:var(--muted); text-decoration:none; font-weight:500; letter-spacing:0.2px; transition:color 0.2s; }
+    .nav-brand { display:flex; align-items:center; gap:12px; text-decoration:none; }
+    .nav-icon { width:34px; height:34px; flex-shrink:0; }
+    .nav-wordmark { display:flex; flex-direction:column; line-height:1; }
+    .nav-word1 { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; color:var(--white); }
+    .nav-word2 { font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:3px; color:var(--blue); margin-top:-1px; }
+    .nav-links { display:flex; align-items:center; gap:32px; }
+    .nav-links a { font-size:0.78rem; color:var(--muted); text-decoration:none; font-weight:500; letter-spacing:0.3px; transition:color 0.2s; }
     .nav-links a:hover { color:var(--white); }
     .nav-cta {
-      background:transparent; border:1px solid rgba(34,211,238,0.4); color:var(--cyan);
-      font-size:0.8rem; font-weight:600; padding:9px 22px; border-radius:6px;
-      text-decoration:none; letter-spacing:0.3px; transition:all 0.2s;
+      border:1px solid var(--blue); color:var(--blue);
+      font-size:0.78rem; font-weight:600; padding:8px 20px; border-radius:4px;
+      text-decoration:none; letter-spacing:0.5px; transition:all 0.2s;
     }
-    .nav-cta:hover { background:rgba(34,211,238,0.08); border-color:var(--cyan); }
-    @media(max-width:768px){ nav { padding:0 20px; } .nav-links { display:none; } }
+    .nav-cta:hover { background:var(--blue); color:var(--dark); }
+    @media(max-width:800px){ nav { padding:0 20px; } .nav-links { display:none; } }
 
-    /* ══════════════════════════ HERO ══════════════════════════ */
+    /* ── HERO ── */
     .hero {
       position:relative; z-index:1;
       min-height:100vh; display:flex; flex-direction:column;
       align-items:center; justify-content:center;
-      text-align:center; padding:140px 24px 100px;
-      overflow:hidden;
+      text-align:center; padding:140px 24px 100px; overflow:hidden;
     }
-    .hero-glow {
-      position:absolute; top:0; left:50%; transform:translateX(-50%);
-      width:900px; height:600px; pointer-events:none;
-      background:radial-gradient(ellipse at 50% 0%, rgba(34,211,238,0.08) 0%, transparent 65%);
-    }
-    .hero-glow2 {
-      position:absolute; top:30%; left:20%; width:400px; height:400px;
-      background:radial-gradient(circle, rgba(245,158,11,0.04) 0%, transparent 60%);
-      pointer-events:none;
-    }
+    .hero-glow { position:absolute; top:-100px; left:50%; transform:translateX(-50%); width:1000px; height:700px; pointer-events:none; background:radial-gradient(ellipse at 50% 20%, rgba(5,150,245,0.1) 0%, transparent 60%); }
+    .hero-glow2 { position:absolute; bottom:0; left:30%; width:500px; height:400px; pointer-events:none; background:radial-gradient(circle, rgba(255,182,0,0.04) 0%, transparent 60%); }
     .badge {
       display:inline-flex; align-items:center; gap:8px;
-      background:rgba(34,211,238,0.05); border:1px solid rgba(34,211,238,0.18);
-      border-radius:4px; padding:6px 14px; margin-bottom:32px;
+      background:rgba(5,150,245,0.06); border:1px solid rgba(5,150,245,0.2);
+      border-radius:3px; padding:6px 16px; margin-bottom:36px;
     }
-    .badge-dot { width:5px; height:5px; border-radius:50%; background:var(--cyan); animation:blink 2.5s infinite; }
-    @keyframes blink { 0%,100%{opacity:1;box-shadow:0 0 6px var(--cyan)} 50%{opacity:0.3;box-shadow:none} }
-    .badge span { font-family:'JetBrains Mono',monospace; font-size:0.68rem; color:var(--cyan); letter-spacing:1.5px; text-transform:uppercase; }
+    .badge-dot { width:5px; height:5px; border-radius:50%; background:var(--blue); box-shadow:0 0 8px var(--blue); animation:pulse 2.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .badge span { font-family:'JetBrains Mono',monospace; font-size:0.66rem; color:var(--sky); letter-spacing:2px; text-transform:uppercase; }
     h1 {
-      font-size:clamp(2.6rem,6.5vw,5.4rem); font-weight:800;
-      line-height:1.05; letter-spacing:-2.5px; margin-bottom:28px;
-      max-width:900px;
+      font-family:'Bebas Neue',sans-serif;
+      font-size:clamp(3.5rem,9vw,8rem);
+      letter-spacing:3px; line-height:0.95; margin-bottom:10px;
+      color:var(--white);
     }
-    h1 .dim { color:var(--muted2); font-weight:300; }
-    h1 .accent { color:var(--cyan); }
-    .hero-sub { font-size:clamp(0.95rem,2vw,1.15rem); color:var(--muted); max-width:520px; line-height:1.8; margin-bottom:48px; font-weight:400; }
-    .hero-actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:center; margin-bottom:80px; }
-    .btn-primary {
-      background:linear-gradient(135deg, var(--cyan), var(--cyan2));
-      color:#030712; font-size:0.88rem; font-weight:700; padding:13px 28px;
-      border-radius:6px; text-decoration:none; letter-spacing:0.2px; transition:opacity 0.2s;
+    .h1-sub {
+      font-family:'Bebas Neue',sans-serif;
+      font-size:clamp(2rem,5vw,4.5rem);
+      letter-spacing:4px; line-height:1; margin-bottom:32px;
+      color:transparent;
+      background:linear-gradient(90deg, var(--blue), var(--sky), var(--gold));
+      -webkit-background-clip:text; background-clip:text;
     }
-    .btn-primary:hover { opacity:0.88; }
-    .btn-ghost {
-      background:transparent; border:1px solid var(--border3); color:var(--muted2);
-      font-size:0.88rem; font-weight:500; padding:13px 28px; border-radius:6px;
-      text-decoration:none; transition:all 0.2s;
+    .hero-p { font-size:clamp(0.9rem,1.8vw,1.05rem); color:var(--muted); max-width:540px; line-height:1.85; margin-bottom:48px; font-weight:400; }
+    .hero-btns { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-bottom:80px; }
+    .btn-primary { background:var(--blue); color:var(--dark); font-size:0.85rem; font-weight:700; padding:13px 28px; border-radius:4px; text-decoration:none; letter-spacing:0.5px; transition:background 0.2s; font-family:'Rajdhani',sans-serif; }
+    .btn-primary:hover { background:var(--sky); }
+    .btn-outline { border:1px solid rgba(255,255,255,0.15); color:var(--muted2); font-size:0.85rem; font-weight:500; padding:13px 28px; border-radius:4px; text-decoration:none; transition:all 0.2s; }
+    .btn-outline:hover { border-color:rgba(255,255,255,0.3); color:var(--white); }
+    .metrics {
+      display:flex; border:1px solid rgba(5,150,245,0.15); border-radius:8px;
+      overflow:hidden; background:rgba(6,26,46,0.5); backdrop-filter:blur(8px);
     }
-    .btn-ghost:hover { border-color:rgba(255,255,255,0.25); color:var(--white); }
-    .hero-metrics {
-      display:flex; gap:0; border:1px solid var(--border2); border-radius:10px;
-      overflow:hidden; background:rgba(255,255,255,0.02);
-    }
-    .metric { padding:20px 40px; text-align:center; position:relative; }
-    .metric+.metric::before { content:''; position:absolute; left:0; top:25%; bottom:25%; width:1px; background:var(--border2); }
-    .metric-num { font-size:1.8rem; font-weight:800; color:var(--white); letter-spacing:-1px; }
-    .metric-num span { color:var(--cyan); }
-    .metric-label { font-size:0.7rem; color:var(--muted); margin-top:3px; font-weight:500; letter-spacing:0.5px; text-transform:uppercase; }
+    .metric { padding:22px 44px; text-align:center; position:relative; }
+    .metric+.metric::before { content:''; position:absolute; left:0; top:20%; bottom:20%; width:1px; background:rgba(5,150,245,0.15); }
+    .metric-n { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; letter-spacing:2px; color:var(--white); line-height:1; }
+    .metric-n em { color:var(--gold); font-style:normal; }
+    .metric-l { font-family:'JetBrains Mono',monospace; font-size:0.6rem; color:var(--muted); margin-top:4px; letter-spacing:1.5px; text-transform:uppercase; }
+    @media(max-width:600px){ .metrics { flex-wrap:wrap; } .metric { padding:16px 28px; } }
 
-    /* ══════════════════════════ LAYOUT ══════════════════════════ */
+    /* ── SECTION SCAFFOLD ── */
     section { position:relative; z-index:1; padding:110px 24px; }
     .container { max-width:1120px; margin:0 auto; }
-    .eyebrow { font-family:'JetBrains Mono',monospace; font-size:0.68rem; color:var(--cyan); letter-spacing:2px; text-transform:uppercase; margin-bottom:16px; }
-    .s-title { font-size:clamp(1.8rem,3.5vw,2.8rem); font-weight:800; letter-spacing:-1.2px; line-height:1.15; margin-bottom:16px; }
-    .s-sub { font-size:0.95rem; color:var(--muted); line-height:1.8; max-width:480px; }
-    .s-header { display:flex; justify-content:space-between; align-items:flex-end; gap:32px; margin-bottom:60px; flex-wrap:wrap; }
+    .eyebrow { font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--blue); letter-spacing:2.5px; text-transform:uppercase; margin-bottom:14px; }
+    .s-title { font-family:'Rajdhani',sans-serif; font-size:clamp(1.8rem,3.5vw,2.8rem); font-weight:700; letter-spacing:1px; line-height:1.1; margin-bottom:16px; color:var(--white); }
+    .s-sub { font-size:0.9rem; color:var(--muted); line-height:1.85; max-width:480px; }
+    .s-hd { display:flex; justify-content:space-between; align-items:flex-end; gap:32px; margin-bottom:56px; flex-wrap:wrap; }
 
-    /* ══════════════════════════ PRODUCTS ══════════════════════════ */
-    .products { background:var(--bg2); }
-    .products-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border2); border:1px solid var(--border2); border-radius:16px; overflow:hidden; }
-    @media(max-width:900px){ .products-grid { grid-template-columns:1fr 1fr; } }
-    @media(max-width:580px){ .products-grid { grid-template-columns:1fr; } }
-    .pcard {
-      background:var(--bg3); padding:36px 32px; position:relative;
+    /* ── PRODUCT GRID ── */
+    .products { background:var(--navy); }
+    .pgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:rgba(5,150,245,0.08); border:1px solid rgba(5,150,245,0.1); border-radius:12px; overflow:hidden; }
+    @media(max-width:900px){ .pgrid { grid-template-columns:1fr 1fr; } }
+    @media(max-width:560px){ .pgrid { grid-template-columns:1fr; } }
+
+    .pc {
+      background:var(--navy); padding:32px 28px; position:relative;
       display:flex; flex-direction:column; gap:0; overflow:hidden;
-      transition:background 0.25s;
+      transition:background 0.2s;
     }
-    .pcard:hover { background:var(--bg4); }
-    .pcard::after {
-      content:''; position:absolute; top:0; left:0; right:0; height:1px;
-      opacity:0; transition:opacity 0.3s;
-    }
-    .pcard:hover::after { opacity:1; }
-    .pcard.c1::after { background:linear-gradient(90deg,#10b981,#059669); }
-    .pcard.c2::after { background:linear-gradient(90deg,#f59e0b,#d97706); }
-    .pcard.c3::after { background:linear-gradient(90deg,#3b82f6,#1d4ed8); }
-    .pcard.c4::after { background:linear-gradient(90deg,#ec4899,#be185d); }
-    .pcard.c5::after { background:linear-gradient(90deg,#a78bfa,#7c3aed); }
-    .pcard.c6::after { background:linear-gradient(90deg,var(--cyan),var(--cyan2)); }
-    .pcard-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:20px; }
-    .pcard-icon { font-size:1.6rem; }
-    .pcard-status {
-      font-family:'JetBrains Mono',monospace; font-size:0.6rem; letter-spacing:1px;
-      text-transform:uppercase; padding:3px 9px; border-radius:3px; font-weight:500;
-    }
-    .status-live { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); color:#10b981; }
-    .status-dev  { background:rgba(245,158,11,0.1);  border:1px solid rgba(245,158,11,0.2);  color:#f59e0b; }
-    .status-next { background:var(--cyan-dim); border:1px solid var(--border); color:var(--cyan); }
-    .pcard-type { font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
-    .pcard-name { font-size:1.15rem; font-weight:700; margin-bottom:14px; letter-spacing:-0.3px; }
-    .pcard-desc { font-size:0.82rem; color:var(--muted); line-height:1.75; flex:1; margin-bottom:24px; }
-    .pcard-tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px; }
-    .ptag { font-size:0.62rem; font-weight:600; padding:3px 9px; border-radius:3px; background:rgba(255,255,255,0.04); border:1px solid var(--border2); color:var(--muted2); letter-spacing:0.5px; }
-    .pcard-link { display:inline-flex; align-items:center; gap:6px; font-size:0.78rem; font-weight:600; text-decoration:none; color:var(--muted2); transition:color 0.2s, gap 0.2s; margin-top:auto; }
-    .pcard-link:hover { color:var(--white); gap:10px; }
-    .pcard-link svg { opacity:0.5; }
-    .pcard-link:hover svg { opacity:1; }
-    /* Featured card spanning full width */
-    .pcard.featured { grid-column:1/-1; flex-direction:row; align-items:center; gap:48px; }
-    @media(max-width:700px){ .pcard.featured { flex-direction:column; gap:24px; } }
-    .pcard.featured .pcard-desc { margin-bottom:0; }
-    .pcard.featured .pcard-right { flex-shrink:0; display:flex; flex-direction:column; gap:12px; align-items:flex-end; }
-    @media(max-width:700px){ .pcard.featured .pcard-right { align-items:flex-start; } }
+    .pc:hover { background:var(--navy2); }
+    .pc-line { position:absolute; top:0; left:0; right:0; height:2px; opacity:0; transition:opacity 0.3s; }
+    .pc:hover .pc-line { opacity:1; }
+    .l-green  { background:linear-gradient(90deg,#10b981,#059669); }
+    .l-blue   { background:linear-gradient(90deg,var(--blue),var(--sky)); }
+    .l-gold   { background:linear-gradient(90deg,var(--gold),var(--amber)); }
+    .l-pink   { background:linear-gradient(90deg,#f472b6,#db2777); }
+    .l-purple { background:linear-gradient(90deg,#a78bfa,#7c3aed); }
+    .l-sky    { background:linear-gradient(90deg,var(--sky),var(--blue)); }
 
-    /* ══════════════════════════ CAPABILITY STRIP ══════════════════════════ */
-    .cap-strip { background:var(--bg); border-top:1px solid var(--border2); border-bottom:1px solid var(--border2); padding:72px 24px; }
-    .cap-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:32px; }
-    @media(max-width:800px){ .cap-grid { grid-template-columns:1fr 1fr; } }
-    @media(max-width:460px){ .cap-grid { grid-template-columns:1fr; } }
-    .cap { padding:28px; background:var(--bg2); border:1px solid var(--border2); border-radius:12px; }
-    .cap-n { font-size:2rem; font-weight:800; letter-spacing:-1px; margin-bottom:4px; }
-    .cap-n span { color:var(--cyan); }
-    .cap-label { font-size:0.72rem; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
-    .cap-bar { height:2px; border-radius:2px; background:var(--border2); overflow:hidden; }
-    .cap-bar-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--cyan),var(--cyan2)); }
+    .pc-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px; }
+    .pc-icon { font-size:1.5rem; }
+    .pc-status { font-family:'JetBrains Mono',monospace; font-size:0.58rem; letter-spacing:1px; text-transform:uppercase; padding:3px 8px; border-radius:3px; }
+    .s-live   { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); color:#10b981; }
+    .s-dev    { background:rgba(255,182,0,0.08); border:1px solid rgba(255,182,0,0.25); color:var(--gold); }
+    .s-soon   { background:var(--b-blue); border:1px solid rgba(5,150,245,0.2); color:var(--sky); }
 
-    /* ══════════════════════════ INDUSTRIES ══════════════════════════ */
-    .ind-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; }
-    .ind {
-      padding:24px; background:var(--bg2); border:1px solid var(--border2); border-radius:10px;
-      display:flex; gap:16px; align-items:flex-start; transition:border-color 0.2s;
-    }
-    .ind:hover { border-color:rgba(34,211,238,0.2); }
-    .ind-icon { font-size:1.3rem; flex-shrink:0; margin-top:2px; }
-    .ind-name { font-size:0.88rem; font-weight:700; margin-bottom:5px; }
-    .ind-desc { font-size:0.76rem; color:var(--muted); line-height:1.65; }
+    .pc-cat { font-family:'JetBrains Mono',monospace; font-size:0.6rem; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px; }
+    .pc-name { font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; letter-spacing:0.5px; margin-bottom:12px; color:var(--white); }
+    .pc-desc { font-size:0.8rem; color:var(--muted); line-height:1.8; flex:1; margin-bottom:20px; }
+    .pc-tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px; }
+    .ptag { font-size:0.6rem; font-weight:600; padding:3px 8px; border-radius:2px; background:rgba(5,150,245,0.06); border:1px solid rgba(5,150,245,0.15); color:var(--silver); letter-spacing:0.3px; }
+    .pc-link { display:inline-flex; align-items:center; gap:6px; font-size:0.76rem; font-weight:600; text-decoration:none; color:var(--silver); transition:color 0.2s,gap 0.2s; margin-top:auto; }
+    .pc-link:hover { color:var(--white); gap:10px; }
 
-    /* ══════════════════════════ PROCESS ══════════════════════════ */
-    .process { background:var(--bg2); }
-    .process-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border2); border:1px solid var(--border2); border-radius:14px; overflow:hidden; }
-    @media(max-width:700px){ .process-grid { grid-template-columns:1fr 1fr; } }
-    @media(max-width:420px){ .process-grid { grid-template-columns:1fr; } }
-    .pstep { background:var(--bg3); padding:32px 28px; position:relative; }
-    .pstep-num { font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--cyan); letter-spacing:2px; margin-bottom:20px; opacity:0.7; }
-    .pstep-icon { width:38px; height:38px; background:var(--cyan-dim); border:1px solid var(--border); border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:18px; }
-    .pstep h3 { font-size:0.95rem; font-weight:700; margin-bottom:10px; }
-    .pstep p { font-size:0.78rem; color:var(--muted); line-height:1.7; }
-    .connector { position:absolute; top:50%; right:-1px; width:1px; height:30%; background:linear-gradient(180deg,transparent,var(--cyan),transparent); opacity:0.3; transform:translateY(-50%); }
+    /* ── DIVIDER STRIP ── */
+    .strip { background:var(--navy); border-top:1px solid rgba(5,150,245,0.1); border-bottom:1px solid rgba(5,150,245,0.1); padding:64px 24px; }
+    .strip-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:0; background:rgba(5,150,245,0.06); border:1px solid rgba(5,150,245,0.1); border-radius:8px; overflow:hidden; }
+    @media(max-width:700px){ .strip-grid { grid-template-columns:1fr 1fr; } }
+    .strip-item { padding:28px 24px; background:var(--navy); text-align:center; border-right:1px solid rgba(5,150,245,0.1); }
+    .strip-item:last-child { border-right:none; }
+    .strip-n { font-family:'Bebas Neue',sans-serif; font-size:2.4rem; letter-spacing:2px; color:var(--white); }
+    .strip-n em { color:var(--gold); font-style:normal; }
+    .strip-l { font-family:'JetBrains Mono',monospace; font-size:0.58rem; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-top:4px; }
 
-    /* ══════════════════════════ STACK ══════════════════════════ */
-    .stack-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:40px; }
-    .stack-tag {
-      font-family:'JetBrains Mono',monospace; font-size:0.72rem; padding:7px 14px;
-      background:rgba(255,255,255,0.03); border:1px solid var(--border2);
-      border-radius:4px; color:var(--muted2); letter-spacing:0.3px; transition:all 0.2s;
+    /* ── SERVICES ── */
+    .svc-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+    @media(max-width:700px){ .svc-grid { grid-template-columns:1fr; } }
+    .svc {
+      background:var(--navy); border:1px solid rgba(5,150,245,0.1); border-radius:10px;
+      padding:28px; display:flex; gap:18px; align-items:flex-start;
+      transition:border-color 0.2s, background 0.2s;
     }
-    .stack-tag:hover { border-color:rgba(34,211,238,0.25); color:var(--white); background:var(--cyan-dim); }
+    .svc:hover { border-color:rgba(5,150,245,0.3); background:var(--navy2); }
+    .svc-icon { width:42px; height:42px; border-radius:8px; background:var(--b-blue); border:1px solid rgba(5,150,245,0.2); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .svc-name { font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700; letter-spacing:0.5px; margin-bottom:6px; }
+    .svc-desc { font-size:0.78rem; color:var(--muted); line-height:1.75; }
 
-    /* ══════════════════════════ FOUNDER ══════════════════════════ */
-    .founder-wrap { display:grid; grid-template-columns:1fr 1.4fr; gap:80px; align-items:center; }
-    @media(max-width:800px){ .founder-wrap { grid-template-columns:1fr; gap:40px; } }
-    .founder-visual {
-      aspect-ratio:1; border-radius:20px; background:var(--bg2);
-      border:1px solid var(--border2); display:flex; align-items:center; justify-content:center;
-      position:relative; overflow:hidden;
+    /* ── INDUSTRIES ── */
+    .ind-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; }
+    .ind { background:var(--navy); border:1px solid rgba(5,150,245,0.08); border-radius:8px; padding:20px 18px; display:flex; gap:14px; align-items:flex-start; transition:border-color 0.2s; }
+    .ind:hover { border-color:rgba(5,150,245,0.25); }
+    .ind-ico { font-size:1.2rem; flex-shrink:0; margin-top:1px; }
+    .ind-name { font-family:'Rajdhani',sans-serif; font-size:0.92rem; font-weight:700; margin-bottom:4px; }
+    .ind-desc { font-size:0.73rem; color:var(--muted); line-height:1.65; }
+
+    /* ── STACK ── */
+    .stack-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:36px; }
+    .stag { font-family:'JetBrains Mono',monospace; font-size:0.7rem; padding:6px 12px; background:rgba(5,150,245,0.05); border:1px solid rgba(5,150,245,0.15); border-radius:3px; color:var(--silver); transition:all 0.2s; }
+    .stag:hover { background:var(--b-blue); border-color:rgba(5,150,245,0.35); color:var(--white); }
+
+    /* ── PROCESS ── */
+    .process { background:var(--navy); }
+    .proc-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:rgba(5,150,245,0.08); border:1px solid rgba(5,150,245,0.1); border-radius:12px; overflow:hidden; }
+    @media(max-width:700px){ .proc-grid { grid-template-columns:1fr 1fr; } }
+    @media(max-width:420px){ .proc-grid { grid-template-columns:1fr; } }
+    .pstep { background:var(--navy); padding:32px 26px; }
+    .pstep-n { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:rgba(5,150,245,0.1); letter-spacing:2px; margin-bottom:16px; }
+    .pstep-icon { width:36px; height:36px; background:var(--b-blue); border:1px solid rgba(5,150,245,0.2); border-radius:7px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+    .pstep-name { font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700; letter-spacing:0.5px; margin-bottom:8px; }
+    .pstep-desc { font-size:0.76rem; color:var(--muted); line-height:1.75; }
+
+    /* ── FOUNDER ── */
+    .founder-grid { display:grid; grid-template-columns:420px 1fr; gap:72px; align-items:center; }
+    @media(max-width:900px){ .founder-grid { grid-template-columns:1fr; gap:40px; } }
+    .founder-photo-wrap { position:relative; }
+    .founder-photo {
+      width:100%; aspect-ratio:3/4; border-radius:16px; overflow:hidden;
+      border:1px solid rgba(5,150,245,0.15);
+      box-shadow:0 0 0 1px rgba(5,150,245,0.08), 0 40px 80px -20px rgba(0,0,0,0.6);
     }
-    .founder-visual::before {
-      content:''; position:absolute; inset:0;
-      background:radial-gradient(circle at 70% 30%, rgba(34,211,238,0.06) 0%, transparent 60%);
+    .founder-photo img { width:100%; height:100%; object-fit:cover; object-position:center top; display:block; }
+    .founder-chip {
+      position:absolute; bottom:-16px; left:50%; transform:translateX(-50%);
+      background:rgba(6,26,46,0.95); border:1px solid rgba(5,150,245,0.25);
+      border-radius:8px; padding:12px 20px; display:flex; align-items:center; gap:10px;
+      backdrop-filter:blur(12px); white-space:nowrap;
+      box-shadow:0 8px 24px rgba(0,0,0,0.4);
     }
-    .founder-mono {
-      font-family:'JetBrains Mono',monospace; font-size:clamp(3rem,8vw,6rem);
-      font-weight:400; color:rgba(34,211,238,0.12); line-height:1;
-      user-select:none;
-    }
-    .founder-tag {
-      position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
-      background:rgba(6,13,31,0.9); border:1px solid var(--border); border-radius:8px;
-      padding:10px 18px; display:flex; align-items:center; gap:8px; white-space:nowrap;
-      backdrop-filter:blur(10px);
-    }
-    .ftag-dot { width:6px; height:6px; border-radius:50%; background:#4ade80; box-shadow:0 0 8px #4ade80; }
-    .ftag-txt { font-size:0.75rem; font-weight:600; color:var(--white); }
-    .founder-text .eyebrow { margin-bottom:12px; }
-    .founder-text h2 { font-size:clamp(1.6rem,3vw,2.4rem); font-weight:800; letter-spacing:-1px; margin-bottom:20px; }
-    .founder-text p { font-size:0.88rem; color:var(--muted); line-height:1.85; margin-bottom:14px; }
+    .chip-dot { width:7px; height:7px; border-radius:50%; background:#4ade80; box-shadow:0 0 8px #4ade80; }
+    .chip-txt { font-family:'Rajdhani',sans-serif; font-size:0.85rem; font-weight:600; color:var(--white); letter-spacing:0.3px; }
+    .founder-content .eyebrow { margin-bottom:10px; }
+    .founder-content h2 { font-family:'Bebas Neue',sans-serif; font-size:clamp(2rem,4vw,3.2rem); letter-spacing:2px; line-height:1; margin-bottom:24px; }
+    .founder-content h2 em { color:var(--gold); font-style:normal; }
+    .founder-content p { font-size:0.86rem; color:var(--muted); line-height:1.9; margin-bottom:14px; }
     .skills { display:flex; flex-wrap:wrap; gap:8px; margin-top:28px; }
-    .skill { font-family:'JetBrains Mono',monospace; font-size:0.68rem; padding:5px 12px; background:var(--cyan-dim); border:1px solid var(--border); border-radius:3px; color:var(--cyan); letter-spacing:0.5px; }
+    .skill { font-family:'JetBrains Mono',monospace; font-size:0.65rem; padding:5px 12px; background:var(--b-blue); border:1px solid rgba(5,150,245,0.2); border-radius:3px; color:var(--sky); letter-spacing:0.5px; }
 
-    /* ══════════════════════════ CTA ══════════════════════════ */
+    /* ── CTA BAND ── */
     .cta-band {
-      background:linear-gradient(135deg, rgba(34,211,238,0.05) 0%, rgba(8,145,178,0.03) 100%);
-      border-top:1px solid var(--border); border-bottom:1px solid var(--border);
-      padding:100px 24px; text-align:center;
+      position:relative; z-index:1;
+      background:linear-gradient(135deg, rgba(5,150,245,0.06) 0%, rgba(255,182,0,0.03) 100%);
+      border-top:1px solid rgba(5,150,245,0.15); border-bottom:1px solid rgba(5,150,245,0.15);
+      padding:100px 24px; text-align:center; overflow:hidden;
     }
-    .cta-band h2 { font-size:clamp(1.8rem,4vw,3rem); font-weight:800; letter-spacing:-1.5px; margin-bottom:16px; }
-    .cta-band p { color:var(--muted); font-size:0.95rem; line-height:1.8; max-width:460px; margin:0 auto 40px; }
-    .cta-actions { display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; }
-    .btn-email { font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--muted2); padding:12px 20px; background:transparent; border:1px solid var(--border2); border-radius:6px; text-decoration:none; transition:all 0.2s; }
-    .btn-email:hover { border-color:var(--border3); color:var(--white); }
+    .cta-band::before { content:''; position:absolute; top:-200px; left:50%; transform:translateX(-50%); width:600px; height:600px; border-radius:50%; background:radial-gradient(circle, rgba(5,150,245,0.07) 0%, transparent 65%); pointer-events:none; }
+    .cta-band h2 { font-family:'Bebas Neue',sans-serif; font-size:clamp(2.2rem,5vw,4rem); letter-spacing:3px; margin-bottom:16px; }
+    .cta-band h2 em { color:var(--blue); font-style:normal; }
+    .cta-band p { color:var(--muted); font-size:0.9rem; line-height:1.85; max-width:440px; margin:0 auto 40px; }
+    .cta-acts { display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; }
+    .btn-email { font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--muted2); padding:12px 20px; background:transparent; border:1px solid rgba(255,255,255,0.1); border-radius:4px; text-decoration:none; transition:all 0.2s; }
+    .btn-email:hover { border-color:rgba(255,255,255,0.25); color:var(--white); }
 
-    /* ══════════════════════════ CONTACT ══════════════════════════ */
+    /* ── CONTACT ── */
     .contact-wrap { display:grid; grid-template-columns:1fr 1.2fr; gap:80px; align-items:start; }
     @media(max-width:800px){ .contact-wrap { grid-template-columns:1fr; gap:48px; } }
-    .contact-meta { display:flex; flex-direction:column; gap:28px; padding-top:8px; }
-    .cmeta-item { display:flex; gap:16px; align-items:flex-start; }
-    .cmeta-icon { width:38px; height:38px; background:var(--cyan-dim); border:1px solid var(--border); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-    .cmeta-lbl { font-family:'JetBrains Mono',monospace; font-size:0.6rem; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:5px; }
-    .cmeta-val { font-size:0.88rem; font-weight:600; }
+    .contact-meta { display:flex; flex-direction:column; gap:24px; margin-top:8px; }
+    .cm-item { display:flex; gap:14px; align-items:flex-start; }
+    .cm-icon { width:36px; height:36px; background:var(--b-blue); border:1px solid rgba(5,150,245,0.2); border-radius:7px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .cm-lbl { font-family:'JetBrains Mono',monospace; font-size:0.58rem; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:4px; }
+    .cm-val { font-size:0.86rem; font-weight:600; color:var(--white); }
     .form { display:flex; flex-direction:column; gap:14px; }
     .frow { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
     @media(max-width:460px){ .frow { grid-template-columns:1fr; } }
-    label { display:block; font-family:'JetBrains Mono',monospace; font-size:0.62rem; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
+    label { display:block; font-family:'JetBrains Mono',monospace; font-size:0.58rem; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
     input, select, textarea {
-      width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--border2);
-      border-radius:6px; padding:12px 14px; color:var(--white); font-size:0.86rem;
+      width:100%; background:rgba(6,26,46,0.6); border:1px solid rgba(5,150,245,0.15);
+      border-radius:5px; padding:12px 14px; color:var(--white); font-size:0.84rem;
       font-family:'Inter',sans-serif; outline:none; transition:border-color 0.2s, background 0.2s;
       -webkit-appearance:none;
     }
-    input:focus, select:focus, textarea:focus { border-color:rgba(34,211,238,0.35); background:rgba(34,211,238,0.03); }
-    input::placeholder, textarea::placeholder { color:rgba(255,255,255,0.18); }
-    select { cursor:pointer; background-color:var(--bg); color:var(--white); }
-    select option { background:var(--bg2); }
+    input:focus, select:focus, textarea:focus { border-color:rgba(5,150,245,0.45); background:rgba(5,150,245,0.05); }
+    input::placeholder, textarea::placeholder { color:rgba(168,196,220,0.25); }
+    select { cursor:pointer; background-color:var(--navy); color:var(--white); }
+    select option { background:var(--navy2); }
     textarea { resize:vertical; min-height:120px; }
-    .sbtn { width:100%; background:linear-gradient(135deg,var(--cyan),var(--cyan2)); color:#030712; font-size:0.88rem; font-weight:700; padding:14px; border:none; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; letter-spacing:0.2px; transition:opacity 0.2s; }
-    .sbtn:hover { opacity:0.88; }
+    .sbtn { width:100%; background:var(--blue); color:var(--dark); font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700; padding:14px; border:none; border-radius:5px; cursor:pointer; letter-spacing:1px; transition:background 0.2s; }
+    .sbtn:hover { background:var(--sky); }
     .sbtn:disabled { opacity:0.5; cursor:not-allowed; }
 
-    /* ══════════════════════════ FOOTER ══════════════════════════ */
-    footer { background:var(--bg2); border-top:1px solid var(--border2); padding:40px 24px; position:relative; z-index:1; }
-    .footer-inner { max-width:1120px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; }
-    .footer-logo img { height:28px; width:auto; opacity:0.7; }
-    .footer-links { display:flex; gap:28px; }
-    .footer-links a { font-size:0.76rem; color:var(--muted); text-decoration:none; transition:color 0.2s; }
-    .footer-links a:hover { color:var(--white); }
-    .footer-copy { font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:rgba(255,255,255,0.18); }
+    /* ── FOOTER ── */
+    footer { background:var(--navy); border-top:1px solid rgba(5,150,245,0.1); padding:44px 24px; position:relative; z-index:1; }
+    .foot-inner { max-width:1120px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; }
+    .foot-brand { display:flex; align-items:center; gap:10px; }
+    .foot-brand svg { width:28px; height:28px; }
+    .foot-wm { display:flex; flex-direction:column; line-height:1; }
+    .foot-w1 { font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:2px; color:var(--white); opacity:0.7; }
+    .foot-w2 { font-family:'Bebas Neue',sans-serif; font-size:11px; letter-spacing:2.5px; color:var(--blue); opacity:0.7; }
+    .foot-links { display:flex; gap:24px; }
+    .foot-links a { font-size:0.75rem; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+    .foot-links a:hover { color:var(--white); }
+    .foot-copy { font-family:'JetBrains Mono',monospace; font-size:0.6rem; color:rgba(168,196,220,0.25); }
 
-    /* ══════════════════════════ TOAST ══════════════════════════ */
-    #toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%); background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:12px 24px; font-size:0.82rem; color:var(--white); z-index:999; opacity:0; transition:opacity 0.3s; pointer-events:none; white-space:nowrap; backdrop-filter:blur(12px); }
+    /* ── TOAST ── */
+    #toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%); background:var(--navy2); border:1px solid rgba(5,150,245,0.25); border-radius:6px; padding:12px 24px; font-size:0.82rem; color:var(--white); z-index:999; opacity:0; transition:opacity 0.3s; pointer-events:none; white-space:nowrap; backdrop-filter:blur(12px); }
     #toast.show { opacity:1; }
-
-    /* ══════════════════════════ UTILS ══════════════════════════ */
-    .mt-auto { margin-top:auto; }
-    svg { vertical-align:middle; }
   </style>
 </head>
 <body>
 <div class="grid-bg"></div>
+<div class="top-bar"></div>
 
 <!-- ── NAV ── -->
 <nav>
-  <a href="/rebuild" class="nav-logo">
-    <img src="/images/logo-full.png" alt="Revamp Digital"/>
+  <a href="/rebuild" class="nav-brand">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="nbg" cx="35%" cy="35%" r="70%"><stop offset="0%" stop-color="#0D2845"/><stop offset="100%" stop-color="#020B18"/></radialGradient>
+        <linearGradient id="nrg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFF"/><stop offset="60%" stop-color="#D0E8FF"/><stop offset="100%" stop-color="#A8C4DC"/></linearGradient>
+      </defs>
+      <circle cx="50" cy="50" r="49" stroke="#0596F5" stroke-width="0.8" fill="none" opacity="0.25"/>
+      <circle cx="50" cy="50" r="47" fill="url(#nbg)"/>
+      <circle cx="50" cy="50" r="43.5" stroke="#0596F5" stroke-width="2.8" fill="none"/>
+      <path d="M 13 46 A 39 39 0 0 1 46 13" stroke="#FFB600" stroke-width="3.8" fill="none" stroke-linecap="round"/>
+      <circle cx="50" cy="50" r="36" stroke="#0596F5" stroke-width="0.8" fill="none" opacity="0.2"/>
+      <path d="M 31 70 L 31 30 L 55 30 Q 70 30 70 43 Q 70 56 55 56 L 31 56 M 52 56 L 70 70" stroke="url(#nrg)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="76" cy="68" r="2.5" fill="#0596F5" opacity="0.7"/>
+    </svg>
+    <div class="nav-wordmark">
+      <span class="nav-word1">REVAMP</span>
+      <span class="nav-word2">DIGITAL LLC</span>
+    </div>
   </a>
   <div class="nav-links">
     <a href="#products">Products</a>
     <a href="#services">Services</a>
-    <a href="#industries">Capabilities</a>
+    <a href="#capabilities">Capabilities</a>
     <a href="#founder">Studio</a>
     <a href="#contact">Contact</a>
     <a href="#contact" class="nav-cta">Book a Call</a>
@@ -326,155 +333,92 @@
 <section class="hero">
   <div class="hero-glow"></div>
   <div class="hero-glow2"></div>
-  <div class="badge"><div class="badge-dot"></div><span>Software Studio — Boise, Idaho</span></div>
-  <h1>
-    We Build Software<br/>
-    <span class="dim">for the </span><span class="accent">Real World</span>
-  </h1>
-  <p class="hero-sub">From healthcare operations to mobility platforms — we design, build, and ship production software for industries that have been underserved by technology.</p>
-  <div class="hero-actions">
+  <div class="badge"><div class="badge-dot"></div><span>Software Studio · Smithfield, Utah</span></div>
+  <h1>WE BUILD</h1>
+  <div class="h1-sub">SOFTWARE FOR THE REAL WORLD</div>
+  <p class="hero-p">From healthcare operations to mobility platforms — we design, build, and ship production software for industries that have been underserved by technology.</p>
+  <div class="hero-btns">
     <a href="#products" class="btn-primary">See Our Work</a>
-    <a href="#contact" class="btn-ghost">Start a Project</a>
+    <a href="#contact" class="btn-outline">Start a Project</a>
   </div>
-  <div class="hero-metrics">
-    <div class="metric">
-      <div class="metric-num">5<span>+</span></div>
-      <div class="metric-label">Products Shipped</div>
-    </div>
-    <div class="metric">
-      <div class="metric-num">6<span>+</span></div>
-      <div class="metric-label">Industries</div>
-    </div>
-    <div class="metric">
-      <div class="metric-num">2</div>
-      <div class="metric-label">Countries</div>
-    </div>
-    <div class="metric">
-      <div class="metric-num">100<span>%</span></div>
-      <div class="metric-label">Custom Built</div>
-    </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-n">5<em>+</em></div><div class="metric-l">Products Shipped</div></div>
+    <div class="metric"><div class="metric-n">6<em>+</em></div><div class="metric-l">Industries</div></div>
+    <div class="metric"><div class="metric-n">2</div><div class="metric-l">Countries</div></div>
+    <div class="metric"><div class="metric-n">100<em>%</em></div><div class="metric-l">Custom Built</div></div>
   </div>
 </section>
 
 <!-- ── PRODUCTS ── -->
 <section class="products" id="products">
   <div class="container">
-    <div class="s-header">
+    <div class="s-hd">
       <div>
         <div class="eyebrow">// products</div>
-        <h2 class="s-title">What We've Built</h2>
-        <p class="s-sub">Production software we designed, developed, and deployed — each solving a specific operational problem.</p>
+        <h2 class="s-title">Software We've Built &amp; Operate</h2>
+        <p class="s-sub">Production platforms we designed, developed, and deployed — each solving a specific operational problem in a real industry.</p>
       </div>
     </div>
+    <div class="pgrid">
 
-    <div class="products-grid">
-
-      <!-- Homecare -->
-      <div class="pcard c1">
-        <div class="pcard-top">
-          <span class="pcard-icon">🏠</span>
-          <span class="pcard-status status-live">● Live</span>
-        </div>
-        <div class="pcard-type">Homecare Management</div>
-        <div class="pcard-name">Homecare Operations Platform</div>
-        <p class="pcard-desc">Real-time caregiver management with GPS geofencing for clock-in verification. Shift scheduling, compliance tracking, client management, and a full admin dashboard — built for homecare agencies.</p>
-        <div class="pcard-tags">
-          <span class="ptag">Geofencing</span><span class="ptag">EVV Compliance</span><span class="ptag">Shift Mgmt</span><span class="ptag">Node.js</span>
-        </div>
-        <a href="#contact" class="pcard-link mt-auto">
-          Learn more
-          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
+      <div class="pc">
+        <div class="pc-line l-green"></div>
+        <div class="pc-top"><span class="pc-icon">🏠</span><span class="pc-status s-live">● Live</span></div>
+        <div class="pc-cat">Homecare Management</div>
+        <div class="pc-name">Homecare Operations Platform</div>
+        <p class="pc-desc">Real-time caregiver management with GPS geofencing for clock-in verification. Shift scheduling, compliance tracking, client management, and a full admin dashboard — built for homecare agencies.</p>
+        <div class="pc-tags"><span class="ptag">Geofencing</span><span class="ptag">EVV Compliance</span><span class="ptag">Shift Mgmt</span><span class="ptag">Node.js</span></div>
+        <a href="#contact" class="pc-link">Learn more <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
       </div>
 
-      <!-- NEMT -->
-      <div class="pcard c3">
-        <div class="pcard-top">
-          <span class="pcard-icon">🚐</span>
-          <span class="pcard-status status-live">● Live</span>
-        </div>
-        <div class="pcard-type">Medical Transportation</div>
-        <div class="pcard-name">NEMT Dispatch &amp; Operations</div>
-        <p class="pcard-desc">Non-emergency medical transport platform serving dialysis, wheelchair, and hospital discharge patients. Live dispatch, driver coordination, and scheduling — purpose-built for NEMT operators in Idaho.</p>
-        <div class="pcard-tags">
-          <span class="ptag">Dispatch</span><span class="ptag">NEMT</span><span class="ptag">Scheduling</span><span class="ptag">React</span>
-        </div>
-        <a href="#contact" class="pcard-link mt-auto">
-          Learn more
-          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
+      <div class="pc">
+        <div class="pc-line l-blue"></div>
+        <div class="pc-top"><span class="pc-icon">🚐</span><span class="pc-status s-live">● Live</span></div>
+        <div class="pc-cat">Medical Transportation</div>
+        <div class="pc-name">NEMT Dispatch &amp; Operations</div>
+        <p class="pc-desc">Non-emergency medical transport platform for dialysis, wheelchair, and hospital discharge patients. Live dispatch, driver coordination, and scheduling — purpose-built for NEMT operators.</p>
+        <div class="pc-tags"><span class="ptag">Dispatch</span><span class="ptag">NEMT</span><span class="ptag">Scheduling</span><span class="ptag">React</span></div>
+        <a href="#contact" class="pc-link">Learn more <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
       </div>
 
-      <!-- Salon Booking -->
-      <div class="pcard c4">
-        <div class="pcard-top">
-          <span class="pcard-icon">✂️</span>
-          <span class="pcard-status status-live">● Live</span>
-        </div>
-        <div class="pcard-type">Booking &amp; Payments</div>
-        <div class="pcard-name">Salon Booking System</div>
-        <p class="pcard-desc">End-to-end booking platform for a hair salon. Clients self-book, pay deposits online, and receive automated SMS &amp; email reminders. Stylists manage availability from a streamlined admin dashboard.</p>
-        <div class="pcard-tags">
-          <span class="ptag">Square Payments</span><span class="ptag">Twilio SMS</span><span class="ptag">Admin Portal</span><span class="ptag">SQLite</span>
-        </div>
-        <a href="#contact" class="pcard-link mt-auto">
-          Build something similar
-          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
+      <div class="pc">
+        <div class="pc-line l-pink"></div>
+        <div class="pc-top"><span class="pc-icon">✂️</span><span class="pc-status s-live">● Live</span></div>
+        <div class="pc-cat">Booking &amp; Payments</div>
+        <div class="pc-name">Salon Booking System</div>
+        <p class="pc-desc">Online booking for a hair salon — clients self-book, pay deposits, and receive automated SMS &amp; email confirmations. Stylists manage their own availability from a clean admin dashboard.</p>
+        <div class="pc-tags"><span class="ptag">Square Payments</span><span class="ptag">Twilio SMS</span><span class="ptag">Admin Portal</span><span class="ptag">SQLite</span></div>
+        <a href="#contact" class="pc-link">Build something similar <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
       </div>
 
-      <!-- Psychologist -->
-      <div class="pcard c5">
-        <div class="pcard-top">
-          <span class="pcard-icon">🧠</span>
-          <span class="pcard-status status-dev">⚡ In Dev</span>
-        </div>
-        <div class="pcard-type">Healthcare Practice Mgmt</div>
-        <div class="pcard-name">Psychologist Practice Platform</div>
-        <p class="pcard-desc">Practice management for independent psychologists. Session booking, patient check-ins, goal &amp; habit tracking, progress notes, secure messaging, and Stripe billing — therapist web dashboard + patient mobile app.</p>
-        <div class="pcard-tags">
-          <span class="ptag">React Native</span><span class="ptag">TypeScript</span><span class="ptag">Prisma</span><span class="ptag">Stripe</span>
-        </div>
-        <a href="#contact" class="pcard-link mt-auto">
-          Request early access
-          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
+      <div class="pc">
+        <div class="pc-line l-purple"></div>
+        <div class="pc-top"><span class="pc-icon">🧠</span><span class="pc-status s-dev">⚡ In Dev</span></div>
+        <div class="pc-cat">Healthcare Practice Mgmt</div>
+        <div class="pc-name">Psychologist Practice Platform</div>
+        <p class="pc-desc">Practice management for independent psychologists. Session booking, patient check-ins, goal tracking, progress notes, secure messaging, and Stripe billing — web dashboard + patient mobile app.</p>
+        <div class="pc-tags"><span class="ptag">React Native</span><span class="ptag">TypeScript</span><span class="ptag">Prisma</span><span class="ptag">Stripe</span></div>
+        <a href="#contact" class="pc-link">Request early access <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
       </div>
 
-      <!-- Ride Hailing -->
-      <div class="pcard c2">
-        <div class="pcard-top">
-          <span class="pcard-icon">🛺</span>
-          <span class="pcard-status status-dev">⚡ In Dev</span>
-        </div>
-        <div class="pcard-type">Mobility &amp; Ride Hailing</div>
-        <div class="pcard-name">Ride-Hailing Platform — East Africa</div>
-        <p class="pcard-desc">Fixed-price bajaj (auto-rickshaw) hailing for the Ethiopian market. No haggling — upfront pricing, live driver tracking, verified drivers, SMS-first flow for low-bandwidth users, and a full dispatch backend.</p>
-        <div class="pcard-tags">
-          <span class="ptag">Live Tracking</span><span class="ptag">SMS-First</span><span class="ptag">Driver App</span><span class="ptag">Ethiopia</span>
-        </div>
-        <a href="#contact" class="pcard-link mt-auto">
-          Get early access
-          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
+      <div class="pc">
+        <div class="pc-line l-gold"></div>
+        <div class="pc-top"><span class="pc-icon">🛺</span><span class="pc-status s-dev">⚡ In Dev</span></div>
+        <div class="pc-cat">Mobility &amp; Ride Hailing</div>
+        <div class="pc-name">Ride-Hailing Platform — East Africa</div>
+        <p class="pc-desc">Fixed-price bajaj hailing for the Ethiopian market. No haggling — upfront pricing, live driver tracking, verified drivers, SMS-first flow for low-bandwidth users, and a full dispatch backend.</p>
+        <div class="pc-tags"><span class="ptag">Live Tracking</span><span class="ptag">SMS-First</span><span class="ptag">Driver App</span><span class="ptag">Ethiopia</span></div>
+        <a href="#contact" class="pc-link">Get early access <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
       </div>
 
-      <!-- Next -->
-      <div class="pcard c6" style="opacity:0.6">
-        <div class="pcard-top">
-          <span class="pcard-icon">⚡</span>
-          <span class="pcard-status status-next">Coming Soon</span>
-        </div>
-        <div class="pcard-type">In Pipeline</div>
-        <div class="pcard-name">Next Platform</div>
-        <p class="pcard-desc">We're always building. Ecommerce, booking, logistics, and AI-powered tools are in the pipeline. Reach out if you have a problem worth solving — we might already be building it.</p>
-        <div class="pcard-tags">
-          <span class="ptag">Ecommerce</span><span class="ptag">AI Tools</span><span class="ptag">Logistics</span>
-        </div>
-        <a href="#contact" class="pcard-link mt-auto">
-          Join the waitlist
-          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
+      <div class="pc" style="opacity:0.55">
+        <div class="pc-line l-sky"></div>
+        <div class="pc-top"><span class="pc-icon">⚡</span><span class="pc-status s-soon">Coming Soon</span></div>
+        <div class="pc-cat">In Pipeline</div>
+        <div class="pc-name">Next Platform</div>
+        <p class="pc-desc">Ecommerce, logistics, and AI-powered tools are in the pipeline. Reach out if you have a problem worth solving — we might already be building it.</p>
+        <div class="pc-tags"><span class="ptag">Ecommerce</span><span class="ptag">AI Tools</span><span class="ptag">Logistics</span></div>
+        <a href="#contact" class="pc-link">Join the waitlist <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
       </div>
 
     </div>
@@ -482,130 +426,76 @@
 </section>
 
 <!-- ── METRICS STRIP ── -->
-<div class="cap-strip">
+<div class="strip">
   <div class="container">
-    <div class="cap-grid">
-      <div class="cap">
-        <div class="cap-n">5<span>+</span></div>
-        <div class="cap-label">Production Apps</div>
-        <div class="cap-bar"><div class="cap-bar-fill" style="width:85%"></div></div>
-      </div>
-      <div class="cap">
-        <div class="cap-n">2</div>
-        <div class="cap-label">Countries</div>
-        <div class="cap-bar"><div class="cap-bar-fill" style="width:40%"></div></div>
-      </div>
-      <div class="cap">
-        <div class="cap-n">6<span>+</span></div>
-        <div class="cap-label">Stacks Mastered</div>
-        <div class="cap-bar"><div class="cap-bar-fill" style="width:95%"></div></div>
-      </div>
-      <div class="cap">
-        <div class="cap-n">100<span>%</span></div>
-        <div class="cap-label">Custom — No Templates</div>
-        <div class="cap-bar"><div class="cap-bar-fill" style="width:100%"></div></div>
-      </div>
+    <div class="strip-grid">
+      <div class="strip-item"><div class="strip-n">5<em>+</em></div><div class="strip-l">Production Apps</div></div>
+      <div class="strip-item"><div class="strip-n">2</div><div class="strip-l">Countries</div></div>
+      <div class="strip-item"><div class="strip-n">6<em>+</em></div><div class="strip-l">Stacks Mastered</div></div>
+      <div class="strip-item" style="border-right:none"><div class="strip-n">100<em>%</em></div><div class="strip-l">No Templates</div></div>
     </div>
   </div>
 </div>
 
-<!-- ── INDUSTRIES ── -->
-<section id="industries">
-  <div class="container">
-    <div class="s-header">
-      <div>
-        <div class="eyebrow">// capabilities</div>
-        <h2 class="s-title">Industries We Go Deep In</h2>
-        <p class="s-sub">We don't generalize — we specialize in specific verticals where off-the-shelf software consistently fails operators.</p>
-      </div>
-    </div>
-    <div class="ind-grid">
-      <div class="ind"><span class="ind-icon">🏥</span><div><div class="ind-name">Homecare &amp; In-Home Services</div><div class="ind-desc">Caregiver management, geofenced clock-in, EVV compliance, shift scheduling, client portals.</div></div></div>
-      <div class="ind"><span class="ind-icon">🚐</span><div><div class="ind-name">Medical Transportation (NEMT)</div><div class="ind-desc">Dispatch, driver scheduling, route optimization, Medicaid billing prep, live coordination.</div></div></div>
-      <div class="ind"><span class="ind-icon">🧠</span><div><div class="ind-name">Psychology &amp; Mental Health</div><div class="ind-desc">Session booking, patient check-ins, progress tracking, secure messaging, Stripe billing.</div></div></div>
-      <div class="ind"><span class="ind-icon">💇</span><div><div class="ind-name">Salons &amp; Beauty Services</div><div class="ind-desc">Online booking, stylist management, deposit collection, SMS reminders, cancellation flows.</div></div></div>
-      <div class="ind"><span class="ind-icon">🛺</span><div><div class="ind-name">Mobility &amp; Ride Hailing</div><div class="ind-desc">Driver &amp; rider apps, live tracking, fixed-price dispatch, SMS-first for low-bandwidth markets.</div></div></div>
-      <div class="ind"><span class="ind-icon">🌍</span><div><div class="ind-name">African &amp; Emerging Markets</div><div class="ind-desc">Mobile-first, offline-capable, SMS-based software designed for real-world infrastructure constraints.</div></div></div>
-      <div class="ind"><span class="ind-icon">📅</span><div><div class="ind-name">Booking &amp; Scheduling SaaS</div><div class="ind-desc">Multi-staff scheduling, calendar sync, automated reminders, payment collection, admin dashboards.</div></div></div>
-      <div class="ind"><span class="ind-icon">🤖</span><div><div class="ind-name">AI-Powered Tools</div><div class="ind-desc">Document automation, intelligent search, LLM-backed workflows, voice interfaces.</div></div></div>
-    </div>
-
-    <div class="eyebrow" style="margin-top:60px;margin-bottom:16px">// tech stack</div>
-    <div class="stack-row">
-      <span class="stack-tag">Node.js</span>
-      <span class="stack-tag">React</span>
-      <span class="stack-tag">React Native</span>
-      <span class="stack-tag">TypeScript</span>
-      <span class="stack-tag">PostgreSQL</span>
-      <span class="stack-tag">SQLite</span>
-      <span class="stack-tag">Prisma ORM</span>
-      <span class="stack-tag">Express</span>
-      <span class="stack-tag">Stripe</span>
-      <span class="stack-tag">Square</span>
-      <span class="stack-tag">Twilio</span>
-      <span class="stack-tag">Railway</span>
-      <span class="stack-tag">Docker</span>
-      <span class="stack-tag">Expo</span>
-      <span class="stack-tag">Vite</span>
-      <span class="stack-tag">Tailwind CSS</span>
-      <span class="stack-tag">Google Maps API</span>
-      <span class="stack-tag">Claude API</span>
-    </div>
-  </div>
-</section>
-
 <!-- ── SERVICES ── -->
 <section id="services">
   <div class="container">
-    <div class="s-header">
+    <div class="s-hd">
       <div>
         <div class="eyebrow">// services</div>
         <h2 class="s-title">We Also Build For You</h2>
         <p class="s-sub">Beyond our own products — we take on custom engagements for businesses that need a serious technical partner.</p>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
-
-      <div class="ind" style="flex-direction:column;gap:14px;padding:28px">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:36px;height:36px;background:var(--cyan-dim);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--cyan)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-          </div>
-          <div class="ind-name" style="font-size:0.95rem">Website Revamps</div>
-        </div>
-        <div class="ind-desc">We redesign and rebuild outdated business websites — faster load times, modern design, mobile-first, and SEO-ready. Full replacement, not a patch job.</div>
+    <div class="svc-grid">
+      <div class="svc">
+        <div class="svc-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0596F5" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+        <div><div class="svc-name">Website Revamps</div><div class="svc-desc">We redesign and rebuild outdated business websites — faster load times, modern design, mobile-first, and SEO-ready. Full replacement, not a patch job.</div></div>
       </div>
-
-      <div class="ind" style="flex-direction:column;gap:14px;padding:28px">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:36px;height:36px;background:var(--cyan-dim);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--cyan)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          </div>
-          <div class="ind-name" style="font-size:0.95rem">Admin Dashboards</div>
-        </div>
-        <div class="ind-desc">Custom internal dashboards for managing clients, orders, staff, inventory, or anything your business tracks. Built to your exact workflow — not a generic tool you have to work around.</div>
+      <div class="svc">
+        <div class="svc-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0596F5" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+        <div><div class="svc-name">Admin Dashboards</div><div class="svc-desc">Custom internal dashboards for managing clients, orders, staff, or inventory. Built to your exact workflow — not a generic tool you have to work around.</div></div>
       </div>
-
-      <div class="ind" style="flex-direction:column;gap:14px;padding:28px">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:36px;height:36px;background:var(--cyan-dim);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--cyan)" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          </div>
-          <div class="ind-name" style="font-size:0.95rem">Operations Automation</div>
-        </div>
-        <div class="ind-desc">Replace manual spreadsheet workflows with automated systems. Invoicing, reporting, scheduling, notifications — we identify where you're losing time and build software to fix it.</div>
+      <div class="svc">
+        <div class="svc-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0596F5" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+        <div><div class="svc-name">Operations Automation</div><div class="svc-desc">Replace manual spreadsheet workflows with automated systems — invoicing, reporting, scheduling, notifications. We find where you're losing time and build the fix.</div></div>
       </div>
-
-      <div class="ind" style="flex-direction:column;gap:14px;padding:28px">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:36px;height:36px;background:var(--cyan-dim);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--cyan)" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
-          </div>
-          <div class="ind-name" style="font-size:0.95rem">Custom Software Builds</div>
-        </div>
-        <div class="ind-desc">Have a product idea that doesn't fit a template? We scope, design, and build it from scratch — web app, mobile app, or API. Full ownership stays with you.</div>
+      <div class="svc">
+        <div class="svc-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0596F5" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div>
+        <div><div class="svc-name">Custom Software Builds</div><div class="svc-desc">Have an idea that doesn't fit a template? We scope, design, and build it from scratch — web app, mobile app, or API. Full ownership stays with you.</div></div>
       </div>
+    </div>
+  </div>
+</section>
 
+<!-- ── CAPABILITIES ── -->
+<section id="capabilities" style="background:var(--navy)">
+  <div class="container">
+    <div class="s-hd">
+      <div>
+        <div class="eyebrow">// capabilities</div>
+        <h2 class="s-title">Industries We Go Deep In</h2>
+        <p class="s-sub">We don't generalize — we specialize in verticals where off-the-shelf software consistently fails real operators.</p>
+      </div>
+    </div>
+    <div class="ind-grid">
+      <div class="ind"><span class="ind-ico">🏥</span><div><div class="ind-name">Homecare &amp; In-Home Services</div><div class="ind-desc">Caregiver management, geofenced clock-in, EVV compliance, shift scheduling, client portals.</div></div></div>
+      <div class="ind"><span class="ind-ico">🚐</span><div><div class="ind-name">Medical Transportation (NEMT)</div><div class="ind-desc">Dispatch, driver scheduling, route optimization, Medicaid billing prep, live coordination.</div></div></div>
+      <div class="ind"><span class="ind-ico">🧠</span><div><div class="ind-name">Psychology &amp; Mental Health</div><div class="ind-desc">Session booking, patient check-ins, progress tracking, secure messaging, Stripe billing.</div></div></div>
+      <div class="ind"><span class="ind-ico">💇</span><div><div class="ind-name">Salons &amp; Beauty Services</div><div class="ind-desc">Online booking, stylist management, deposit collection, SMS reminders, cancellation flows.</div></div></div>
+      <div class="ind"><span class="ind-ico">🛺</span><div><div class="ind-name">Mobility &amp; Ride Hailing</div><div class="ind-desc">Driver &amp; rider apps, live tracking, fixed-price dispatch, SMS-first for low-bandwidth markets.</div></div></div>
+      <div class="ind"><span class="ind-ico">🌍</span><div><div class="ind-name">African &amp; Emerging Markets</div><div class="ind-desc">Mobile-first, offline-capable, SMS-based software for real-world infrastructure constraints.</div></div></div>
+      <div class="ind"><span class="ind-ico">📅</span><div><div class="ind-name">Booking &amp; Scheduling SaaS</div><div class="ind-desc">Multi-staff scheduling, calendar sync, automated reminders, payment collection, admin panels.</div></div></div>
+      <div class="ind"><span class="ind-ico">🤖</span><div><div class="ind-name">AI-Powered Tools</div><div class="ind-desc">Document automation, intelligent search, LLM-backed workflows, voice and chat interfaces.</div></div></div>
+    </div>
+
+    <div class="eyebrow" style="margin-top:56px;margin-bottom:14px">// tech stack</div>
+    <div class="stack-row">
+      <span class="stag">Node.js</span><span class="stag">React</span><span class="stag">React Native</span><span class="stag">TypeScript</span>
+      <span class="stag">PostgreSQL</span><span class="stag">SQLite</span><span class="stag">Prisma ORM</span><span class="stag">Express</span>
+      <span class="stag">Stripe</span><span class="stag">Square</span><span class="stag">Twilio</span><span class="stag">Railway</span>
+      <span class="stag">Docker</span><span class="stag">Expo</span><span class="stag">Vite</span><span class="stag">Tailwind CSS</span>
+      <span class="stag">Google Maps API</span><span class="stag">Claude API</span>
     </div>
   </div>
 </section>
@@ -613,67 +503,61 @@
 <!-- ── PROCESS ── -->
 <section class="process">
   <div class="container">
-    <div class="s-header">
+    <div class="s-hd">
       <div>
         <div class="eyebrow">// process</div>
-        <h2 class="s-title">How We Work</h2>
-        <p class="s-sub">No templates. No handoffs. Every product is built from scratch for the problem at hand.</p>
+        <h2 class="s-title">From Problem to Production</h2>
+        <p class="s-sub">No templates. No handoffs. Every product is built from scratch for the exact problem at hand.</p>
       </div>
     </div>
-    <div class="process-grid">
+    <div class="proc-grid">
       <div class="pstep">
-        <div class="pstep-num">01</div>
-        <div class="pstep-icon">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--cyan)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        </div>
-        <h3>Discovery</h3>
-        <p>We learn your industry, your users, and the exact operational problem. No assumptions, no generic solutions.</p>
+        <div class="pstep-n">01</div>
+        <div class="pstep-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#0596F5" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div class="pstep-name">Discovery</div>
+        <p class="pstep-desc">We learn your industry, your users, and the exact operational problem. No assumptions, no cookie-cutter solutions.</p>
       </div>
       <div class="pstep">
-        <div class="pstep-num">02</div>
-        <div class="pstep-icon">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--cyan)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-        </div>
-        <h3>Design</h3>
-        <p>Functional UI built for real operators — not tech-savvy power users. Fast, mobile-first, and dead simple to use.</p>
+        <div class="pstep-n">02</div>
+        <div class="pstep-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#0596F5" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+        <div class="pstep-name">Design</div>
+        <p class="pstep-desc">Functional UI built for real operators — not tech-savvy power users. Fast, mobile-first, and dead simple to use on day one.</p>
       </div>
       <div class="pstep">
-        <div class="pstep-num">03</div>
-        <div class="pstep-icon">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--cyan)" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-        </div>
-        <h3>Build &amp; Ship</h3>
-        <p>Full-stack development across web and mobile. We ship fast, iterate on real feedback, and don't waste time on scope creep.</p>
+        <div class="pstep-n">03</div>
+        <div class="pstep-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#0596F5" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+        <div class="pstep-name">Build &amp; Ship</div>
+        <p class="pstep-desc">Full-stack development across web and mobile. We ship fast, iterate on real feedback, and don't waste time on scope creep.</p>
       </div>
       <div class="pstep">
-        <div class="pstep-num">04</div>
-        <div class="pstep-icon">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--cyan)" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        </div>
-        <h3>Deploy &amp; Own It</h3>
-        <p>We deploy, monitor, and maintain. You get a long-term partner — not a handoff and goodbye.</p>
+        <div class="pstep-n">04</div>
+        <div class="pstep-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#0596F5" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+        <div class="pstep-name">Deploy &amp; Own It</div>
+        <p class="pstep-desc">We deploy, monitor, and maintain. You get a long-term partner — not a handoff and a goodbye once the contract ends.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ── FOUNDER ── -->
-<section id="founder">
+<section id="founder" style="background:var(--navy)">
   <div class="container">
-    <div class="founder-wrap">
-      <div class="founder-visual">
-        <div class="founder-mono">FB</div>
-        <div class="founder-tag">
-          <div class="ftag-dot"></div>
-          <div class="ftag-txt">Founder &amp; Lead Engineer</div>
+    <div class="founder-grid">
+      <div class="founder-photo-wrap">
+        <div class="founder-photo">
+          <img src="/images/Feyisa.Berisa.jpeg" alt="Feyisa Berisa — Founder, Revamp Digital LLC"/>
+        </div>
+        <div class="founder-chip">
+          <div class="chip-dot"></div>
+          <div class="chip-txt">Feyisa Berisa — Founder &amp; Lead Engineer</div>
         </div>
       </div>
-      <div class="founder-text">
+      <div class="founder-content">
         <div class="eyebrow">// about the studio</div>
-        <h2>Built by an Engineer,<br/>Driven by Real Problems</h2>
-        <p>I'm Feyisa Berisa — software engineer and founder of Revamp Digital. My background is in computer engineering with hands-on work in autonomous vehicle systems, AI tooling, and full-stack product development.</p>
+        <h2>BUILT BY AN<br/>ENGINEER, DRIVEN<br/>BY <em>REAL PROBLEMS</em></h2>
+        <p>I'm Feyisa Berisa — software engineer and founder of Revamp Digital LLC, based in Smithfield, Utah. My background is in computer engineering with hands-on work in autonomous vehicle systems, AI tooling, and full-stack product development.</p>
         <p>Every product we've built came from the same observation: entire industries are running on spreadsheets and phone calls because no one has built the right software for them. We fix that — one vertical at a time.</p>
-        <p>We don't do websites or marketing pages. We build operational software — the kind that runs a business day-to-day. If it needs to be reliable, fast, and purpose-built, that's our lane.</p>
+        <p>We don't do template websites. We build operational software — the kind that runs a real business day-to-day. If it needs to be reliable, fast, and purpose-built for your workflow, that's our lane.</p>
         <div class="skills">
           <span class="skill">full-stack</span>
           <span class="skill">product design</span>
@@ -689,9 +573,9 @@
 
 <!-- ── CTA ── -->
 <div class="cta-band">
-  <h2>Have a Problem Worth Solving?</h2>
-  <p>Tell us what you're building. Whether you need a production platform or want to build on one of ours — let's find out if we're the right fit.</p>
-  <div class="cta-actions">
+  <h2>HAVE A PROBLEM<br/><em>WORTH SOLVING?</em></h2>
+  <p>Tell us what you're building. Whether you need a production platform from scratch or want to build on one of ours — let's find out if we're the right fit.</p>
+  <div class="cta-acts">
     <a href="#contact" class="btn-primary">Book a Free Call</a>
     <a href="mailto:hello@gorevamp.ai" class="btn-email">hello@gorevamp.ai</a>
   </div>
@@ -706,32 +590,17 @@
         <h2 class="s-title">Let's Build<br/>Something</h2>
         <p class="s-sub" style="margin-bottom:40px">We respond within 24 hours. Tell us what you're trying to solve and we'll tell you if we can help.</p>
         <div class="contact-meta">
-          <div class="cmeta-item">
-            <div class="cmeta-icon">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--cyan)" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            </div>
-            <div>
-              <div class="cmeta-lbl">Email</div>
-              <div class="cmeta-val">hello@gorevamp.ai</div>
-            </div>
+          <div class="cm-item">
+            <div class="cm-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#0596F5" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+            <div><div class="cm-lbl">Email</div><div class="cm-val">hello@gorevamp.ai</div></div>
           </div>
-          <div class="cmeta-item">
-            <div class="cmeta-icon">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--cyan)" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-            </div>
-            <div>
-              <div class="cmeta-lbl">Phone</div>
-              <div class="cmeta-val">(385) 253-2318</div>
-            </div>
+          <div class="cm-item">
+            <div class="cm-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#0596F5" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
+            <div><div class="cm-lbl">Phone</div><div class="cm-val">(385) 253-2318</div></div>
           </div>
-          <div class="cmeta-item">
-            <div class="cmeta-icon">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--cyan)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            </div>
-            <div>
-              <div class="cmeta-lbl">Location</div>
-              <div class="cmeta-val">Boise, Idaho — remote-first</div>
-            </div>
+          <div class="cm-item">
+            <div class="cm-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#0596F5" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+            <div><div class="cm-lbl">Location</div><div class="cm-val">Smithfield, Utah — remote-first</div></div>
           </div>
         </div>
       </div>
@@ -749,15 +618,17 @@
             <option value="salon">Salon / Service Booking System</option>
             <option value="psych">Psychologist Practice Platform</option>
             <option value="ridehail">Ride-Hailing / Mobility Platform</option>
+            <option value="website">Website Revamp</option>
+            <option value="dashboard">Admin Dashboard</option>
             <option value="custom">Custom Software Build</option>
             <option value="other">Something else</option>
           </select>
         </div>
         <div>
           <label>Tell us about your project *</label>
-          <textarea name="message" placeholder="Describe the problem you're trying to solve, the industry, and roughly what you need…" required></textarea>
+          <textarea name="message" placeholder="Describe the problem you're trying to solve, your industry, and roughly what you need…" required></textarea>
         </div>
-        <button type="submit" class="sbtn" id="sbtn">Send Message →</button>
+        <button type="submit" class="sbtn" id="sbtn">SEND MESSAGE →</button>
       </form>
     </div>
   </div>
@@ -765,15 +636,27 @@
 
 <!-- ── FOOTER ── -->
 <footer>
-  <div class="footer-inner">
-    <div class="footer-logo"><img src="/images/logo-full.png" alt="Revamp Digital"/></div>
-    <div class="footer-links">
+  <div class="foot-inner">
+    <div class="foot-brand">
+      <svg width="28" height="28" viewBox="0 0 100 100" fill="none">
+        <defs>
+          <radialGradient id="fbg" cx="35%" cy="35%" r="70%"><stop offset="0%" stop-color="#0D2845"/><stop offset="100%" stop-color="#020B18"/></radialGradient>
+          <linearGradient id="frg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFF"/><stop offset="60%" stop-color="#D0E8FF"/><stop offset="100%" stop-color="#A8C4DC"/></linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="47" fill="url(#fbg)"/>
+        <circle cx="50" cy="50" r="43.5" stroke="#0596F5" stroke-width="2.8" fill="none"/>
+        <path d="M 13 46 A 39 39 0 0 1 46 13" stroke="#FFB600" stroke-width="3.8" fill="none" stroke-linecap="round"/>
+        <path d="M 31 70 L 31 30 L 55 30 Q 70 30 70 43 Q 70 56 55 56 L 31 56 M 52 56 L 70 70" stroke="url(#frg)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="foot-wm"><span class="foot-w1">REVAMP</span><span class="foot-w2">DIGITAL LLC</span></div>
+    </div>
+    <div class="foot-links">
       <a href="#products">Products</a>
-      <a href="#industries">Capabilities</a>
+      <a href="#services">Services</a>
       <a href="#contact">Contact</a>
       <a href="/client">Client Portal</a>
     </div>
-    <div class="footer-copy">© 2026 Revamp Digital LLC</div>
+    <div class="foot-copy">© 2026 REVAMP DIGITAL LLC · SMITHFIELD, UTAH</div>
   </div>
 </footer>
 
@@ -786,43 +669,25 @@
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 3500);
   }
-
   async function submitContact(e) {
     e.preventDefault();
     const btn = document.getElementById('sbtn');
     const form = e.target;
-    btn.disabled = true; btn.textContent = 'Sending…';
+    btn.disabled = true; btn.textContent = 'SENDING…';
     try {
       const res = await fetch('/api/contact-rebuild', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          name: form.name.value,
-          email: form.email.value,
-          interest: form.interest.value,
-          message: form.message.value,
-        }),
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ name:form.name.value, email:form.email.value, interest:form.interest.value, message:form.message.value }),
       });
-      if (res.ok) {
-        showToast('Message sent — we\'ll be in touch within 24 hours');
-        form.reset();
-      } else {
-        showToast('Send failed — email us directly at hello@gorevamp.ai');
-      }
-    } catch {
-      showToast('Send failed — email us directly at hello@gorevamp.ai');
-    } finally {
-      btn.disabled = false; btn.textContent = 'Send Message →';
-    }
+      if (res.ok) { showToast('Message sent — we\'ll be in touch within 24 hours'); form.reset(); }
+      else showToast('Send failed — email us at hello@gorevamp.ai');
+    } catch { showToast('Send failed — email us at hello@gorevamp.ai'); }
+    finally { btn.disabled = false; btn.textContent = 'SEND MESSAGE →'; }
   }
-
-  // Nav active state
   const navAs = document.querySelectorAll('.nav-links a[href^="#"]');
   window.addEventListener('scroll', () => {
     let cur = '';
-    document.querySelectorAll('section[id]').forEach(s => {
-      if (window.scrollY >= s.offsetTop - 90) cur = s.id;
-    });
+    document.querySelectorAll('section[id], div[id]').forEach(s => { if (window.scrollY >= s.offsetTop - 100) cur = s.id; });
     navAs.forEach(a => { a.style.color = a.getAttribute('href') === '#' + cur ? 'var(--white)' : ''; });
   }, { passive:true });
 </script>
