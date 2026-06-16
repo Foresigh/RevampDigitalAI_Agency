@@ -50,10 +50,7 @@
     .slides{position:absolute;inset:0;}
     .slide{position:absolute;inset:0;opacity:0;transition:opacity 1.2s cubic-bezier(.4,0,.2,1);will-change:opacity;}
     .slide.active{opacity:1;}
-    .slide-bg{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.08);transition:transform 8s ease-out;}
-    .slide.active .slide-bg{transform:scale(1);}
-    /* dark gradient overlay */
-    .slide-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,rgba(2,11,24,0.85) 0%,rgba(2,11,24,0.55) 50%,rgba(2,11,24,0.3) 100%);}
+    .slide-canvas{position:absolute;inset:0;width:100%;height:100%;}
     /* bottom fade */
     .slide-bottom-fade{position:absolute;bottom:0;left:0;right:0;height:220px;background:linear-gradient(to top,var(--dark),transparent);z-index:2;pointer-events:none;}
     .slide-content{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;justify-content:center;padding:0 80px;max-width:800px;}
@@ -321,9 +318,9 @@
 <div class="hero">
   <div class="slides">
 
-    <!-- Slide 1: Studio intro -->
+    <!-- Slide 1: Particle neural network -->
     <div class="slide active" data-index="0">
-      <div class="slide-bg" style="background-image:url('/images/Feyisa.Berisa.jpeg');background-position:60% center;"></div>
+      <canvas class="slide-canvas" id="c0"></canvas>
       <div class="slide-bottom-fade"></div>
       <div class="slide-content">
         <div class="slide-tag">
@@ -339,9 +336,9 @@
       </div>
     </div>
 
-    <!-- Slide 2: BajajGo -->
+    <!-- Slide 2: City grid / mobility -->
     <div class="slide" data-index="1">
-      <div class="slide-bg" style="background-image:url('/images/slide-bajajgo.png');background-position:center center;"></div>
+      <canvas class="slide-canvas" id="c1"></canvas>
       <div class="slide-bottom-fade"></div>
       <div class="slide-content">
         <div class="slide-tag">
@@ -357,9 +354,9 @@
       </div>
     </div>
 
-    <!-- Slide 3: NEMT -->
+    <!-- Slide 3: Heartbeat EKG -->
     <div class="slide" data-index="2">
-      <div class="slide-bg" style="background-image:url('/images/slide-wheelchair.jpg');background-position:center 30%;"></div>
+      <canvas class="slide-canvas" id="c2"></canvas>
       <div class="slide-bottom-fade"></div>
       <div class="slide-content">
         <div class="slide-tag">
@@ -375,9 +372,9 @@
       </div>
     </div>
 
-    <!-- Slide 4: Salon -->
+    <!-- Slide 4: Floating UI / booking -->
     <div class="slide" data-index="3">
-      <div class="slide-bg" style="background-image:url('/images/slide-salon.jpg');background-position:center center;"></div>
+      <canvas class="slide-canvas" id="c3"></canvas>
       <div class="slide-bottom-fade"></div>
       <div class="slide-content">
         <div class="slide-tag">
@@ -685,6 +682,232 @@
 <div id="toast"></div>
 
 <script>
+// ── CANVAS ANIMATIONS ──
+(function(){
+  const W = () => window.innerWidth, H = () => window.innerHeight;
+  const DARK='#020B18', BLUE='#0596F5', SKY='#38B6FF', GOLD='#FFB600', NAVY='#061A2E';
+
+  // ── Canvas 0: Neural particle mesh ──
+  (function(){
+    const cv=document.getElementById('c0'), ctx=cv.getContext('2d');
+    let pts=[], raf;
+    function resize(){cv.width=W();cv.height=H();}
+    resize(); window.addEventListener('resize',resize);
+    for(let i=0;i<90;i++) pts.push({x:Math.random()*W(),y:Math.random()*H(),vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:Math.random()*2+1,gold:Math.random()<.08});
+    function draw(){
+      ctx.fillStyle=DARK; ctx.fillRect(0,0,cv.width,cv.height);
+      // subtle radial glow center-right
+      const g=ctx.createRadialGradient(cv.width*.7,cv.height*.4,0,cv.width*.7,cv.height*.4,cv.width*.55);
+      g.addColorStop(0,'rgba(5,150,245,0.07)'); g.addColorStop(1,'transparent');
+      ctx.fillStyle=g; ctx.fillRect(0,0,cv.width,cv.height);
+      // lines
+      for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+        const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y, d=Math.sqrt(dx*dx+dy*dy);
+        if(d<160){
+          ctx.beginPath(); ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y);
+          ctx.strokeStyle=`rgba(5,150,245,${(1-d/160)*.15})`; ctx.lineWidth=.8; ctx.stroke();
+        }
+      }
+      // dots
+      pts.forEach(p=>{
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=p.gold?GOLD:BLUE; ctx.globalAlpha=p.gold?.9:.6; ctx.fill(); ctx.globalAlpha=1;
+        if(p.gold){ctx.beginPath();ctx.arc(p.x,p.y,p.r+4,0,Math.PI*2);ctx.strokeStyle='rgba(255,182,0,.2)';ctx.lineWidth=1;ctx.stroke();}
+        p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0||p.x>cv.width)p.vx*=-1;
+        if(p.y<0||p.y>cv.height)p.vy*=-1;
+      });
+      // dark left overlay for text readability
+      const lg=ctx.createLinearGradient(0,0,cv.width,0);
+      lg.addColorStop(0,'rgba(2,11,24,0.82)'); lg.addColorStop(.55,'rgba(2,11,24,0.3)'); lg.addColorStop(1,'rgba(2,11,24,0)');
+      ctx.fillStyle=lg; ctx.fillRect(0,0,cv.width,cv.height);
+      raf=requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+
+  // ── Canvas 1: City road grid with moving vehicle dots ──
+  (function(){
+    const cv=document.getElementById('c1'), ctx=cv.getContext('2d');
+    let cars=[], raf, t=0;
+    function resize(){cv.width=W();cv.height=H();buildCars();}
+    const COLS=10, ROWS=8;
+    function cellW(){return cv.width/COLS;} function cellH(){return cv.height/ROWS;}
+    function buildCars(){
+      cars=[];
+      for(let i=0;i<28;i++){
+        const horiz=Math.random()<.5;
+        cars.push({horiz, row:Math.floor(Math.random()*ROWS), col:Math.floor(Math.random()*COLS), t:Math.random(), speed:.0008+Math.random()*.001, gold:Math.random()<.12});
+      }
+    }
+    resize(); window.addEventListener('resize',resize);
+    function draw(){
+      t+=.5;
+      ctx.fillStyle=DARK; ctx.fillRect(0,0,cv.width,cv.height);
+      const cw=cellW(), ch=cellH();
+      // grid lines
+      ctx.strokeStyle='rgba(5,150,245,0.08)'; ctx.lineWidth=1;
+      for(let i=0;i<=COLS;i++){ctx.beginPath();ctx.moveTo(i*cw,0);ctx.lineTo(i*cw,cv.height);ctx.stroke();}
+      for(let j=0;j<=ROWS;j++){ctx.beginPath();ctx.moveTo(0,j*ch);ctx.lineTo(cv.width,j*ch);ctx.stroke();}
+      // road highlights
+      ctx.strokeStyle='rgba(5,150,245,0.18)'; ctx.lineWidth=1.5;
+      [2,5,8].forEach(c=>{ctx.beginPath();ctx.moveTo(c*cw,0);ctx.lineTo(c*cw,cv.height);ctx.stroke();});
+      [2,5].forEach(r=>{ctx.beginPath();ctx.moveTo(0,r*ch);ctx.lineTo(cv.width,r*ch);ctx.stroke();});
+      // intersection glow dots
+      [[2,2],[2,5],[5,2],[5,5],[8,2],[8,5]].forEach(([c,r])=>{
+        const gx=c*cw, gy=r*ch;
+        const gi=ctx.createRadialGradient(gx,gy,0,gx,gy,28);
+        gi.addColorStop(0,'rgba(255,182,0,0.22)'); gi.addColorStop(1,'transparent');
+        ctx.fillStyle=gi; ctx.fillRect(gx-28,gy-28,56,56);
+        ctx.beginPath();ctx.arc(gx,gy,3,0,Math.PI*2);ctx.fillStyle=GOLD;ctx.fill();
+      });
+      // moving cars
+      cars.forEach(car=>{
+        car.t=(car.t+car.speed)%1;
+        let x,y;
+        if(car.horiz){y=car.row*ch+ch/2;x=car.t*cv.width;}
+        else{x=car.col*cw+cw/2;y=car.t*cv.height;}
+        ctx.beginPath();ctx.arc(x,y,car.gold?3.5:2.5,0,Math.PI*2);
+        ctx.fillStyle=car.gold?GOLD:SKY;ctx.globalAlpha=.85;ctx.fill();ctx.globalAlpha=1;
+        // trail
+        const trail=ctx.createRadialGradient(x,y,0,x,y,10);
+        trail.addColorStop(0,car.gold?'rgba(255,182,0,0.25)':'rgba(56,182,255,0.15)');trail.addColorStop(1,'transparent');
+        ctx.fillStyle=trail;ctx.fillRect(x-10,y-10,20,20);
+      });
+      // left overlay
+      const lg=ctx.createLinearGradient(0,0,cv.width,0);
+      lg.addColorStop(0,'rgba(2,11,24,0.88)');lg.addColorStop(.5,'rgba(2,11,24,0.35)');lg.addColorStop(1,'rgba(2,11,24,0.05)');
+      ctx.fillStyle=lg;ctx.fillRect(0,0,cv.width,cv.height);
+      raf=requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+
+  // ── Canvas 2: EKG heartbeat ──
+  (function(){
+    const cv=document.getElementById('c2'), ctx=cv.getContext('2d');
+    let raf, t=0;
+    function resize(){cv.width=W();cv.height=H();}
+    resize(); window.addEventListener('resize',resize);
+    // EKG shape: flat → P bump → flat → spike up (QRS) → spike down → bump → flat
+    function ekgY(phase){
+      const p=((phase%1)+1)%1;
+      if(p<.08)return 0;
+      if(p<.14){const t=(p-.08)/.06;return -18*Math.sin(Math.PI*t);}// P
+      if(p<.22)return 0;
+      if(p<.25){const t=(p-.22)/.03;return -8*Math.sin(Math.PI*t);}// Q dip
+      if(p<.28){const t=(p-.25)/.03;return -120*Math.sin(Math.PI*t);}// R spike up
+      if(p<.32){const t=(p-.28)/.04;return 40*Math.sin(Math.PI*t);}// S dip
+      if(p<.38){const t=(p-.32)/.06;return -22*Math.sin(Math.PI*t);}// T bump
+      return 0;
+    }
+    function draw(){
+      t+=.008;
+      ctx.fillStyle=DARK;ctx.fillRect(0,0,cv.width,cv.height);
+      // ambient glow
+      const ag=ctx.createRadialGradient(cv.width*.5,cv.height*.5,0,cv.width*.5,cv.height*.5,cv.width*.5);
+      ag.addColorStop(0,'rgba(5,150,245,0.04)');ag.addColorStop(1,'transparent');
+      ctx.fillStyle=ag;ctx.fillRect(0,0,cv.width,cv.height);
+      // draw 3 EKG lines at different heights
+      [.35,.5,.65].forEach((yFrac,li)=>{
+        const baseY=cv.height*yFrac, speed=.35+li*.08, amp=li===1?1:.55;
+        ctx.beginPath();
+        for(let x=0;x<cv.width;x++){
+          const phase=x/cv.width*2.5-t*speed;
+          const y=baseY+ekgY(phase)*amp;
+          x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+        }
+        const alpha=li===1?.9:.35;
+        ctx.strokeStyle=li===1?BLUE:`rgba(5,150,245,${alpha})`;
+        ctx.lineWidth=li===1?2:1;ctx.stroke();
+        // glow on main line
+        if(li===1){
+          ctx.shadowBlur=16;ctx.shadowColor=BLUE;ctx.stroke();ctx.shadowBlur=0;
+        }
+        // moving bright dot at leading edge
+        const leadPhase=(cv.width*.85/cv.width*2.5-t*speed);
+        const dotY=baseY+ekgY(leadPhase)*amp;
+        if(li===1){
+          ctx.beginPath();ctx.arc(cv.width*.85,dotY,4,0,Math.PI*2);
+          ctx.fillStyle=SKY;ctx.fill();
+          const dg=ctx.createRadialGradient(cv.width*.85,dotY,0,cv.width*.85,dotY,20);
+          dg.addColorStop(0,'rgba(56,182,255,0.4)');dg.addColorStop(1,'transparent');
+          ctx.fillStyle=dg;ctx.fillRect(cv.width*.85-20,dotY-20,40,40);
+        }
+      });
+      // horizontal grid lines
+      for(let i=1;i<6;i++){
+        ctx.beginPath();ctx.moveTo(0,cv.height/6*i);ctx.lineTo(cv.width,cv.height/6*i);
+        ctx.strokeStyle='rgba(5,150,245,0.05)';ctx.lineWidth=1;ctx.stroke();
+      }
+      // left overlay
+      const lg=ctx.createLinearGradient(0,0,cv.width,0);
+      lg.addColorStop(0,'rgba(2,11,24,0.9)');lg.addColorStop(.45,'rgba(2,11,24,0.4)');lg.addColorStop(1,'rgba(2,11,24,0.05)');
+      ctx.fillStyle=lg;ctx.fillRect(0,0,cv.width,cv.height);
+      raf=requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+
+  // ── Canvas 3: Floating calendar / booking UI blocks ──
+  (function(){
+    const cv=document.getElementById('c3'), ctx=cv.getContext('2d');
+    let raf, t=0, blocks=[];
+    function resize(){cv.width=W();cv.height=H();}
+    resize(); window.addEventListener('resize',resize);
+    const COLORS=['rgba(5,150,245,','rgba(255,182,0,','rgba(56,182,255,','rgba(10,34,64,'];
+    for(let i=0;i<22;i++){
+      const w=80+Math.random()*140, h=18+Math.random()*14;
+      blocks.push({x:Math.random()*1200,y:Math.random()*800,w,h,vy:-.18-Math.random()*.12,color:COLORS[Math.floor(Math.random()*COLORS.length)],alpha:.08+Math.random()*.18,label:Math.random()<.4,pulse:Math.random()*Math.PI*2});
+    }
+    function draw(){
+      t+=.5;
+      ctx.fillStyle=DARK;ctx.fillRect(0,0,cv.width,cv.height);
+      // background glow top-right
+      const bg=ctx.createRadialGradient(cv.width*.8,cv.height*.2,0,cv.width*.8,cv.height*.2,cv.width*.5);
+      bg.addColorStop(0,'rgba(5,150,245,0.06)');bg.addColorStop(1,'transparent');
+      ctx.fillStyle=bg;ctx.fillRect(0,0,cv.width,cv.height);
+      // calendar grid skeleton — right side
+      const startX=cv.width*.38, cols=7, cellW=60, cellH=52, rows=8;
+      for(let c=0;c<cols;c++) for(let r=0;r<rows;r++){
+        const x=startX+c*cellW, y=50+r*cellH;
+        ctx.strokeStyle='rgba(5,150,245,0.07)';ctx.lineWidth=1;ctx.strokeRect(x,y,cellW,cellH);
+      }
+      // header row highlight
+      for(let c=0;c<cols;c++){
+        ctx.fillStyle='rgba(5,150,245,0.05)';ctx.fillRect(startX+c*cellW,50,cellW,cellH);
+      }
+      // floating blocks
+      blocks.forEach(b=>{
+        b.y+=b.vy; b.pulse+=.02;
+        if(b.y+b.h<0){b.y=cv.height+20;b.x=Math.random()*cv.width*.9;}
+        const pulse=.7+.3*Math.sin(b.pulse);
+        ctx.fillStyle=b.color+(b.alpha*pulse)+')';
+        ctx.beginPath();ctx.roundRect(b.x,b.y,b.w,b.h,4);ctx.fill();
+        ctx.strokeStyle=b.color+(b.alpha*1.8)+')';ctx.lineWidth=.8;ctx.stroke();
+        if(b.label){
+          ctx.fillStyle=`rgba(208,232,255,${b.alpha*2})`;
+          ctx.fillRect(b.x+8,b.y+b.h/2-3,b.w*.5,3);
+        }
+      });
+      // a few "booked" highlight blocks that are brighter
+      [[startX+60,102],[startX+180,154],[startX+120,258],[startX+300,206]].forEach(([x,y],i)=>{
+        const w=cellW*2-4, h=cellH-8;
+        ctx.fillStyle=i%2===0?'rgba(5,150,245,0.25)':'rgba(255,182,0,0.18)';
+        ctx.beginPath();ctx.roundRect(x,y+4,w,h,3);ctx.fill();
+        ctx.fillStyle='rgba(208,232,255,0.55)';
+        ctx.fillRect(x+8,y+14,w*.6,2);
+      });
+      // left overlay
+      const lg=ctx.createLinearGradient(0,0,cv.width,0);
+      lg.addColorStop(0,'rgba(2,11,24,0.92)');lg.addColorStop(.4,'rgba(2,11,24,0.5)');lg.addColorStop(1,'rgba(2,11,24,0.05)');
+      ctx.fillStyle=lg;ctx.fillRect(0,0,cv.width,cv.height);
+      raf=requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+})();
+
 // ── SLIDER ──
 const slides = document.querySelectorAll('.slide');
 const dotsContainer = document.getElementById('sliderDots');
