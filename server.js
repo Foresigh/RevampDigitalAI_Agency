@@ -2259,6 +2259,11 @@ app.get('/api/contracts/:id/pdf', requireAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Public site routing ──
+// New studio site is now the homepage; old site lives at /webrevamp
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'rebuild.html')));
+app.get('/webrevamp', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+
 // ── Serve static site with caching ──
 app.use(express.static(path.join(__dirname), {
   extensions: ['html'],
