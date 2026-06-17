@@ -279,6 +279,45 @@
     /* ══ SCROLL ANIMATION ══ */
     .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s,transform .7s;}
     .reveal.visible{opacity:1;transform:translateY(0);}
+
+    /* ══ HAMBURGER ══ */
+    .hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;flex-direction:column;gap:5px;align-items:center;justify-content:center;margin-left:8px;}
+    .hamburger span{display:block;width:22px;height:2px;background:var(--white);border-radius:2px;transition:transform .3s,opacity .3s;}
+    .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+    .hamburger.open span:nth-child(2){opacity:0;}
+    .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+    @media(max-width:800px){.hamburger{display:flex;}}
+
+    /* ══ MOBILE MENU ══ */
+    .mobile-menu{display:none;position:fixed;top:66px;left:0;right:0;z-index:99;background:rgba(2,11,24,0.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(5,150,245,0.12);padding:8px 0 20px;flex-direction:column;}
+    .mobile-menu.open{display:flex;}
+    .mobile-menu a{font-size:.92rem;color:rgba(168,196,220,0.75);text-decoration:none;padding:13px 28px;border-bottom:1px solid rgba(5,150,245,0.07);font-weight:500;transition:color .2s;}
+    .mobile-menu a:hover,.mobile-menu a:active{color:var(--white);}
+    .mobile-menu .mm-call{color:var(--blue);font-weight:700;font-family:'Rajdhani',sans-serif;font-size:1rem;border-bottom:none;margin-top:6px;display:flex;align-items:center;gap:8px;}
+
+    /* ══ MOBILE RESPONSIVE ══ */
+    @media(max-width:700px){
+      section{padding:72px 20px;}
+      .slide-cta{flex-wrap:wrap;}
+      .btn-p,.btn-o{flex:1 1 140px;text-align:center;justify-content:center;}
+      /* trust bar — horizontal scroll keeps 1 row so dots stay visible */
+      .trust-bar{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+      .trust-bar::-webkit-scrollbar{display:none;}
+      .trust-inner{flex-wrap:nowrap!important;}
+      .trust-item{min-width:130px!important;padding:12px 14px!important;}
+      /* metrics — fix border on 2-col wrap */
+      .sm:nth-child(even){border-right:none;}
+      .sm:nth-child(n+3){border-top:1px solid rgba(5,150,245,.1);}
+      /* footer */
+      .foot-inner{flex-direction:column;align-items:flex-start;gap:16px;}
+      .foot-links{flex-wrap:wrap;gap:14px;}
+    }
+    @media(max-width:420px){
+      .slide-content{padding:0 20px;}
+      .slide-cta{gap:8px;}
+      .btn-p,.btn-o{font-size:.82rem;padding:11px 14px;}
+      .s-hd{margin-bottom:36px;}
+    }
   </style>
 </head>
 <body>
@@ -286,7 +325,7 @@
 
 <!-- NAV -->
 <nav>
-  <a href="/rebuild" class="nav-brand">
+  <a href="/" class="nav-brand">
     <svg class="nav-icon" viewBox="0 0 100 100" fill="none">
       <defs>
         <radialGradient id="nbg" cx="35%" cy="35%" r="70%"><stop offset="0%" stop-color="#0D2845"/><stop offset="100%" stop-color="#020B18"/></radialGradient>
@@ -312,7 +351,23 @@
       (385) 253-2318
     </a>
   </div>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#products" class="mm-link">Products</a>
+  <a href="#services" class="mm-link">Services</a>
+  <a href="#capabilities" class="mm-link">Capabilities</a>
+  <a href="#founder" class="mm-link">Studio</a>
+  <a href="#contact" class="mm-link">Contact</a>
+  <a href="tel:+13852532318" class="mm-call">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+    (385) 253-2318
+  </a>
+</div>
 
 <!-- HERO SLIDER -->
 <div class="hero">
@@ -410,10 +465,10 @@
   <div class="slide-progress" id="slideProgress"></div>
 
   <!-- Trust bar — sits at the very bottom of the hero -->
-  <div style="position:absolute;bottom:0;left:0;right:0;z-index:10;background:rgba(2,11,24,0.82);backdrop-filter:blur(16px);border-top:1px solid rgba(5,150,245,0.12);">
-    <div style="max-width:1120px;margin:0 auto;display:flex;align-items:stretch;flex-wrap:wrap;">
+  <div class="trust-bar" style="position:absolute;bottom:0;left:0;right:0;z-index:10;background:rgba(2,11,24,0.82);backdrop-filter:blur(16px);border-top:1px solid rgba(5,150,245,0.12);">
+    <div class="trust-inner" style="max-width:1120px;margin:0 auto;display:flex;align-items:stretch;flex-wrap:wrap;">
 
-      <div style="flex:1;min-width:160px;padding:18px 28px;display:flex;align-items:center;gap:12px;border-right:1px solid rgba(5,150,245,0.1);">
+      <div class="trust-item" style="flex:1;min-width:160px;padding:18px 28px;display:flex;align-items:center;gap:12px;border-right:1px solid rgba(5,150,245,0.1);">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0596F5" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         <div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:1px;color:#fff;line-height:1;">5<span style="color:#FFB600">+</span></div>
@@ -421,7 +476,7 @@
         </div>
       </div>
 
-      <div style="flex:1;min-width:160px;padding:18px 28px;display:flex;align-items:center;gap:12px;border-right:1px solid rgba(5,150,245,0.1);">
+      <div class="trust-item" style="flex:1;min-width:160px;padding:18px 28px;display:flex;align-items:center;gap:12px;border-right:1px solid rgba(5,150,245,0.1);">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0596F5" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
         <div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:1px;color:#fff;line-height:1;">2<span style="color:#FFB600"> Countries</span></div>
@@ -429,7 +484,7 @@
         </div>
       </div>
 
-      <div style="flex:1;min-width:160px;padding:18px 28px;display:flex;align-items:center;gap:12px;border-right:1px solid rgba(5,150,245,0.1);">
+      <div class="trust-item" style="flex:1;min-width:160px;padding:18px 28px;display:flex;align-items:center;gap:12px;border-right:1px solid rgba(5,150,245,0.1);">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0596F5" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
         <div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:1px;color:#fff;line-height:1;">6<span style="color:#FFB600">+</span></div>
@@ -437,7 +492,7 @@
         </div>
       </div>
 
-      <div style="flex:1;min-width:160px;padding:18px 28px;display:flex;align-items:center;gap:12px;border-right:1px solid rgba(5,150,245,0.1);">
+      <div class="trust-item" style="flex:1;min-width:160px;padding:18px 28px;display:flex;align-items:center;gap:12px;border-right:1px solid rgba(5,150,245,0.1);">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#FFB600" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         <div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:1px;color:#fff;line-height:1;">100<span style="color:#FFB600">%</span></div>
@@ -445,7 +500,7 @@
         </div>
       </div>
 
-      <div style="flex:1;min-width:200px;padding:18px 28px;display:flex;align-items:center;gap:12px;">
+      <div class="trust-item" style="flex:1;min-width:180px;padding:18px 28px;display:flex;align-items:center;gap:12px;">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0596F5" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
         <div>
           <div style="font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:.5px;color:#fff;line-height:1.2;">Ready to talk?</div>
@@ -1324,6 +1379,26 @@ window.addEventListener('scroll',()=>{
   document.querySelectorAll('section[id]').forEach(s=>{if(window.scrollY>=s.offsetTop-90)cur=s.id;});
   navAs.forEach(a=>{a.style.color=a.getAttribute('href')==='#'+cur?'var(--white)':'';});
 },{passive:true});
+
+// ── HAMBURGER MENU ──
+const hb = document.getElementById('hamburger');
+const mm = document.getElementById('mobileMenu');
+hb.addEventListener('click', () => {
+  hb.classList.toggle('open');
+  mm.classList.toggle('open');
+});
+// close on link click
+mm.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  hb.classList.remove('open');
+  mm.classList.remove('open');
+}));
+// close on outside click
+document.addEventListener('click', e => {
+  if (!hb.contains(e.target) && !mm.contains(e.target)) {
+    hb.classList.remove('open');
+    mm.classList.remove('open');
+  }
+});
 </script>
 </body>
 </html>
