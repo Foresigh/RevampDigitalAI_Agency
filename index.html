@@ -20,9 +20,7 @@
   <meta name="twitter:image"       content="https://gorevamp.ai/images/og-image.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'" />
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" /></noscript>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
   <link rel="icon" type="image/x-icon" href="images/favicon.ico"/>
   <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png"/>
   <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png"/>
@@ -30,46 +28,110 @@
   <link rel="manifest" href="images/site.webmanifest"/>
   <link rel="preload" href="css/styles.css?v=9" as="style" />
   <link rel="stylesheet" href="css/styles.css?v=9" />
+  <style>
+    /* ── Revamp Digital brand override ── */
+    :root{
+      --teal:#0596F5; --teal-dark:#0474C4; --teal-light:rgba(5,150,245,0.08);
+      --yellow:#FFB600; --yellow-dark:#E87C00; --yellow-light:rgba(255,182,0,0.08);
+      --navy:#020B18; --navy-mid:#061A2E; --navy-soft:#0A2240;
+    }
+    body{background:#020B18;font-family:'Inter',sans-serif;}
+    h1,h2{font-family:'Bebas Neue',sans-serif;letter-spacing:2px;}
+    h3,h4{font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.5px;}
+    /* top accent bar */
+    body::before{content:'';position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#0596F5,#FFB600,#0596F5,transparent);z-index:9999;pointer-events:none;}
+    /* back-to-studio bar */
+    .studio-bar{position:sticky;top:0;z-index:200;background:rgba(2,11,24,0.97);border-bottom:1px solid rgba(5,150,245,0.12);padding:0;display:flex;align-items:center;height:0;overflow:hidden;}
+    /* brand nav override */
+    .rd-nav{position:fixed;top:2px;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 52px;height:64px;background:rgba(2,11,24,0.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(5,150,245,0.1);}
+    .rd-brand{display:flex;align-items:center;gap:11px;text-decoration:none;}
+    .rd-icon{width:32px;height:32px;flex-shrink:0;}
+    .rd-wm{display:flex;flex-direction:column;line-height:1;}
+    .rd-w1{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:#fff;}
+    .rd-w2{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px;color:#0596F5;margin-top:-1px;}
+    .rd-links{display:flex;align-items:center;gap:24px;}
+    .rd-links a{font-size:.76rem;color:rgba(168,196,220,0.55);text-decoration:none;font-weight:500;letter-spacing:.3px;transition:color .2s;font-family:'Inter',sans-serif;}
+    .rd-links a:hover{color:#fff;}
+    .rd-back{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:rgba(168,196,220,0.4);text-decoration:none;letter-spacing:.8px;display:flex;align-items:center;gap:5px;transition:color .2s;border-left:1px solid rgba(5,150,245,0.15);padding-left:20px;margin-left:4px;}
+    .rd-back:hover{color:#0596F5;}
+    .rd-call{display:flex;align-items:center;gap:7px;border:1px solid rgba(5,150,245,0.4);color:#0596F5;font-size:.76rem;font-weight:700;padding:8px 18px;border-radius:4px;text-decoration:none;letter-spacing:.5px;transition:all .2s;font-family:'Rajdhani',sans-serif;}
+    .rd-call:hover{background:#0596F5;color:#020B18;}
+    .rd-hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;flex-direction:column;gap:5px;align-items:center;justify-content:center;}
+    .rd-hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:transform .3s,opacity .3s;}
+    .rd-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+    .rd-hamburger.open span:nth-child(2){opacity:0;}
+    .rd-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+    .rd-mobile{display:none;position:fixed;top:66px;left:0;right:0;z-index:99;background:rgba(2,11,24,0.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(5,150,245,0.12);padding:8px 0 20px;flex-direction:column;}
+    .rd-mobile.open{display:flex;}
+    .rd-mobile a{font-size:.92rem;color:rgba(168,196,220,0.75);text-decoration:none;padding:13px 28px;border-bottom:1px solid rgba(5,150,245,0.07);font-weight:500;font-family:'Inter',sans-serif;transition:color .2s;}
+    .rd-mobile a:hover{color:#fff;}
+    .rd-mobile .rd-mob-call{color:#0596F5;font-weight:700;font-family:'Rajdhani',sans-serif;font-size:1rem;border-bottom:none;margin-top:6px;}
+    .rd-mobile .rd-mob-back{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:rgba(168,196,220,0.35);letter-spacing:.5px;}
+    @media(max-width:800px){
+      .rd-links{display:none;}
+      .rd-hamburger{display:flex;}
+      .rd-nav{padding:0 20px;}
+    }
+    /* push page content below new fixed nav */
+    .navbar{display:none!important;}
+    .hero,.section:first-of-type,section.hero{padding-top:calc(64px + 2px)!important;}
+    /* footer logo override */
+    .f-logo-icon img,.nav-logo-icon img{display:none;}
+    .f-logo-icon::after,.nav-logo-icon::after{content:'';display:block;width:32px;height:32px;}
+  </style>
 </head>
 <body>
 
-  <!-- ============================================================
-       NAVIGATION
-       ============================================================ -->
-  <nav class="navbar" id="navbar">
-    <div class="nav-inner">
-
-      <a href="index.html" class="nav-logo" aria-label="Revamp Digital AI Home">
-        <div class="nav-logo-icon"><img src="images/logo.png" alt="Revamp Digital LLC Logo" /></div>
-        <div class="nav-logo-text">Revamp Digital LLC<small>AI-Powered Growth</small></div>
+  <!-- ══ BRAND NAV ══ -->
+  <nav class="rd-nav">
+    <a href="/webrevamp" class="rd-brand">
+      <svg class="rd-icon" viewBox="0 0 100 100" fill="none">
+        <defs>
+          <radialGradient id="wrbg" cx="35%" cy="35%" r="70%"><stop offset="0%" stop-color="#0D2845"/><stop offset="100%" stop-color="#020B18"/></radialGradient>
+          <linearGradient id="wrrg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFF"/><stop offset="60%" stop-color="#D0E8FF"/><stop offset="100%" stop-color="#A8C4DC"/></linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="49" stroke="#0596F5" stroke-width=".8" fill="none" opacity=".25"/>
+        <circle cx="50" cy="50" r="47" fill="url(#wrbg)"/>
+        <circle cx="50" cy="50" r="43.5" stroke="#0596F5" stroke-width="2.8" fill="none"/>
+        <path d="M13 46 A39 39 0 0 1 46 13" stroke="#FFB600" stroke-width="3.8" fill="none" stroke-linecap="round"/>
+        <circle cx="50" cy="50" r="36" stroke="#0596F5" stroke-width=".8" fill="none" opacity=".2"/>
+        <path d="M31 70L31 30L55 30Q70 30 70 43Q70 56 55 56L31 56M52 56L70 70" stroke="url(#wrrg)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="rd-wm"><span class="rd-w1">REVAMP</span><span class="rd-w2">DIGITAL LLC</span></div>
+    </a>
+    <div class="rd-links">
+      <a href="#services">Services</a>
+      <a href="#process">Process</a>
+      <a href="#portfolio">Industries</a>
+      <a href="/audit">Free Audit</a>
+      <a href="#revamp-request">Get Preview</a>
+      <a href="/" class="rd-back">
+        <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Studio
       </a>
-
-      <div class="nav-links">
-        <a href="index.html" class="active">Home</a>
-        <a href="services.html">Services</a>
-        <a href="portfolio.html">Portfolio</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="audit.html">Free Audit</a>
-        <a href="#revamp-request" class="nav-cta">Get Free Revamp Preview</a>
-      </div>
-
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
+      <a href="tel:+13852532318" class="rd-call">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        (385) 253-2318
+      </a>
     </div>
-
-    <nav class="nav-mobile" id="navMobile">
-      <a href="index.html">🏠 Home</a>
-      <a href="services.html">🚀 Services</a>
-      <a href="portfolio.html">🎨 Portfolio</a>
-      <a href="about.html">👋 About Us</a>
-      <a href="contact.html">📩 Contact</a>
-      <a href="audit.html">🔍 Free Website Audit</a>
-      <a href="#revamp-request" class="mob-cta">✨ Get My Free Revamp Preview</a>
-    </nav>
+    <button class="rd-hamburger" id="rdHamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
-  <!-- END NAV -->
+
+  <!-- MOBILE MENU -->
+  <div class="rd-mobile" id="rdMobile">
+    <a href="#services">Services</a>
+    <a href="#process">Process</a>
+    <a href="#portfolio">Industries</a>
+    <a href="/audit">Free Audit</a>
+    <a href="#revamp-request">Get Free Preview</a>
+    <a href="/" class="rd-mob-back">← Back to Studio</a>
+    <a href="tel:+13852532318" class="rd-mob-call">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      (385) 253-2318
+    </a>
+  </div>
 
 
   <!-- ============================================================
@@ -805,9 +867,22 @@
 
         <!-- Brand -->
         <div class="footer-brand">
-          <div class="logo-wrap">
-            <div class="f-logo-icon"><img src="images/logo.png" alt="Revamp Digital LLC Logo" /></div>
-            <span class="f-logo-name">Revamp Digital AI</span>
+          <div class="logo-wrap" style="display:flex;align-items:center;gap:10px;">
+            <svg width="32" height="32" viewBox="0 0 100 100" fill="none">
+              <defs>
+                <radialGradient id="fbg" cx="35%" cy="35%" r="70%"><stop offset="0%" stop-color="#0D2845"/><stop offset="100%" stop-color="#020B18"/></radialGradient>
+                <linearGradient id="frg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFF"/><stop offset="60%" stop-color="#D0E8FF"/><stop offset="100%" stop-color="#A8C4DC"/></linearGradient>
+              </defs>
+              <circle cx="50" cy="50" r="49" stroke="#0596F5" stroke-width=".8" fill="none" opacity=".25"/>
+              <circle cx="50" cy="50" r="47" fill="url(#fbg)"/>
+              <circle cx="50" cy="50" r="43.5" stroke="#0596F5" stroke-width="2.8" fill="none"/>
+              <path d="M13 46 A39 39 0 0 1 46 13" stroke="#FFB600" stroke-width="3.8" fill="none" stroke-linecap="round"/>
+              <path d="M31 70L31 30L55 30Q70 30 70 43Q70 56 55 56L31 56M52 56L70 70" stroke="url(#frg)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div style="display:flex;flex-direction:column;line-height:1;">
+              <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;">REVAMP</span>
+              <span style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px;color:#0596F5;">DIGITAL LLC</span>
+            </div>
           </div>
           <p>We revamp local business websites into high-converting, lead-generating machines — and keep them growing with monthly content and SEO.</p>
           <div class="social-links">
@@ -893,6 +968,16 @@
   </div>
 
   <script src="js/main.js" defer></script>
+  <script>
+    // Brand nav hamburger
+    const rdHb = document.getElementById('rdHamburger');
+    const rdMm = document.getElementById('rdMobile');
+    if(rdHb && rdMm){
+      rdHb.addEventListener('click', () => { rdHb.classList.toggle('open'); rdMm.classList.toggle('open'); });
+      rdMm.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { rdHb.classList.remove('open'); rdMm.classList.remove('open'); }));
+      document.addEventListener('click', e => { if(!rdHb.contains(e.target)&&!rdMm.contains(e.target)){ rdHb.classList.remove('open'); rdMm.classList.remove('open'); }});
+    }
+  </script>
 
   <!-- Google Review floating badge -->
   <a href="https://share.google/56OJxVnpvzBOSU9Ug" target="_blank" rel="noopener" id="googleReviewBadge"
