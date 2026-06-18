@@ -167,6 +167,8 @@
     .svc-icon-hex svg{position:relative;z-index:1;}
     .svc-name{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;letter-spacing:.5px;margin-bottom:6px;}
     .svc-desc{font-size:.77rem;color:var(--muted);line-height:1.8;}
+    .svc-link{display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:.61rem;font-weight:500;color:var(--blue);text-decoration:none;margin-top:13px;letter-spacing:.8px;text-transform:uppercase;border:1px solid rgba(5,150,245,0.25);border-radius:3px;padding:5px 11px;transition:color .2s,border-color .2s,background .2s,gap .2s;}
+    .svc-link:hover{color:var(--sky);border-color:rgba(56,182,255,0.5);background:rgba(5,150,245,0.06);gap:11px;}
 
     /* ══ CAPABILITIES ══ */
     .ind-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
@@ -619,7 +621,11 @@
     <div class="svc-grid">
       <div class="svc reveal">
         <div class="svc-icon"><div class="svc-icon-hex"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0596F5" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div></div>
-        <div><div class="svc-name">Website Revamps</div><div class="svc-desc">We redesign and rebuild outdated business websites — faster load, modern design, mobile-first, SEO-ready. Full replacement, not a patch job.</div></div>
+        <div>
+          <div class="svc-name">Website Revamps</div>
+          <div class="svc-desc">We redesign and rebuild outdated business websites — faster load, modern design, mobile-first, SEO-ready. Full replacement, not a patch job.</div>
+          <a href="/webrevamp" class="svc-link">See Web Revamp Work <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+        </div>
       </div>
       <div class="svc reveal">
         <div class="svc-icon"><div class="svc-icon-hex"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0596F5" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div></div>
